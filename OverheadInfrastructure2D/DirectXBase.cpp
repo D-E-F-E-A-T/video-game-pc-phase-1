@@ -1,10 +1,3 @@
-//// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-//// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-//// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-//// PARTICULAR PURPOSE.
-////
-//// Copyright (c) Microsoft Corporation. All rights reserved
-
 #include "pch.h"
 #include "DirectXBase.h"
 
@@ -56,6 +49,7 @@ void DirectXBase::CreateDeviceIndependentResources()
     options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 #endif
 
+	// These factories are used throughout the application.
     DX::ThrowIfFailed(
         D2D1CreateFactory(
             D2D1_FACTORY_TYPE_SINGLE_THREADED,
@@ -157,6 +151,8 @@ void DirectXBase::CreateDeviceResources()
             &m_d2dContext
             )
         );
+
+	// Device context can be used for performing drawing operations.
 }
 
 // Helps track the DPI in the helper class.
@@ -193,7 +189,7 @@ void DirectXBase::UpdateForWindowSizeChange()
         m_d2dContext->SetTarget(nullptr);
         m_d2dTargetBitmap = nullptr;
         m_d3dRenderTargetView = nullptr;
-        m_d3dDepthStencilView = nullptr;
+//        m_d3dDepthStencilView = nullptr;
         m_windowSizeChangeInProgress = true;
         CreateWindowSizeDependentResources();
     }
@@ -313,6 +309,7 @@ void DirectXBase::CreateWindowSizeDependentResources()
         );
 
     auto viewDesc = CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D);
+/*
     DX::ThrowIfFailed(
         m_d3dDevice->CreateDepthStencilView(
             depthStencil.Get(),
@@ -320,6 +317,7 @@ void DirectXBase::CreateWindowSizeDependentResources()
             &m_d3dDepthStencilView
             )
         );
+*/
 
     // Set the 3D rendering viewport to target the entire window.
     CD3D11_VIEWPORT viewport(
@@ -382,7 +380,7 @@ void DirectXBase::Present()
     m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
 
     // Discard the contents of the depth stencil.
-    m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
+//    m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
 
     // If the device was removed either by a disconnect or a driver upgrade, we
     // must recreate all device resources.

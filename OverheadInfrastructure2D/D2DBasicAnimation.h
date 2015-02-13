@@ -1,10 +1,3 @@
-//// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-//// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-//// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-//// PARTICULAR PURPOSE.
-////
-//// Copyright (c) Microsoft Corporation. All rights reserved
-
 #pragma once
 
 #include "DirectXBase.h"
@@ -64,6 +57,8 @@ private:
 
     // Sample Methods
     void CreateSpiralPathAndTriangle();
+	void CreateGrid();
+
     float ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime);
 
     SampleOverlay^                                                  m_sampleOverlay;
@@ -76,6 +71,8 @@ private:
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>                    m_whiteBrush;
     float                                                           m_pathLength;
     float                                                           m_elapsedTime;
+
+//	Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_pYellowBrush;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

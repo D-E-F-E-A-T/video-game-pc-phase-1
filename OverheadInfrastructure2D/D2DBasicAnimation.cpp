@@ -1,10 +1,3 @@
-//// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-//// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-//// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-//// PARTICULAR PURPOSE.
-////
-//// Copyright (c) Microsoft Corporation. All rights reserved
-
 #include "pch.h"
 #include "D2DBasicAnimation.h"
 
@@ -31,6 +24,120 @@ D2DBasicAnimation::D2DBasicAnimation() :
 void D2DBasicAnimation::CreateDeviceIndependentResources()
 {
     DirectXBase::CreateDeviceIndependentResources();
+}
+
+void D2DBasicAnimation::CreateGrid()
+{
+	/*
+	m_d2dContext->BeginDraw();
+
+	D2D1_RECT_F rect = D2D1::RectF(0.0f, 0.0f, 100.0f, 100.0f);
+
+	m_d2dContext->DrawRectangle(
+		rect,
+//		D2D1::RectF(0.0f, 0.0f, 100.0f, 100.0f),
+		m_blackBrush.Get());
+
+	DX::ThrowIfFailed(m_d2dContext->EndDraw());
+*/
+
+	// Draw a spiral.
+	/*
+	DX::ThrowIfFailed(
+		m_d2dFactory->CreatePathGeometry(&m_pathGeometry)
+		);
+
+	{
+		ComPtr<ID2D1GeometrySink> geometrySink;
+
+		// Write to the path geometry using the geometry sink. We are going to create a
+		// spiral.
+		DX::ThrowIfFailed(
+			m_pathGeometry->Open(&geometrySink)
+			);
+
+		D2D1_POINT_2F currentLocation = { 0, 0 };
+
+		geometrySink->BeginFigure(currentLocation, D2D1_FIGURE_BEGIN_FILLED);
+
+		D2D1_POINT_2F locDelta = { 2, 2 };
+		float radius = 3;
+
+		for (UINT i = 0; i < 30; ++i)
+		{
+			currentLocation.x += radius * locDelta.x;
+			currentLocation.y += radius * locDelta.y;
+
+			geometrySink->AddArc(
+				D2D1::ArcSegment(
+				currentLocation,
+				D2D1::SizeF(2 * radius, 2 * radius),    // radius x/y
+				0.0f,                               // rotation angle
+				D2D1_SWEEP_DIRECTION_CLOCKWISE,
+				D2D1_ARC_SIZE_SMALL
+				)
+				);
+
+			locDelta = D2D1::Point2F(-locDelta.y, locDelta.x);
+
+			radius += 3;
+		}
+
+		geometrySink->EndFigure(D2D1_FIGURE_END_OPEN);
+
+		DX::ThrowIfFailed(
+			geometrySink->Close()
+			);
+	}
+*/
+
+
+	/* 
+	Draw the rectangle
+	DX::ThrowIfFailed(
+		m_d2dFactory->CreatePathGeometry(&m_objectGeometry)
+		);
+
+	{
+		ComPtr<ID2D1GeometrySink> geometrySink;
+
+		// Create a simple triangle by writing the object geometry using the geometry sink.
+		DX::ThrowIfFailed(
+			m_objectGeometry->Open(&geometrySink)
+			);
+
+		geometrySink->BeginFigure(
+			D2D1::Point2F(0.0f, 0.0f),
+			D2D1_FIGURE_BEGIN_FILLED
+			);
+
+		const D2D1_POINT_2F triangle [] = { { -10.0f, -10.0f }, { -10.0f, 10.0f }, { 0.0f, 0.0f } };
+		geometrySink->AddLines(triangle, 3);
+
+		const D2D1_POINT_2F triangle [] = 
+		{ 
+			{ -10.0f, -10.0f }, 
+			{ -10.0f, 10.0f }, 
+			{ 10.0f, 10.0f },
+			{ 10.0f, -10.f }
+		};
+
+		geometrySink->AddLines(triangle, 4);
+
+		geometrySink->EndFigure(D2D1_FIGURE_END_OPEN);
+
+		DX::ThrowIfFailed(
+			geometrySink->Close()
+			);
+	}
+
+	DX::ThrowIfFailed(
+		m_pathGeometry->ComputeLength(
+		nullptr,            // Apply no transform.
+		&m_pathLength
+		)
+		);
+*/
 }
 
 void D2DBasicAnimation::CreateSpiralPathAndTriangle()
@@ -99,8 +206,15 @@ void D2DBasicAnimation::CreateSpiralPathAndTriangle()
             D2D1_FIGURE_BEGIN_FILLED
             );
 
-        const D2D1_POINT_2F triangle[] = {{-10.0f, -10.0f}, {-10.0f, 10.0f}, {0.0f, 0.0f}};
-        geometrySink->AddLines(triangle, 3);
+        const D2D1_POINT_2F triangle[] = 
+		{
+			{-10.0f, -10.0f}, 
+			{-10.0f, 10.0f}, 
+			{10.0f, 10.0f},
+			{10.f, -10.f}
+		};
+
+        geometrySink->AddLines(triangle, 4);
 
         geometrySink->EndFigure(D2D1_FIGURE_END_OPEN);
 
@@ -127,6 +241,7 @@ void D2DBasicAnimation::CreateDeviceResources()
 {
     DirectXBase::CreateDeviceResources();
 
+	this->CreateGrid();	// TODO: Move this to its own class.
     this->CreateSpiralPathAndTriangle();
 
     m_sampleOverlay = ref new SampleOverlay();
@@ -152,6 +267,13 @@ void D2DBasicAnimation::CreateDeviceResources()
             &m_whiteBrush
             )
         );
+
+	/*
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::Yellow),
+		&m_pYellowBrush));
+*/
 }
 
 
@@ -367,3 +489,6 @@ int main(Platform::Array<Platform::String^>^)
     CoreApplication::Run(directXAppSource);
     return 0;
 }
+
+
+// How to get the render target from the context?

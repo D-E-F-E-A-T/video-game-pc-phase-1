@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2DBasicAnimation", "D2DBasicAnimation.vcxproj", "{952C8F64-81FC-4ABB-8D68-BA2F2E7B816D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2A4F1FF3-43E2-441D-9A7F-6EC9E98D3249}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\APPDATA\LOCAL\MICROSOFT\VISUALSTUDIO\12.0\EXTENSIONS\JD3A1N32.GYV\description.html = ..\..\..\..\APPDATA\LOCAL\MICROSOFT\VISUALSTUDIO\12.0\EXTENSIONS\JD3A1N32.GYV\description.html
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

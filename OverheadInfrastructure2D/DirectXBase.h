@@ -1,10 +1,3 @@
-//// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-//// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-//// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-//// PARTICULAR PURPOSE.
-////
-//// Copyright (c) Microsoft Corporation. All rights reserved
-
 #pragma once
 
 #include "DirectXSample.h"
@@ -48,7 +41,7 @@ protected private:
     Microsoft::WRL::ComPtr<ID2D1Bitmap1>            m_d2dTargetBitmap;
 
     // Direct3D Rendering Objects. Required for 3D.
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_d3dDepthStencilView;
+//    Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_d3dDepthStencilView;
 
     // Cached renderer properties.
     D3D_FEATURE_LEVEL                               m_featureLevel;

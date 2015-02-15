@@ -67,6 +67,7 @@ private:
 	void DrawRock();
 	void DrawDoor();
 	void DrawGround();
+	void DrawWater();
 
 	void CalculateSquareCenter(int row, int column, float * x, float * y);
 
@@ -87,6 +88,7 @@ private:
 	ComPtr<ID2D1SolidColorBrush>					m_greenBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_grayBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_beigeBrush;
+	ComPtr<ID2D1SolidColorBrush>					m_blueBrush;
     float                                                           m_pathLength;
     float                                                           m_elapsedTime;
 };

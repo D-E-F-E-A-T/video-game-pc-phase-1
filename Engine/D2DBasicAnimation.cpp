@@ -2,6 +2,10 @@
 #include "D2DBasicAnimation.h"
 #include "Constants.h"
 #include "Tree.h"
+#include "Door.h"
+#include "Ground.h"
+#include "Rock.h"
+#include "Water.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -174,6 +178,12 @@ void D2DBasicAnimation::CreateDeviceResources()
 		D2D1::ColorF(D2D1::ColorF::Beige),
 		&m_beigeBrush)
 		);
+
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::SkyBlue),
+		&m_blueBrush)
+		);
 }
 
 
@@ -196,6 +206,8 @@ void D2DBasicAnimation::Render()
 	DrawRock();
 	DrawDoor();
 	DrawGround();
+	DrawWater();
+
 
     float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
@@ -476,17 +488,8 @@ void D2DBasicAnimation::DrawRock()
 
 	CalculateSquareCenter(1, 1, &x, &y);
 
-	D2D1_RECT_F rect
-	{
-		x - 10.0f,
-		y - 10.0f,
-		x + 10.0f,
-		y + 10.0f
-	};
-
-	m_d2dContext->DrawRectangle(
-		rect,
-		m_grayBrush.Get());
+	Rock rock{ 0, 0, x, y, m_grayBrush };
+	rock.Draw(m_d2dContext);
 }
 
 void D2DBasicAnimation::DrawDoor()
@@ -496,17 +499,8 @@ void D2DBasicAnimation::DrawDoor()
 
 	CalculateSquareCenter(2, 2, &x, &y);
 
-	D2D1_RECT_F rect
-	{
-		x - 10.0f,
-		y - 10.0f,
-		x + 10.0f,
-		y + 10.0f
-	};
-
-	m_d2dContext->DrawRectangle(
-		rect,
-		m_blackBrush.Get());
+	Door door{ 0, 0, x, y, m_blackBrush };
+	door.Draw(m_d2dContext);
 }
 
 void D2DBasicAnimation::DrawGround()
@@ -516,17 +510,19 @@ void D2DBasicAnimation::DrawGround()
 
 	CalculateSquareCenter(3, 3, &x, &y);
 
-	D2D1_RECT_F rect
-	{
-		x - 10.0f,
-		y - 10.0f,
-		x + 10.0f,
-		y + 10.0f
-	};
+	Ground ground{ 0, 0, x, y, m_beigeBrush };
+	ground.Draw(m_d2dContext);
+}
 
-	m_d2dContext->DrawRectangle(
-		rect,
-		m_beigeBrush.Get());
+void D2DBasicAnimation::DrawWater()
+{
+	float x = 0.0f;
+	float y = 0.0f;
+
+	CalculateSquareCenter(8, 8, &x, &y);
+
+	Water water{ 0, 0, x, y, m_blueBrush };
+	water.Draw(m_d2dContext);
 }
 
 void D2DBasicAnimation::CalculateSquareCenter(int row, int column, float * x, float * y)

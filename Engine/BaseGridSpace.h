@@ -1,3 +1,5 @@
+#pragma once
+
 #include "pch.h"
 
 using namespace Microsoft::WRL;
@@ -29,5 +31,7 @@ protected:
 	float x;
 	float y;
 	ComPtr<ID2D1SolidColorBrush> brush;
+
+	// Could have a super class for Tree, Rock, etc to facilitate Flyweight.
 
 };

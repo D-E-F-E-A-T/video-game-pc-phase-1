@@ -169,6 +169,7 @@
     <Image Include="smalltile-sdk.png" />
     <Image Include="storelogo-sdk.png" />
     <Image Include="splash-sdk.png" />
+    <Image Include="tree.dds" />
     <Image Include="windowsbig-sdk.png" />
   </ItemGroup>
   <ItemGroup>

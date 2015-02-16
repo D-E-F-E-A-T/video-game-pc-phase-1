@@ -206,7 +206,8 @@ void D2DBasicAnimation::CreateDeviceResources()
 	BasicLoader ^ loader = ref new BasicLoader(m_d3dDevice.Get(), m_wicFactory.Get());
 
 	loader->LoadTexture(
-		"ida.dds",
+//		"ida.dds",
+"tree.dds",
 		&m_asteroid,
 		nullptr);
 

@@ -46,6 +46,7 @@
     <Image Include="splash-sdk.png" />
     <Image Include="windowsbig-sdk.png" />
     <Image Include="ida.dds" />
+    <Image Include="tree.dds" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

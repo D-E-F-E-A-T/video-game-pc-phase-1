@@ -196,7 +196,7 @@ void D2DBasicAnimation::CreateDeviceResources()
 
 	m_spriteBatch = ref new BasicSprites::SpriteBatch();
 	unsigned int capacity = SampleSettings::Performance::ParticleCountMax +
-		SampleSettings::NumAsteroids + 1;
+		SampleSettings::NumTrees + 1;
 
 
 	m_spriteBatch->Initialize(
@@ -206,12 +206,18 @@ void D2DBasicAnimation::CreateDeviceResources()
 	BasicLoader ^ loader = ref new BasicLoader(m_d3dDevice.Get(), m_wicFactory.Get());
 
 	loader->LoadTexture(
-//		"ida.dds",
-"tree.dds",
-		&m_asteroid,
+		"tree.dds",
+		&m_tree,
 		nullptr);
 
-	m_spriteBatch->AddTexture(m_asteroid.Get());
+	m_spriteBatch->AddTexture(m_tree.Get());
+
+	loader->LoadTexture(
+		"rock.dds",
+		&m_rock,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_rock.Get());
 }
 
 
@@ -317,18 +323,32 @@ void D2DBasicAnimation::Render()
 	*/
 	m_spriteBatch->Begin();
 
-	for (auto asteroid = m_asteroidData.begin(); asteroid != m_asteroidData.end(); asteroid++)
+	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
 	{
 		m_spriteBatch->Draw(
-			m_asteroid.Get(),
-			asteroid->pos,
+			m_tree.Get(),
+			tree->pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * asteroid->scale,
+			float2(1.0f, 1.0f) * tree->scale,
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			asteroid->rot
+			tree->rot
 			);
 	}
+
+	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
+	{
+		m_spriteBatch->Draw(
+			m_rock.Get(),
+			rock->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * rock->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			rock->rot
+			);
+	}
+
 
 	m_spriteBatch->End();
 
@@ -420,50 +440,93 @@ void D2DBasicAnimation::Run()
 
 			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-			for (auto asteroid = m_asteroidData.begin(); asteroid != m_asteroidData.end(); asteroid++)
+			for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
 			{
 				static const float border = 100.0f;
-				asteroid->pos = asteroid->pos + asteroid->vel * timer->Delta;// timeDelta;
-				if (asteroid->vel.x < 0)
+				tree->pos = tree->pos + tree->vel * timer->Delta;// timeDelta;
+				if (tree->vel.x < 0)
 				{
-					if (asteroid->pos.x < -border)
+					if (tree->pos.x < -border)
 					{
-						asteroid->pos.x = m_windowBounds.Width + border;
+						tree->pos.x = m_windowBounds.Width + border;
 					}
 				}
 				else
 				{
-					if (asteroid->pos.x > m_windowBounds.Width + border)
+					if (tree->pos.x > m_windowBounds.Width + border)
 					{
-						asteroid->pos.x = -border;
+						tree->pos.x = -border;
 					}
 				}
-				if (asteroid->vel.y < 0)
+				if (tree->vel.y < 0)
 				{
-					if (asteroid->pos.y < -border)
+					if (tree->pos.y < -border)
 					{
-						asteroid->pos.y = m_windowBounds.Height + border;
+						tree->pos.y = m_windowBounds.Height + border;
 					}
 				}
 				else
 				{
-					if (asteroid->pos.y > m_windowBounds.Height + border)
+					if (tree->pos.y > m_windowBounds.Height + border)
 					{
-						asteroid->pos.y = -border;
+						tree->pos.y = -border;
 					}
 				}
 
-				asteroid->rot += asteroid->rotVel * timer->Delta;// timeDelta;
-				if (asteroid->rot > PI_F)
+				tree->rot += tree->rotVel * timer->Delta;// timeDelta;
+				if (tree->rot > PI_F)
 				{
-					asteroid->rot -= 2.0f * PI_F;
+					tree->rot -= 2.0f * PI_F;
 				}
-				if (asteroid->rot < -PI_F)
+				if (tree->rot < -PI_F)
 				{
-					asteroid->rot += 2.0f * PI_F;
+					tree->rot += 2.0f * PI_F;
 				}
 			}
 
+			for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
+			{
+				static const float border = 100.0f;
+				rock->pos = rock->pos + rock->vel * timer->Delta;// timeDelta;
+				if (rock->vel.x < 0)
+				{
+					if (rock->pos.x < -border)
+					{
+						rock->pos.x = m_windowBounds.Width + border;
+					}
+				}
+				else
+				{
+					if (rock->pos.x > m_windowBounds.Width + border)
+					{
+						rock->pos.x = -border;
+					}
+				}
+				if (rock->vel.y < 0)
+				{
+					if (rock->pos.y < -border)
+					{
+						rock->pos.y = m_windowBounds.Height + border;
+					}
+				}
+				else
+				{
+					if (rock->pos.y > m_windowBounds.Height + border)
+					{
+						rock->pos.y = -border;
+					}
+				}
+
+				rock->rot += rock->rotVel * timer->Delta;// timeDelta;
+				if (rock->rot > PI_F)
+				{
+					rock->rot -= 2.0f * PI_F;
+				}
+				if (rock->rot < -PI_F)
+				{
+					rock->rot += 2.0f * PI_F;
+				}
+			}
 
             Render();
             Present();
@@ -695,12 +758,19 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 
 	// Randomly generate some non-interactive asteroids to fit the screen.
 
-	m_asteroidData.clear();
-	for (int i = 0; i < SampleSettings::NumAsteroids; i++)
+	m_treeData.clear();
+
+	for (int i = 0; i < SampleSettings::NumTrees; i++)
 	{
-		AsteroidData data;
-		data.pos.x = m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(i, 8, &x, &y);
+
+
+		TreeData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
 		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
 		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
 		data.vel.x = tempMag * cosf(tempRot);
@@ -708,6 +778,27 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
 		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_asteroidData.push_back(data);
+		m_treeData.push_back(data);
+	}
+
+	for (int i = 0; i < SampleSettings::NumTrees; i++)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(8, i, &x, &y);
+
+
+		RockData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_rockData.push_back(data);
 	}
 }

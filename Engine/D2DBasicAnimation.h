@@ -103,8 +103,11 @@ private:
 #endif // SIMPLE_SPRITES
 
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
-	ComPtr<ID3D11Texture2D> m_asteroid;
-	std::vector<AsteroidData> m_asteroidData;
+	ComPtr<ID3D11Texture2D> m_tree;
+	std::vector<TreeData> m_treeData;
+
+	ComPtr<ID3D11Texture2D> m_rock;
+	std::vector<RockData> m_rockData;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

@@ -37,7 +37,7 @@ void SimpleSprites::CreateDeviceResources()
     // Create the sprite batch.
 
     m_spriteBatch = ref new SpriteBatch();
-    unsigned int capacity = SampleSettings::Performance::ParticleCountMax + SampleSettings::NumAsteroids + 1;
+    unsigned int capacity = SampleSettings::Performance::ParticleCountMax + SampleSettings::NumTrees + 1;
     if (m_featureLevel < D3D_FEATURE_LEVEL_9_3)
     {
         capacity = min(Parameters::MaximumCapacityCompatible, capacity);
@@ -62,7 +62,7 @@ void SimpleSprites::CreateDeviceResources()
 
     loader->LoadTexture(
         "ida.dds",
-        &m_asteroid,
+        &m_tree,
         nullptr
         );
     m_spriteBatch->AddTexture(m_asteroid.Get());

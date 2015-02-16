@@ -15,7 +15,6 @@
     <ClCompile Include="Water.cpp" />
     <ClCompile Include="BasicSprites.cpp" />
     <ClCompile Include="BasicTimer.cpp" />
-    <ClCompile Include="SimpleSprites.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -35,9 +34,9 @@
     <ClInclude Include="Water.h" />
     <ClInclude Include="BasicSprites.h" />
     <ClInclude Include="BasicTimer.h" />
-    <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="BasicMath.h" />
     <ClInclude Include="BasicShapes.h" />
+    <ClInclude Include="SimpleSprites.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />
@@ -47,6 +46,7 @@
     <Image Include="windowsbig-sdk.png" />
     <Image Include="ida.dds" />
     <Image Include="tree.dds" />
+    <Image Include="rock.dds" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

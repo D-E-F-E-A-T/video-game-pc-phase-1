@@ -14,7 +14,8 @@
 
 namespace SampleSettings
 {
-    static const unsigned int NumAsteroids = 1;
+    static const unsigned int NumTrees = 10;
+	static const unsigned int NumRocks = 10;
     namespace Performance
     {
         static const float TargetFrameTime = 1.0f / 20.0f;
@@ -30,13 +31,22 @@ namespace SampleSettings
     }
 }
 
-struct AsteroidData
+struct TreeData
 {
     float2 pos;
     float2 vel;
     float rot;
     float rotVel;
     float scale;
+};
+
+struct RockData
+{
+	float2 pos;
+	float2 vel;
+	float rot;
+	float rotVel;
+	float scale;
 };
 
 struct ParticleData
@@ -66,9 +76,11 @@ private:
 //    AutoThrottle^ m_autoThrottle;
     BasicSprites::SpriteBatch^ m_spriteBatch;
 //    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_background;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_asteroid;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_tree;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_rock;
 //    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_particle;
-    std::vector<AsteroidData> m_asteroidData;
+    std::vector<TreeData> m_treeData;
+	std::vector<RockData> m_rockData;
 //    std::vector<ParticleData> m_particleData;
 //    std::map<uint32, float2> m_repulsors;
 //    int m_numParticlesToDraw;

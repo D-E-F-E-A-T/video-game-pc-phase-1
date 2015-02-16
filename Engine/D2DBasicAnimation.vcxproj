@@ -165,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="ida.dds" />
+    <Image Include="rock.dds" />
     <Image Include="squaretile-sdk.png" />
     <Image Include="smalltile-sdk.png" />
     <Image Include="storelogo-sdk.png" />
@@ -214,7 +215,6 @@
     <ClCompile Include="Rock.cpp" />
     <ClCompile Include="SampleOverlay.cpp" />
     <ClCompile Include="DirectXBase.cpp" />
-    <ClCompile Include="SimpleSprites.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Water.cpp" />
   </ItemGroup>

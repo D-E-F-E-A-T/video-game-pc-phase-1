@@ -187,6 +187,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="BaseGridSpace.h" />
     <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Rock.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="BasicSprites.cpp" />
     <ClCompile Include="BasicTimer.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="pch.cpp">

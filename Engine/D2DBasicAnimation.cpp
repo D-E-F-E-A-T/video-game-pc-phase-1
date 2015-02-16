@@ -9,6 +9,7 @@
 #include "BasicTimer.h"
 #include "minwindef.h"
 #include "BasicLoader.h"
+#include "DebugOverlay.h"
 
 
 using namespace Microsoft::WRL;
@@ -145,8 +146,18 @@ void D2DBasicAnimation::CreateDeviceResources()
         m_d2dContext.Get(),
         m_wicFactory.Get(),
         m_dwriteFactory.Get(),
-        "Direct2D animation sample"
+        "Status overlay"
         );
+
+	m_debugOverlay = ref new DebugOverlay();
+
+	m_debugOverlay->Initialize(
+		m_d2dDevice.Get(),
+		m_d2dContext.Get(),
+		m_wicFactory.Get(),
+		m_dwriteFactory.Get(),
+		"Debug overlay"
+		);
 #endif // SHOW_OVERLAY
 
     DX::ThrowIfFailed(
@@ -442,7 +453,9 @@ void D2DBasicAnimation::Render()
     }
 
 #ifdef SHOW_OVERLAY
+	
     m_sampleOverlay->Render();
+	m_debugOverlay->Render();
 #endif // SHOW_OVERLAY
 }
 
@@ -817,6 +830,7 @@ void D2DBasicAnimation::OnWindowSizeChanged(
 
 #ifdef SHOW_OVERLAY
     m_sampleOverlay->UpdateForWindowSizeChange();
+	m_debugOverlay->UpdateForWindowSizeChange();
 #endif // SHOW_OVERLAY
 }
 

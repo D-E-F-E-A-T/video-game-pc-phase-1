@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "SampleOverlay.h"
+#include "DebugOverlay.h"
 
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -8,12 +8,12 @@ using namespace Windows::UI::ViewManagement;
 using namespace Windows::Graphics::Display;
 using namespace D2D1;
 
-SampleOverlay::SampleOverlay() :
+DebugOverlay::DebugOverlay() :
     m_drawOverlay(true)
 {
 }
 
-void SampleOverlay::Initialize(
+void DebugOverlay::Initialize(
     _In_ ID2D1Device*         d2dDevice,
     _In_ ID2D1DeviceContext*  d2dContext,
     _In_ IWICImagingFactory*  wicFactory,
@@ -41,7 +41,7 @@ void SampleOverlay::Initialize(
     ResetDirectXResources();
 }
 
-void SampleOverlay::ResetDirectXResources()
+void DebugOverlay::ResetDirectXResources()
 {
     DX::ThrowIfFailed(
         m_d2dContext->CreateSolidColorBrush(ColorF(ColorF::White), &m_whiteBrush)
@@ -146,7 +146,7 @@ void SampleOverlay::ResetDirectXResources()
     UpdateForWindowSizeChange();
 }
 
-void SampleOverlay::UpdateForWindowSizeChange()
+void DebugOverlay::UpdateForWindowSizeChange()
 {
     if (CoreWindow::GetForCurrentThread()->Bounds.Width < m_overlayWidth)
     {
@@ -158,7 +158,7 @@ void SampleOverlay::UpdateForWindowSizeChange()
     }
 }
 
-void SampleOverlay::Render()
+void DebugOverlay::Render()
 {
     if (m_drawOverlay)
     {
@@ -175,7 +175,9 @@ void SampleOverlay::Render()
 */
 
         m_d2dContext->DrawTextLayout(
-            Point2F(m_logoSize.width + 2.0f * m_padding, m_textVerticalOffset),
+            Point2F(
+				2.0f * m_padding, 
+				CoreWindow::GetForCurrentThread()->Bounds.Height - m_textVerticalOffset - 100.f),
             m_textLayout.Get(),
             m_whiteBrush.Get()
             );
@@ -192,7 +194,7 @@ void SampleOverlay::Render()
     }
 }
 
-float SampleOverlay::GetTitleHeightInDips()
+float DebugOverlay::GetTitleHeightInDips()
 {
     return m_logoSize.height;
 }

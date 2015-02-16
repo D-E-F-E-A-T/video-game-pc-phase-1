@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Constants.h"
 #include "DirectXBase.h"
 #include "SampleOverlay.h"
 #include "SimpleSprites.h"
+#include "DebugOverlay.h"
 
 using namespace Microsoft::WRL;
 
@@ -80,6 +82,7 @@ private:
 
 #ifdef SHOW_OVERLAY
     SampleOverlay^                                                  m_sampleOverlay;
+	DebugOverlay ^	m_debugOverlay;
 #endif // SHOW_OVERLAY
 
     bool                                                            m_windowClosed;

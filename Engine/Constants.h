@@ -27,3 +27,7 @@
 #ifndef MARGIN 
 #define MARGIN 50.0f
 #endif // SCREEN_BORDER_WIDTH
+
+#ifndef SHOW_OVERLAY
+#define SHOW_OVERLAY
+#endif // SHOW_OVERLAY

@@ -108,31 +108,19 @@ internal:
     virtual void CreateWindowSizeDependentResources() override;
     virtual void Render() override;
     void Update(float timeTotal, float timeDelta);
-/*
-    void AddRepulsor(_In_ uint32 id, _In_ float2 position);
-    void MoveRepulsor(_In_ uint32 id, _In_ float2 position);
-    void RemoveRepulsor(_In_ uint32 id);
-*/
 
 private:
-//    float RandFloat(float min, float max);
-//    SampleOverlay^ m_sampleOverlay;
-//    AutoThrottle^ m_autoThrottle;
     BasicSprites::SpriteBatch^ m_spriteBatch;
-//    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_background;
+
     Microsoft::WRL::ComPtr<ID3D11Texture2D> m_tree;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_rock;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_water;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_stoneWall;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_link;
-//    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_particle;
+
     std::vector<TreeData> m_treeData;
 	std::vector<RockData> m_rockData;
 	std::vector<WaterData> m_waterData;
 	std::vector<StoneWallData> m_stoneWallData;
 	std::vector<LinkData> m_linkData;
-
-//    std::vector<ParticleData> m_particleData;
-//    std::map<uint32, float2> m_repulsors;
-//    int m_numParticlesToDraw;
 };

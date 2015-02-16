@@ -15,6 +15,7 @@
     <ClCompile Include="Water.cpp" />
     <ClCompile Include="BasicSprites.cpp" />
     <ClCompile Include="BasicTimer.cpp" />
+    <ClCompile Include="DebugOverlay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="BasicMath.h" />
     <ClInclude Include="BasicShapes.h" />
     <ClInclude Include="SimpleSprites.h" />
+    <ClInclude Include="DebugOverlay.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

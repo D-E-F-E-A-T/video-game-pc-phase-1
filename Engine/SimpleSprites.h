@@ -16,6 +16,13 @@ namespace SampleSettings
 {
     static const unsigned int NumTrees = 10;
 	static const unsigned int NumRocks = 10;
+
+//#ifdef WATER_SPRITE
+	static const unsigned int NumWaters = 10;
+	static const unsigned int NumGrasses = 10;
+	static const unsigned int NumStoneWalls = 10;
+//#endif // WATER_SPRITE
+
     namespace Performance
     {
         static const float TargetFrameTime = 1.0f / 20.0f;
@@ -41,6 +48,33 @@ struct TreeData
 };
 
 struct RockData
+{
+	float2 pos;
+	float2 vel;
+	float rot;
+	float rotVel;
+	float scale;
+};
+
+struct WaterData
+{
+	float2 pos;
+	float2 vel;
+	float rot;
+	float rotVel;
+	float scale;
+};
+
+struct GrassData
+{
+	float2 pos;
+	float2 vel;
+	float rot;
+	float rotVel;
+	float scale;
+};
+
+struct StoneWallData
 {
 	float2 pos;
 	float2 vel;
@@ -78,9 +112,14 @@ private:
 //    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_background;
     Microsoft::WRL::ComPtr<ID3D11Texture2D> m_tree;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_rock;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_water;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_stoneWall;
 //    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_particle;
     std::vector<TreeData> m_treeData;
 	std::vector<RockData> m_rockData;
+	std::vector<WaterData> m_waterData;
+	std::vector<StoneWallData> m_stoneWallData;
+
 //    std::vector<ParticleData> m_particleData;
 //    std::map<uint32, float2> m_repulsors;
 //    int m_numParticlesToDraw;

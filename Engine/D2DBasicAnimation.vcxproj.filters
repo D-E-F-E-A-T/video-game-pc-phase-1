@@ -47,6 +47,9 @@
     <Image Include="ida.dds" />
     <Image Include="tree.dds" />
     <Image Include="rock.dds" />
+    <Image Include="water.dds" />
+    <Image Include="grass.dds" />
+    <Image Include="stonewall.dds" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

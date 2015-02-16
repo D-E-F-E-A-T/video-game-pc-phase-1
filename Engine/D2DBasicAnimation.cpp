@@ -218,6 +218,27 @@ void D2DBasicAnimation::CreateDeviceResources()
 		nullptr);
 
 	m_spriteBatch->AddTexture(m_rock.Get());
+
+	loader->LoadTexture(
+		"water.dds",
+		&m_water,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_water.Get());
+
+	loader->LoadTexture(
+		"grass.dds",
+		&m_grass,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_grass.Get());
+
+	loader->LoadTexture(
+		"stonewall.dds",
+		&m_stoneWall,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_stoneWall.Get());
 }
 
 
@@ -229,7 +250,7 @@ void D2DBasicAnimation::Render()
 
     m_d2dContext->BeginDraw();
 
-    m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::CornflowerBlue));
+    m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::SandyBrown));
     m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
 	DrawGrid();
@@ -346,6 +367,47 @@ void D2DBasicAnimation::Render()
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			rock->rot
+			);
+	}
+
+//#ifdef WATER_SPRITE
+	for (auto water  = m_waterData.begin(); water != m_waterData.end(); water++)
+	{
+		m_spriteBatch->Draw(
+			m_water.Get(),
+			water->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * water->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			water->rot
+			);
+	}
+//#endif // WATER_SPRITE
+
+	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
+	{
+		m_spriteBatch->Draw(
+			m_grass.Get(),
+			grass->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * grass->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			grass->rot
+			);
+	}
+
+	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
+	{
+		m_spriteBatch->Draw(
+			m_stoneWall.Get(),
+			stoneWall->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * stoneWall->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			stoneWall->rot
 			);
 	}
 
@@ -528,6 +590,141 @@ void D2DBasicAnimation::Run()
 				}
 			}
 
+//#ifdef WATER_SPRITE
+			for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
+			{
+				static const float border = 100.0f;
+				water->pos = water->pos + water->vel * timer->Delta;// timeDelta;
+				if (water->vel.x < 0)
+				{
+					if (water->pos.x < -border)
+					{
+						water->pos.x = m_windowBounds.Width + border;
+					}
+				}
+				else
+				{
+					if (water->pos.x > m_windowBounds.Width + border)
+					{
+						water->pos.x = -border;
+					}
+				}
+				if (water->vel.y < 0)
+				{
+					if (water->pos.y < -border)
+					{
+						water->pos.y = m_windowBounds.Height + border;
+					}
+				}
+				else
+				{
+					if (water->pos.y > m_windowBounds.Height + border)
+					{
+						water->pos.y = -border;
+					}
+				}
+
+				water->rot += water->rotVel * timer->Delta;// timeDelta;
+				if (water->rot > PI_F)
+				{
+					water->rot -= 2.0f * PI_F;
+				}
+				if (water->rot < -PI_F)
+				{
+					water->rot += 2.0f * PI_F;
+				}
+			}
+//#endif // WATER_SPRITE
+
+			for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
+			{
+				static const float border = 100.0f;
+				grass->pos = grass->pos + grass->vel * timer->Delta;// timeDelta;
+				if (grass->vel.x < 0)
+				{
+					if (grass->pos.x < -border)
+					{
+						grass->pos.x = m_windowBounds.Width + border;
+					}
+				}
+				else
+				{
+					if (grass->pos.x > m_windowBounds.Width + border)
+					{
+						grass->pos.x = -border;
+					}
+				}
+				if (grass->vel.y < 0)
+				{
+					if (grass->pos.y < -border)
+					{
+						grass->pos.y = m_windowBounds.Height + border;
+					}
+				}
+				else
+				{
+					if (grass->pos.y > m_windowBounds.Height + border)
+					{
+						grass->pos.y = -border;
+					}
+				}
+
+				grass->rot += grass->rotVel * timer->Delta;// timeDelta;
+				if (grass->rot > PI_F)
+				{
+					grass->rot -= 2.0f * PI_F;
+				}
+				if (grass->rot < -PI_F)
+				{
+					grass->rot += 2.0f * PI_F;
+				}
+			}
+
+
+			for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
+			{
+				static const float border = 100.0f;
+				stoneWall->pos = stoneWall->pos + stoneWall->vel * timer->Delta;// timeDelta;
+				if (stoneWall->vel.x < 0)
+				{
+					if (stoneWall->pos.x < -border)
+					{
+						stoneWall->pos.x = m_windowBounds.Width + border;
+					}
+				}
+				else
+				{
+					if (stoneWall->pos.x > m_windowBounds.Width + border)
+					{
+						stoneWall->pos.x = -border;
+					}
+				}
+				if (stoneWall->vel.y < 0)
+				{
+					if (stoneWall->pos.y < -border)
+					{
+						stoneWall->pos.y = m_windowBounds.Height + border;
+					}
+				}
+				else
+				{
+					if (stoneWall->pos.y > m_windowBounds.Height + border)
+					{
+						stoneWall->pos.y = -border;
+					}
+				}
+
+				stoneWall->rot += stoneWall->rotVel * timer->Delta;// timeDelta;
+				if (stoneWall->rot > PI_F)
+				{
+					stoneWall->rot -= 2.0f * PI_F;
+				}
+				if (stoneWall->rot < -PI_F)
+				{
+					stoneWall->rot += 2.0f * PI_F;
+				}
+			}
+
             Render();
             Present();
 //#endif // SIMPLE_SPRITES:
@@ -650,7 +847,7 @@ void D2DBasicAnimation::DrawGrid()
 			MARGIN + (rowHeight * (float) row)
 		};
 
-		m_d2dContext->DrawLine(src, dst, m_orangeBrush.Get());
+		m_d2dContext->DrawLine(src, dst, m_blackBrush.Get());
 	}
 
 	// Draw the vertical lines.
@@ -668,7 +865,7 @@ void D2DBasicAnimation::DrawGrid()
 			windowHeight - MARGIN,
 		};
 
-		m_d2dContext->DrawLine(src, dst, m_orangeBrush.Get());
+		m_d2dContext->DrawLine(src, dst, m_blackBrush.Get());
 	}
 }
 
@@ -781,7 +978,7 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		m_treeData.push_back(data);
 	}
 
-	for (int i = 0; i < SampleSettings::NumTrees; i++)
+	for (int i = 0; i < SampleSettings::NumRocks; i++)
 	{
 		float x = 0.0f;
 		float y = 0.0f;
@@ -800,5 +997,70 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_rockData.push_back(data);
+	}
+
+//#ifdef WATER_SPRITE
+	for (int i = 0; i < SampleSettings::NumWaters; i++)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(5, i, &x, &y);
+
+
+		WaterData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_waterData.push_back(data);
+	}
+//#endif // WATER_SPRITE
+
+	for (int i = 0; i < SampleSettings::NumGrasses; i++)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(4, i, &x, &y);
+
+
+		GrassData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_grassData.push_back(data);
+	}
+
+	for (int i = 0; i < SampleSettings::NumStoneWalls; i++)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(6, i, &x, &y);
+
+
+		StoneWallData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_stoneWallData.push_back(data);
 	}
 }

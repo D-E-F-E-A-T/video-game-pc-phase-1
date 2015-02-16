@@ -164,13 +164,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="grass.dds" />
     <Image Include="ida.dds" />
     <Image Include="rock.dds" />
     <Image Include="squaretile-sdk.png" />
     <Image Include="smalltile-sdk.png" />
+    <Image Include="stonewall.dds" />
     <Image Include="storelogo-sdk.png" />
     <Image Include="splash-sdk.png" />
     <Image Include="tree.dds" />
+    <Image Include="water.dds" />
     <Image Include="windowsbig-sdk.png" />
   </ItemGroup>
   <ItemGroup>

@@ -103,11 +103,23 @@ private:
 #endif // SIMPLE_SPRITES
 
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
+
 	ComPtr<ID3D11Texture2D> m_tree;
 	std::vector<TreeData> m_treeData;
 
 	ComPtr<ID3D11Texture2D> m_rock;
 	std::vector<RockData> m_rockData;
+
+//#ifdef WATER_SPRITE
+	ComPtr<ID3D11Texture2D> m_water;
+	std::vector<WaterData> m_waterData;
+//#endif // WATER_SPRITE
+
+	ComPtr<ID3D11Texture2D> m_stoneWall;
+	std::vector<StoneWallData> m_stoneWallData;
+
+	ComPtr<ID3D11Texture2D> m_grass;
+	std::vector<GrassData> m_grassData;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

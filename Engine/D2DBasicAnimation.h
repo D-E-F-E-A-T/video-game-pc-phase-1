@@ -120,6 +120,9 @@ private:
 
 	ComPtr<ID3D11Texture2D> m_grass;
 	std::vector<GrassData> m_grassData;
+
+	ComPtr<ID3D11Texture2D> m_link;
+	std::vector<LinkData> m_linkData;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

@@ -21,6 +21,7 @@ namespace SampleSettings
 	static const unsigned int NumWaters = 10;
 	static const unsigned int NumGrasses = 10;
 	static const unsigned int NumStoneWalls = 10;
+	static const unsigned int NumLinks = 10;
 //#endif // WATER_SPRITE
 
     namespace Performance
@@ -83,6 +84,15 @@ struct StoneWallData
 	float scale;
 };
 
+struct LinkData
+{
+	float2 pos;
+	float2 vel;
+	float rot;
+	float rotVel;
+	float scale;
+};
+
 struct ParticleData
 {
     float2 pos;
@@ -114,11 +124,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_rock;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_water;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_stoneWall;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_link;
 //    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_particle;
     std::vector<TreeData> m_treeData;
 	std::vector<RockData> m_rockData;
 	std::vector<WaterData> m_waterData;
 	std::vector<StoneWallData> m_stoneWallData;
+	std::vector<LinkData> m_linkData;
 
 //    std::vector<ParticleData> m_particleData;
 //    std::map<uint32, float2> m_repulsors;

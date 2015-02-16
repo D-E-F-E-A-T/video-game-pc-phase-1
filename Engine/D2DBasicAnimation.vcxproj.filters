@@ -50,6 +50,7 @@
     <Image Include="water.dds" />
     <Image Include="grass.dds" />
     <Image Include="stonewall.dds" />
+    <Image Include="link.dds" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

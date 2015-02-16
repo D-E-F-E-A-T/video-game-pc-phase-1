@@ -166,6 +166,7 @@
   <ItemGroup>
     <Image Include="grass.dds" />
     <Image Include="ida.dds" />
+    <Image Include="link.dds" />
     <Image Include="rock.dds" />
     <Image Include="squaretile-sdk.png" />
     <Image Include="smalltile-sdk.png" />

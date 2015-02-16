@@ -239,6 +239,13 @@ void D2DBasicAnimation::CreateDeviceResources()
 		nullptr);
 
 	m_spriteBatch->AddTexture(m_stoneWall.Get());
+
+	loader->LoadTexture(
+		"link.dds",
+		&m_link,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_link.Get());
 }
 
 
@@ -250,7 +257,7 @@ void D2DBasicAnimation::Render()
 
     m_d2dContext->BeginDraw();
 
-    m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::SandyBrown));
+    m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
     m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
 	DrawGrid();
@@ -408,6 +415,19 @@ void D2DBasicAnimation::Render()
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			stoneWall->rot
+			);
+	}
+
+	for (auto link = m_linkData.begin(); link != m_linkData.end(); link++)
+	{
+		m_spriteBatch->Draw(
+			m_link.Get(),
+			link->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * link->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			link->rot
 			);
 	}
 
@@ -722,6 +742,50 @@ void D2DBasicAnimation::Run()
 				if (stoneWall->rot < -PI_F)
 				{
 					stoneWall->rot += 2.0f * PI_F;
+				}
+			}
+
+			for (auto link = m_linkData.begin(); link != m_linkData.end(); link++)
+			{
+				static const float border = 100.0f;
+				link->pos = link->pos + link->vel * timer->Delta;// timeDelta;
+				if (link->vel.x < 0)
+				{
+					if (link->pos.x < -border)
+					{
+						link->pos.x = m_windowBounds.Width + border;
+					}
+				}
+				else
+				{
+					if (link->pos.x > m_windowBounds.Width + border)
+					{
+						link->pos.x = -border;
+					}
+				}
+				if (link->vel.y < 0)
+				{
+					if (link->pos.y < -border)
+					{
+						link->pos.y = m_windowBounds.Height + border;
+					}
+				}
+				else
+				{
+					if (link->pos.y > m_windowBounds.Height + border)
+					{
+						link->pos.y = -border;
+					}
+				}
+
+				link->rot += link->rotVel * timer->Delta;// timeDelta;
+				if (link->rot > PI_F)
+				{
+					link->rot -= 2.0f * PI_F;
+				}
+				if (link->rot < -PI_F)
+				{
+					link->rot += 2.0f * PI_F;
 				}
 			}
 
@@ -1062,5 +1126,26 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_stoneWallData.push_back(data);
+	}
+
+	for (int i = 0; i < SampleSettings::NumLinks; i++)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(5, 5, &x, &y);
+
+
+		LinkData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_linkData.push_back(data);
 	}
 }

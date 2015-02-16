@@ -2,10 +2,11 @@
 
 #include "DirectXBase.h"
 #include "SampleOverlay.h"
+#include "SimpleSprites.h"
 
 using namespace Microsoft::WRL;
 
-ref class D2DBasicAnimation : public DirectXBase, public Windows::ApplicationModel::Core::IFrameworkView
+ref class D2DBasicAnimation : public DirectXBase , public Windows::ApplicationModel::Core::IFrameworkView
 {
 internal:
     D2DBasicAnimation();
@@ -14,6 +15,7 @@ internal:
     virtual void CreateDeviceIndependentResources() override;
     virtual void CreateDeviceResources() override;
     virtual void Render() override;
+	void Update(float timeTotal, float timeDelta);
 
 public:
     // IFrameworkView Methods
@@ -58,7 +60,9 @@ private:
         );
 
     // Sample Methods
+#ifdef DRAW_SPIRAL
     void CreateSpiralPathAndTriangle();
+#endif // DRAW_SPIRAL
 	void DrawGrid();
 	void DrawPlayer();
 
@@ -91,6 +95,13 @@ private:
 	ComPtr<ID2D1SolidColorBrush>					m_blueBrush;
     float                                                           m_pathLength;
     float                                                           m_elapsedTime;
+
+
+#ifdef SIMPLE_SPRITES
+	SimpleSprites ^ m_renderer;
+#endif // SIMPLE_SPRITES
+
+
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="BasicLoader.cpp" />
+    <ClCompile Include="BasicReaderWriter.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="Door.cpp" />
+    <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="D2DBasicAnimation.cpp" />
+    <ClCompile Include="Rock.cpp" />
+    <ClCompile Include="SampleOverlay.cpp" />
+    <ClCompile Include="DirectXBase.cpp" />
+    <ClCompile Include="Tree.cpp" />
+    <ClCompile Include="Water.cpp" />
+    <ClCompile Include="BasicSprites.cpp" />
+    <ClCompile Include="BasicTimer.cpp" />
+    <ClCompile Include="SimpleSprites.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BasicLoader.h" />
+    <ClInclude Include="BasicReaderWriter.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="BaseGridSpace.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="Door.h" />
+    <ClInclude Include="Ground.h" />
+    <ClInclude Include="Rock.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="D2DBasicAnimation.h" />
+    <ClInclude Include="DirectXSample.h" />
+    <ClInclude Include="SampleOverlay.h" />
+    <ClInclude Include="DirectXBase.h" />
+    <ClInclude Include="Tree.h" />
+    <ClInclude Include="Water.h" />
+    <ClInclude Include="BasicSprites.h" />
+    <ClInclude Include="BasicTimer.h" />
+    <ClInclude Include="SimpleSprites.h" />
+    <ClInclude Include="BasicMath.h" />
+    <ClInclude Include="BasicShapes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="squaretile-sdk.png" />
+    <Image Include="smalltile-sdk.png" />
+    <Image Include="storelogo-sdk.png" />
+    <Image Include="splash-sdk.png" />
+    <Image Include="windowsbig-sdk.png" />
+    <Image Include="ida.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.AppxManifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="BasicLoader">
+      <UniqueIdentifier>{f098d20a-c049-4e43-b404-6bbcf6749b8c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="BasicSprites.GeometryShader.gs.hlsl" />
+    <FxCompile Include="BasicSprites.GeometryShader.vs.hlsl" />
+    <FxCompile Include="BasicSprites.Instancing.vs.hlsl" />
+    <FxCompile Include="BasicSprites.ps.hlsl" />
+    <FxCompile Include="BasicSprites.Replication.vs.hlsl" />
+  </ItemGroup>
+</Project>

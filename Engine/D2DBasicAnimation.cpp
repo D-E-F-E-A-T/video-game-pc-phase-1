@@ -6,6 +6,7 @@
 #include "Ground.h"
 #include "Rock.h"
 #include "Water.h"
+#include "BasicTimer.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -32,6 +33,7 @@ void D2DBasicAnimation::CreateDeviceIndependentResources()
     DirectXBase::CreateDeviceIndependentResources();
 }
 
+#ifdef DRAW_SPIRAL
 void D2DBasicAnimation::CreateSpiralPathAndTriangle()
 {
     DX::ThrowIfFailed(
@@ -115,6 +117,7 @@ void D2DBasicAnimation::CreateSpiralPathAndTriangle()
             )
         );
 }
+#endif // DRAW_SPIRAL
 
 float D2DBasicAnimation::ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime)
 {
@@ -126,7 +129,9 @@ void D2DBasicAnimation::CreateDeviceResources()
 {
     DirectXBase::CreateDeviceResources();
 
+#ifdef DRAW_SPIRAL
     this->CreateSpiralPathAndTriangle();
+#endif // DRAW_SPIRAL
 
 #ifdef SHOW_OVERLAY
     m_sampleOverlay = ref new SampleOverlay();
@@ -208,7 +213,6 @@ void D2DBasicAnimation::Render()
 	DrawGround();
 	DrawWater();
 
-
     float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
     D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
@@ -225,14 +229,18 @@ void D2DBasicAnimation::Render()
     m_d2dContext->SetTransform(scale * translation);
 
     // Draw the path in black.
+#ifdef DRAW_SPIRAL
     m_d2dContext->DrawGeometry(m_pathGeometry.Get(), m_blackBrush.Get());
+#endif // DRAW_SPIRAL
 
     float length = ComputeTriangleLocation(0.0f, m_pathLength, AnimationDuration, m_elapsedTime);
 
     // Ask the geometry to give us the point that corresponds with the
     // length at the current time.
+#ifdef DRAW_SPIRAL
     D2D1_POINT_2F point;
     D2D1_POINT_2F tangent;
+
     DX::ThrowIfFailed(
         m_pathGeometry->ComputePointAtLength(
             length,
@@ -255,6 +263,7 @@ void D2DBasicAnimation::Render()
 
     // Draw the white triangle.
     m_d2dContext->FillGeometry(m_objectGeometry.Get(), m_whiteBrush.Get());
+#endif // DRAW_SPIRAL
 
     // When we reach the end of the animation, loop back to the beginning.
     if (m_elapsedTime >= AnimationDuration)
@@ -291,6 +300,11 @@ void D2DBasicAnimation::Initialize(
 
     CoreApplication::Resuming +=
         ref new EventHandler<Platform::Object^>(this, &D2DBasicAnimation::OnResuming);
+
+
+#ifdef SIMPLE_SPRITES
+	m_renderer = ref new SimpleSprites();
+#endif // SIMPLE_SPRITES
 }
 
 void D2DBasicAnimation::SetWindow(
@@ -316,7 +330,11 @@ void D2DBasicAnimation::SetWindow(
     pointerVisualizationSettings->IsContactFeedbackEnabled = false;
     pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 
+#ifdef SIMPLE_SPRITES
+	m_renderer->Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
+#else
     DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
+#endif // SIMPLE_SPRITES
 }
 
 void D2DBasicAnimation::Load(
@@ -327,17 +345,35 @@ void D2DBasicAnimation::Load(
 
 void D2DBasicAnimation::Run()
 {
+//#ifdef SIMPLE_SPRITES
+	BasicTimer ^ timer = ref new BasicTimer();
+//#endif // SIMPLE_SPRITES
+
     while (!m_windowClosed)
     {
         if (m_windowVisible)
         {
+//#ifdef SIMPLE_SPRITES
+//			timer->Update();
+//			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+//			m_renderer->Update(timer->Total, timer->Delta);
+//			m_renderer->Render();
+//			m_renderer->Present();
+//#else // SIMPLE_SPRITES
+			timer->Update();
+
             m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
             Render();
             Present();
+//#endif // SIMPLE_SPRITES:
         }
         else
         {
+#ifdef SIMPLE_SPRITES
+			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+#else // SIMPLE_SPRITES
             m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+#endif // SIMPLE_SPRITES
         }
     }
 }
@@ -384,7 +420,8 @@ void D2DBasicAnimation::OnActivated(
     _In_ IActivatedEventArgs^ args
     )
 {
-    m_window->Activate();
+	CoreWindow::GetForCurrentThread()->Activate();
+//     m_window->Activate();
 }
 
 void D2DBasicAnimation::OnSuspending(

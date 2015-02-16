@@ -7,6 +7,9 @@
 #include "Rock.h"
 #include "Water.h"
 #include "BasicTimer.h"
+#include "minwindef.h"
+#include "BasicLoader.h"
+
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -31,6 +34,7 @@ D2DBasicAnimation::D2DBasicAnimation() :
 void D2DBasicAnimation::CreateDeviceIndependentResources()
 {
     DirectXBase::CreateDeviceIndependentResources();
+
 }
 
 #ifdef DRAW_SPIRAL
@@ -189,6 +193,24 @@ void D2DBasicAnimation::CreateDeviceResources()
 		D2D1::ColorF(D2D1::ColorF::SkyBlue),
 		&m_blueBrush)
 		);
+
+	m_spriteBatch = ref new BasicSprites::SpriteBatch();
+	unsigned int capacity = SampleSettings::Performance::ParticleCountMax +
+		SampleSettings::NumAsteroids + 1;
+
+
+	m_spriteBatch->Initialize(
+		m_d3dDevice.Get(),
+		capacity);
+
+	BasicLoader ^ loader = ref new BasicLoader(m_d3dDevice.Get(), m_wicFactory.Get());
+
+	loader->LoadTexture(
+		"ida.dds",
+		&m_asteroid,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_asteroid.Get());
 }
 
 
@@ -278,6 +300,39 @@ void D2DBasicAnimation::Render()
     // We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
     // is lost. It will be handled during the next call to Present.
     HRESULT hr = m_d2dContext->EndDraw();
+
+
+	m_d3dContext->OMSetRenderTargets(
+		1,
+		m_d3dRenderTargetView.GetAddressOf(),
+		nullptr
+		);
+
+	/*
+	m_d3dContext->ClearRenderTargetView(
+		m_d3dRenderTargetView.Get(),
+		reinterpret_cast<float*>(&D2D1::ColorF(D2D1::ColorF::MidnightBlue))
+		);
+	*/
+	m_spriteBatch->Begin();
+
+	for (auto asteroid = m_asteroidData.begin(); asteroid != m_asteroidData.end(); asteroid++)
+	{
+		m_spriteBatch->Draw(
+			m_asteroid.Get(),
+			asteroid->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * asteroid->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			asteroid->rot
+			);
+	}
+
+	m_spriteBatch->End();
+
+
+
     if (hr != D2DERR_RECREATE_TARGET)
     {
         DX::ThrowIfFailed(hr);
@@ -362,7 +417,53 @@ void D2DBasicAnimation::Run()
 //#else // SIMPLE_SPRITES
 			timer->Update();
 
-            m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+
+			for (auto asteroid = m_asteroidData.begin(); asteroid != m_asteroidData.end(); asteroid++)
+			{
+				static const float border = 100.0f;
+				asteroid->pos = asteroid->pos + asteroid->vel * timer->Delta;// timeDelta;
+				if (asteroid->vel.x < 0)
+				{
+					if (asteroid->pos.x < -border)
+					{
+						asteroid->pos.x = m_windowBounds.Width + border;
+					}
+				}
+				else
+				{
+					if (asteroid->pos.x > m_windowBounds.Width + border)
+					{
+						asteroid->pos.x = -border;
+					}
+				}
+				if (asteroid->vel.y < 0)
+				{
+					if (asteroid->pos.y < -border)
+					{
+						asteroid->pos.y = m_windowBounds.Height + border;
+					}
+				}
+				else
+				{
+					if (asteroid->pos.y > m_windowBounds.Height + border)
+					{
+						asteroid->pos.y = -border;
+					}
+				}
+
+				asteroid->rot += asteroid->rotVel * timer->Delta;// timeDelta;
+				if (asteroid->rot > PI_F)
+				{
+					asteroid->rot -= 2.0f * PI_F;
+				}
+				if (asteroid->rot < -PI_F)
+				{
+					asteroid->rot += 2.0f * PI_F;
+				}
+			}
+
+
             Render();
             Present();
 //#endif // SIMPLE_SPRITES:
@@ -585,4 +686,27 @@ int main(Platform::Array<Platform::String^>^)
     auto directXAppSource = ref new DirectXAppSource();
     CoreApplication::Run(directXAppSource);
     return 0;
+}
+
+void D2DBasicAnimation::CreateWindowSizeDependentResources()
+{
+	DirectXBase::CreateWindowSizeDependentResources();
+
+	// Randomly generate some non-interactive asteroids to fit the screen.
+
+	m_asteroidData.clear();
+	for (int i = 0; i < SampleSettings::NumAsteroids; i++)
+	{
+		AsteroidData data;
+		data.pos.x = m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_asteroidData.push_back(data);
+	}
 }

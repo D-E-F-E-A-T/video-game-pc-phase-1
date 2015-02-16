@@ -16,6 +16,7 @@ internal:
     virtual void CreateDeviceResources() override;
     virtual void Render() override;
 	void Update(float timeTotal, float timeDelta);
+	virtual void CreateWindowSizeDependentResources() override;
 
 public:
     // IFrameworkView Methods
@@ -101,7 +102,9 @@ private:
 	SimpleSprites ^ m_renderer;
 #endif // SIMPLE_SPRITES
 
-
+	BasicSprites::SpriteBatch ^ m_spriteBatch;
+	ComPtr<ID3D11Texture2D> m_asteroid;
+	std::vector<AsteroidData> m_asteroidData;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

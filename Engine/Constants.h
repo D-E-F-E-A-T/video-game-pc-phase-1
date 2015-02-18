@@ -9,11 +9,11 @@
 #endif // SCREEN_HEIGHT
 
 #ifndef NUM_GRID_ROWS 
-#define NUM_GRID_ROWS 11
+#define NUM_GRID_ROWS 13
 #endif // NUM_GRID_ROWS 
 
 #ifndef NUM_GRID_COLUMNS
-#define NUM_GRID_COLUMNS 11
+#define NUM_GRID_COLUMNS 17
 #endif // NUM_GRID_COLUMNS
 
 #ifndef WIDTH_INDEX
@@ -31,3 +31,17 @@
 #ifndef SHOW_OVERLAY
 #define SHOW_OVERLAY
 #endif // SHOW_OVERLAY
+
+/*
+#ifndef USE_CONTROLLER
+#define USE_CONTROLLER
+#endif // USE_CONTROLLER
+*/
+
+#ifndef XINPUT_ENUM_TIMEOUT_MS
+#define XINPUT_ENUM_TIMEOUT_MS 2000
+#endif // XINPUT_ENUM_TIMEOUT_MS
+
+#ifndef SIDE_MARGIN_WIDTH
+#define SIDE_MARGIN_WIDTH 400
+#endif // SIDE_MARGIN_WIDTH

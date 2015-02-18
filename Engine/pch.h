@@ -9,3 +9,4 @@
 #include <wincodec.h>
 #include <math.h>
 #include <agile.h>
+#include <Xinput.h>

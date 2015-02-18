@@ -10,6 +10,7 @@
 #include "minwindef.h"
 #include "BasicLoader.h"
 #include "DebugOverlay.h"
+#include "SimpleController.h"
 
 
 using namespace Microsoft::WRL;
@@ -28,7 +29,8 @@ D2DBasicAnimation::D2DBasicAnimation() :
     m_windowClosed(false),
     m_windowVisible(true),
     m_pathLength(0.0f),
-    m_elapsedTime(0.0f)
+    m_elapsedTime(0.0f),
+	m_isControllerConnected(false)
 {
 }
 
@@ -271,6 +273,9 @@ void D2DBasicAnimation::Render()
     m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
     m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
+	DrawLeftMargin();
+	DrawRightMargin();
+
 	DrawGrid();
 	DrawPlayer();
 
@@ -455,7 +460,7 @@ void D2DBasicAnimation::Render()
 #ifdef SHOW_OVERLAY
 	
     m_sampleOverlay->Render();
-	m_debugOverlay->Render();
+	m_debugOverlay->Render("Hello World");
 #endif // SHOW_OVERLAY
 }
 
@@ -476,6 +481,10 @@ void D2DBasicAnimation::Initialize(
 #ifdef SIMPLE_SPRITES
 	m_renderer = ref new SimpleSprites();
 #endif // SIMPLE_SPRITES
+
+#ifdef CONTROLLER_RENDERER
+	m_controllerRenderer = ref new SimpleController();
+#endif // CONTROLLER_RENDERER
 }
 
 void D2DBasicAnimation::SetWindow(
@@ -506,6 +515,10 @@ void D2DBasicAnimation::SetWindow(
 #else
     DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
 #endif // SIMPLE_SPRITES
+
+#ifdef CONTROLLER_RENDERER
+	m_controllerRenderer->Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
+#endif // CONTROLLER_RENDERER
 }
 
 void D2DBasicAnimation::Load(
@@ -524,6 +537,14 @@ void D2DBasicAnimation::Run()
     {
         if (m_windowVisible)
         {
+#ifdef CONTROLLER_RENDERER
+			timer->Update();
+			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+			m_controllerRenderer->Update(timer->Total, timer->Delta);
+			m_controllerRenderer->Render();
+			m_controllerRenderer->Present();
+#endif // CONTROLLER_RENDERER
+
 //#ifdef SIMPLE_SPRITES
 //			timer->Update();
 //			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
@@ -531,6 +552,8 @@ void D2DBasicAnimation::Run()
 //			m_renderer->Render();
 //			m_renderer->Present();
 //#else // SIMPLE_SPRITES
+
+			// TODO: Put all of these into a Renderer class
 			timer->Update();
 
 			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
@@ -802,6 +825,47 @@ void D2DBasicAnimation::Run()
 				}
 			}
 
+
+#ifdef USE_CONTROLLER
+			if (!m_isControllerConnected)
+			{
+				//
+				// Ennumerating for XInput devices takes 'time' on the order of milliseconds.
+				// Any time a device is not currently known as connected (not yet called XInput, or calling
+				// an XInput function after a failure) ennumeration happens.
+				// An app should avoid repeatedly calling XInput functions if there are no known devices connected
+				// as this can slow down application performance.
+				// This sample takes the simple approach of not calling XInput functions after failure
+				// until a specified timeout has passed.
+				//
+				uint64 currentTime = ::GetTickCount64();
+				if (currentTime - m_lastEnumTime < XINPUT_ENUM_TIMEOUT_MS)
+				{
+					return;
+				}
+				m_lastEnumTime = currentTime;
+
+				// Check for controller connection by trying to get the capabilties
+				uint32 capsResult = XInputGetCapabilities(0, XINPUT_FLAG_GAMEPAD, &m_xinputCaps);
+				if (capsResult != ERROR_SUCCESS)
+				{
+					return;
+				}
+
+				// Device is connected
+				m_isControllerConnected = true;
+			}
+
+			uint32 stateResult = XInputGetState(0, &m_xinputState);
+			if (stateResult != ERROR_SUCCESS)
+			{
+				// Device is no longer connected
+				m_isControllerConnected = false;
+				m_lastEnumTime = ::GetTickCount64();
+			}
+#endif // USE_CONTROLLER
+
+
             Render();
             Present();
 //#endif // SIMPLE_SPRITES:
@@ -906,22 +970,24 @@ void D2DBasicAnimation::DrawGrid()
 	float windowWidth = m_window->Bounds.Width;
 	float windowHeight = m_window->Bounds.Height;
 
+	float gridWidth = windowWidth - (2.0f * SIDE_MARGIN_WIDTH);
+
 	// TODO: Use arrays instead of separate variables.
 	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
-	float columnWidth = (windowWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
+	float columnWidth = (gridWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
 
 	// Draw the horizontal lines.
 	for (int row = 0; row <= NUM_GRID_ROWS; row++)
 	{
 		D2D1_POINT_2F src
 		{ 
-			MARGIN, 
+			SIDE_MARGIN_WIDTH + MARGIN, 
 			MARGIN + (rowHeight * (float) row)
 		};
 
 		D2D1_POINT_2F dst
 		{ 
-			windowWidth - MARGIN, 
+			windowWidth - SIDE_MARGIN_WIDTH - MARGIN, 
 			MARGIN + (rowHeight * (float) row)
 		};
 
@@ -933,13 +999,13 @@ void D2DBasicAnimation::DrawGrid()
 	{
 		D2D1_POINT_2F src
 		{
-			MARGIN + (columnWidth * (float) column),
+			SIDE_MARGIN_WIDTH + MARGIN + (columnWidth * (float) column),
 			MARGIN
 		};
 
 		D2D1_POINT_2F dst
 		{
-			MARGIN + (columnWidth * (float) column),
+			SIDE_MARGIN_WIDTH + MARGIN + (columnWidth * (float) column),
 			windowHeight - MARGIN,
 		};
 
@@ -1007,10 +1073,12 @@ void D2DBasicAnimation::CalculateSquareCenter(int row, int column, float * x, fl
 	float windowWidth = m_window->Bounds.Width;
 	float windowHeight = m_window->Bounds.Height;
 
-	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
-	float columnWidth = (windowWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
+	float gridWidth = windowWidth - 2.0f * SIDE_MARGIN_WIDTH;
 
-	*x = MARGIN + (columnWidth * column) + (columnWidth / 2.0f);
+	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
+	float columnWidth = (gridWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
+
+	*x = SIDE_MARGIN_WIDTH + MARGIN + (columnWidth * column) + (columnWidth / 2.0f);
 	*y = MARGIN + (rowHeight * row) + (rowHeight / 2.0f);
 }
 
@@ -1162,4 +1230,34 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_linkData.push_back(data);
 	}
+}
+
+void D2DBasicAnimation::DrawLeftMargin()
+{
+	D2D1_RECT_F rect
+	{
+		0.0f,
+		0.0f,
+		SIDE_MARGIN_WIDTH,
+		m_windowBounds.Height
+	};
+
+	m_d2dContext->FillRectangle(
+		rect,
+		m_blackBrush.Get());
+}
+
+void D2DBasicAnimation::DrawRightMargin()
+{
+	D2D1_RECT_F rect
+	{
+		m_windowBounds.Width - SIDE_MARGIN_WIDTH,
+		0.0f,
+		m_windowBounds.Width,
+		m_windowBounds.Height
+	};
+
+	m_d2dContext->FillRectangle(
+		rect,
+		m_blackBrush.Get());
 }

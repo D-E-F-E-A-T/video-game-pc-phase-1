@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "DebugOverlay.h"
+#include <string>
 
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -99,7 +100,7 @@ void DebugOverlay::ResetDirectXResources()
 
     m_logoSize = m_logoBitmap->GetSize();
 
-    ComPtr<IDWriteTextFormat> nameTextFormat;
+//    ComPtr<IDWriteTextFormat> nameTextFormat;
     DX::ThrowIfFailed(
         m_dwriteFactory->CreateTextFormat(
             L"Segoe UI",
@@ -158,6 +159,55 @@ void DebugOverlay::UpdateForWindowSizeChange()
     }
 }
 
+void DebugOverlay::Render(Platform::String ^ text)
+{
+	D2D1_RECT_F rect
+	{
+		2.0f * m_padding,
+		CoreWindow::GetForCurrentThread()->Bounds.Height - m_textVerticalOffset - 100.f,
+		2.0f * m_padding + 200.f, 
+		CoreWindow::GetForCurrentThread()->Bounds.Height - m_textVerticalOffset
+	};
+
+	if (text != nullptr)
+	{ 
+		DX::ThrowIfFailed(
+			m_dwriteFactory->CreateTextLayout(
+			text->Data(),
+			text->Length(),
+			nameTextFormat.Get(),
+			4096.0f,
+			4096.0f,
+			&m_textLayout
+			)
+			);
+
+		/*
+		m_d2dContext->DrawTextLayout(
+			Point2F(
+			2.0f * m_padding,
+			CoreWindow::GetForCurrentThread()->Bounds.Height - m_textVerticalOffset - 100.f),
+			m_textLayout.Get(),
+			m_whiteBrush.Get()
+			);
+			*/
+			
+
+		/*
+		std::wstring ws1(text->Data());
+		
+		m_d2dContext->DrawText(
+				ws1.data(),
+				text->Length(),
+				m_textLayout.Get(), //m_dataTextFormat.Get(),
+				rect,
+				m_whiteBrush.Get()	// m_textBrush.Get()
+				);
+				*/
+	}
+
+}
+
 void DebugOverlay::Render()
 {
     if (m_drawOverlay)
@@ -173,6 +223,7 @@ void DebugOverlay::Render()
             D2D1::RectF(m_padding, 0.0f, m_logoSize.width + m_padding, m_logoSize.height)
             );
 */
+
 
         m_d2dContext->DrawTextLayout(
             Point2F(

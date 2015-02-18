@@ -16,6 +16,7 @@
     <ClCompile Include="BasicSprites.cpp" />
     <ClCompile Include="BasicTimer.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
+    <ClCompile Include="SimpleController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="BasicShapes.h" />
     <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="DebugOverlay.h" />
+    <ClInclude Include="SimpleController.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

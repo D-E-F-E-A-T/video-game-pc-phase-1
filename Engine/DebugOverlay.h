@@ -22,6 +22,7 @@ internal:
     void UpdateForWindowSizeChange();
 
     void Render();
+	void DebugOverlay::Render(Platform::String ^ text);
 
     float GetTitleHeightInDips();
 
@@ -45,4 +46,5 @@ private:
     float                                           m_textVerticalOffset;
     D2D1_SIZE_F                                     m_logoSize;
     float                                           m_overlayWidth;
+	Microsoft::WRL::ComPtr<IDWriteTextFormat> nameTextFormat;
 };

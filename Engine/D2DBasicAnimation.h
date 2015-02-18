@@ -5,6 +5,7 @@
 #include "SampleOverlay.h"
 #include "SimpleSprites.h"
 #include "DebugOverlay.h"
+#include "SimpleController.h"
 
 using namespace Microsoft::WRL;
 
@@ -69,6 +70,9 @@ private:
 	void DrawGrid();
 	void DrawPlayer();
 
+	void DrawLeftMargin();
+	void DrawRightMargin();
+
 	// Put these into XML files.
 	void DrawTree();
 	void DrawRock();
@@ -105,6 +109,10 @@ private:
 	SimpleSprites ^ m_renderer;
 #endif // SIMPLE_SPRITES
 
+#ifdef CONTROLLER_RENDERER
+	SimpleController ^ m_controllerRenderer;
+#endif // CONTROLLER_RENDERER
+
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
 
 	ComPtr<ID3D11Texture2D> m_tree;
@@ -126,6 +134,12 @@ private:
 
 	ComPtr<ID3D11Texture2D> m_link;
 	std::vector<LinkData> m_linkData;
+
+	// Input related members
+	bool                    m_isControllerConnected;  // Do we have a controller connected
+	XINPUT_CAPABILITIES     m_xinputCaps;             // Capabilites of the controller
+	XINPUT_STATE            m_xinputState;            // The current state of the controller
+	uint64                  m_lastEnumTime;           // Last time a new controller connection was checked
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

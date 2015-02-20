@@ -72,7 +72,9 @@ D2DBasicAnimation::D2DBasicAnimation() :
     m_windowVisible(true),
     m_pathLength(0.0f),
     m_elapsedTime(0.0f),
-	m_isControllerConnected(false)
+	m_isControllerConnected(false),
+	m_currentPlayerColumn(2),
+	m_currentPlayerRow(2)
 {
 }
 
@@ -354,11 +356,11 @@ void D2DBasicAnimation::Render()
 	DrawPlayer();
 
 	// Could use factories. Pass in the screen ID, row, column.
-	DrawTree();
-	DrawRock();
-	DrawDoor();
-	DrawGround();
-	DrawWater();
+	//DrawTree();
+	//DrawRock();
+	//DrawDoor();
+	//DrawGround();
+	//DrawWater();
 
 	RenderControllerInput();
 
@@ -1031,10 +1033,12 @@ void D2DBasicAnimation::OnResuming(
 
 void D2DBasicAnimation::DrawPlayer()
 {
+	/*
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(5, 5, &x, &y);
+	CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
+//	CalculateSquareCenter(2, 2, &x, &y);
 
 	D2D1_RECT_F rect
 	{
@@ -1044,9 +1048,32 @@ void D2DBasicAnimation::DrawPlayer()
 		y + 10.0f
 	};
 
-	m_d2dContext->DrawRectangle(
+	m_d2dContext->FillRectangle(
 		rect,
-		m_orangeBrush.Get());
+		m_blackBrush.Get());
+*/
+
+	for (int i = 0; i < SampleSettings::NumLinks; i++)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+
+		CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
+
+
+		LinkData data;
+		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
+		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
+		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
+		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
+		data.vel.x = tempMag * cosf(tempRot);
+		data.vel.y = tempMag * sinf(tempRot);
+		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
+		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
+		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
+		m_linkData.clear();
+		m_linkData.push_back(data);
+	}
 }
 
 void D2DBasicAnimation::DrawGrid()
@@ -1294,12 +1321,13 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		m_stoneWallData.push_back(data);
 	}
 
+	/*
 	for (int i = 0; i < SampleSettings::NumLinks; i++)
 	{
 		float x = 0.0f;
 		float y = 0.0f;
 
-		CalculateSquareCenter(5, 5, &x, &y);
+		CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
 
 
 		LinkData data;
@@ -1314,6 +1342,7 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_linkData.push_back(data);
 	}
+	*/
 }
 
 void D2DBasicAnimation::DrawLeftMargin()
@@ -1538,18 +1567,22 @@ size_t groupStart = where;
 if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 {
 text[where++] = L'U';
+m_currentPlayerRow--;
 }
 if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 {
 text[where++] = L'D';
+m_currentPlayerRow++;
 }
 if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 {
 text[where++] = L'L';
+m_currentPlayerColumn--;
 }
 if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 {
 text[where++] = L'R';
+m_currentPlayerColumn++;
 }
 if (where != groupStart)
 {

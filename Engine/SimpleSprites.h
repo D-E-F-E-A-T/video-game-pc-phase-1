@@ -21,7 +21,7 @@ namespace SampleSettings
 	static const unsigned int NumWaters = 10;
 	static const unsigned int NumGrasses = 10;
 	static const unsigned int NumStoneWalls = 10;
-	static const unsigned int NumLinks = 10;
+	static const unsigned int NumLinks = 1;
 //#endif // WATER_SPRITE
 
     namespace Performance

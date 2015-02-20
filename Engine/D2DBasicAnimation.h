@@ -151,6 +151,9 @@ private:
 	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_headerTextFormat;
 	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_dataTextFormat;
 	Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>    m_textBrush;
+
+	int m_currentPlayerRow;
+	int m_currentPlayerColumn;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

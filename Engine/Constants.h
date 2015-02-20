@@ -9,7 +9,7 @@
 #endif // SCREEN_HEIGHT
 
 #ifndef NUM_GRID_ROWS 
-#define NUM_GRID_ROWS 13
+#define NUM_GRID_ROWS 15
 #endif // NUM_GRID_ROWS 
 
 #ifndef NUM_GRID_COLUMNS
@@ -25,7 +25,7 @@
 #endif // HEIGHT_INDEX
 
 #ifndef MARGIN 
-#define MARGIN 50.0f
+#define MARGIN 0.0f
 #endif // SCREEN_BORDER_WIDTH
 
 #ifndef SHOW_OVERLAY

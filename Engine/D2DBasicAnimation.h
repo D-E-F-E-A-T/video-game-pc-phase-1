@@ -154,6 +154,8 @@ private:
 
 	int m_currentPlayerRow;
 	int m_currentPlayerColumn;
+
+	void SetupScreen();
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

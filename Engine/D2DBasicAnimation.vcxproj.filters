@@ -41,6 +41,7 @@
     <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="SimpleController.h" />
+    <ClInclude Include="ScreenBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

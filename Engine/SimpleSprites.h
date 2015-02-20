@@ -39,13 +39,24 @@ namespace SampleSettings
     }
 }
 
-struct TreeData
+class TreeData
 {
+public:
     float2 pos;
     float2 vel;
     float rot;
     float rotVel;
     float scale;
+
+	TreeData(float x, float y)
+	{
+		this->pos.x = x;
+		this->pos.y = y;
+
+		this->rot = 0.0f;
+		this->scale = 1.0f;
+		this->rotVel = 0.0f;
+	}
 };
 
 struct RockData

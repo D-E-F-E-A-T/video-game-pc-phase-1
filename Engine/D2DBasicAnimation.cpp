@@ -73,8 +73,8 @@ D2DBasicAnimation::D2DBasicAnimation() :
     m_pathLength(0.0f),
     m_elapsedTime(0.0f),
 	m_isControllerConnected(false),
-	m_currentPlayerColumn(2),
-	m_currentPlayerRow(2)
+	m_currentPlayerColumn(8),
+	m_currentPlayerRow(7)
 {
 }
 
@@ -192,7 +192,7 @@ void D2DBasicAnimation::CreateDeviceResources()
         m_d2dContext.Get(),
         m_wicFactory.Get(),
         m_dwriteFactory.Get(),
-        "Status overlay"
+        ""
         );
 
 	m_debugOverlay = ref new DebugOverlay();
@@ -362,7 +362,7 @@ void D2DBasicAnimation::Render()
 	//DrawGround();
 	//DrawWater();
 
-	RenderControllerInput();
+//	RenderControllerInput();
 
     float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
@@ -686,6 +686,7 @@ void D2DBasicAnimation::Run()
 
 			for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
 			{
+				/*
 				static const float border = 100.0f;
 				tree->pos = tree->pos + tree->vel * timer->Delta;// timeDelta;
 				if (tree->vel.x < 0)
@@ -726,6 +727,7 @@ void D2DBasicAnimation::Run()
 				{
 					tree->rot += 2.0f * PI_F;
 				}
+*/
 			}
 
 			for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
@@ -772,140 +774,7 @@ void D2DBasicAnimation::Run()
 				}
 			}
 
-//#ifdef WATER_SPRITE
-			for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
-			{
-				static const float border = 100.0f;
-				water->pos = water->pos + water->vel * timer->Delta;// timeDelta;
-				if (water->vel.x < 0)
-				{
-					if (water->pos.x < -border)
-					{
-						water->pos.x = m_windowBounds.Width + border;
-					}
-				}
-				else
-				{
-					if (water->pos.x > m_windowBounds.Width + border)
-					{
-						water->pos.x = -border;
-					}
-				}
-				if (water->vel.y < 0)
-				{
-					if (water->pos.y < -border)
-					{
-						water->pos.y = m_windowBounds.Height + border;
-					}
-				}
-				else
-				{
-					if (water->pos.y > m_windowBounds.Height + border)
-					{
-						water->pos.y = -border;
-					}
-				}
 
-				water->rot += water->rotVel * timer->Delta;// timeDelta;
-				if (water->rot > PI_F)
-				{
-					water->rot -= 2.0f * PI_F;
-				}
-				if (water->rot < -PI_F)
-				{
-					water->rot += 2.0f * PI_F;
-				}
-			}
-//#endif // WATER_SPRITE
-
-			for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
-			{
-				static const float border = 100.0f;
-				grass->pos = grass->pos + grass->vel * timer->Delta;// timeDelta;
-				if (grass->vel.x < 0)
-				{
-					if (grass->pos.x < -border)
-					{
-						grass->pos.x = m_windowBounds.Width + border;
-					}
-				}
-				else
-				{
-					if (grass->pos.x > m_windowBounds.Width + border)
-					{
-						grass->pos.x = -border;
-					}
-				}
-				if (grass->vel.y < 0)
-				{
-					if (grass->pos.y < -border)
-					{
-						grass->pos.y = m_windowBounds.Height + border;
-					}
-				}
-				else
-				{
-					if (grass->pos.y > m_windowBounds.Height + border)
-					{
-						grass->pos.y = -border;
-					}
-				}
-
-				grass->rot += grass->rotVel * timer->Delta;// timeDelta;
-				if (grass->rot > PI_F)
-				{
-					grass->rot -= 2.0f * PI_F;
-				}
-				if (grass->rot < -PI_F)
-				{
-					grass->rot += 2.0f * PI_F;
-				}
-			}
-
-
-			for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
-			{
-				static const float border = 100.0f;
-				stoneWall->pos = stoneWall->pos + stoneWall->vel * timer->Delta;// timeDelta;
-				if (stoneWall->vel.x < 0)
-				{
-					if (stoneWall->pos.x < -border)
-					{
-						stoneWall->pos.x = m_windowBounds.Width + border;
-					}
-				}
-				else
-				{
-					if (stoneWall->pos.x > m_windowBounds.Width + border)
-					{
-						stoneWall->pos.x = -border;
-					}
-				}
-				if (stoneWall->vel.y < 0)
-				{
-					if (stoneWall->pos.y < -border)
-					{
-						stoneWall->pos.y = m_windowBounds.Height + border;
-					}
-				}
-				else
-				{
-					if (stoneWall->pos.y > m_windowBounds.Height + border)
-					{
-						stoneWall->pos.y = -border;
-					}
-				}
-
-				stoneWall->rot += stoneWall->rotVel * timer->Delta;// timeDelta;
-				if (stoneWall->rot > PI_F)
-				{
-					stoneWall->rot -= 2.0f * PI_F;
-				}
-				if (stoneWall->rot < -PI_F)
-				{
-					stoneWall->rot += 2.0f * PI_F;
-				}
-			}
 
 			for (auto link = m_linkData.begin(); link != m_linkData.end(); link++)
 			{
@@ -1212,29 +1081,12 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 
 	// Randomly generate some non-interactive asteroids to fit the screen.
 
-	m_treeData.clear();
 
-	for (int i = 0; i < SampleSettings::NumTrees; i++)
-	{
-		float x = 0.0f;
-		float y = 0.0f;
-
-		CalculateSquareCenter(i, 8, &x, &y);
+	// Use Builders
+	SetupScreen();
 
 
-		TreeData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_treeData.push_back(data);
-	}
-
+	/*
 	for (int i = 0; i < SampleSettings::NumRocks; i++)
 	{
 		float x = 0.0f;
@@ -1255,8 +1107,9 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_rockData.push_back(data);
 	}
+*/
 
-//#ifdef WATER_SPRITE
+	/*
 	for (int i = 0; i < SampleSettings::NumWaters; i++)
 	{
 		float x = 0.0f;
@@ -1277,8 +1130,9 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_waterData.push_back(data);
 	}
-//#endif // WATER_SPRITE
+*/
 
+	/*
 	for (int i = 0; i < SampleSettings::NumGrasses; i++)
 	{
 		float x = 0.0f;
@@ -1299,7 +1153,9 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_grassData.push_back(data);
 	}
+*/
 
+	/*
 	for (int i = 0; i < SampleSettings::NumStoneWalls; i++)
 	{
 		float x = 0.0f;
@@ -1320,6 +1176,7 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
 		m_stoneWallData.push_back(data);
 	}
+	*/
 
 	/*
 	for (int i = 0; i < SampleSettings::NumLinks; i++)
@@ -1634,3 +1491,199 @@ text[where] = L'\0';
 DrawText(text, loc);
 }
 
+void D2DBasicAnimation::SetupScreen()
+{
+	m_treeData.clear();
+
+	float x = 0.0f;
+	float y = 0.0f;
+
+	for (int i = 0; i < 4; i++)
+	{
+		CalculateSquareCenter(i, 0, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+
+		CalculateSquareCenter(i, 1, &x, &y);
+		TreeData data1(x, y);
+		m_treeData.push_back(data1);
+
+		CalculateSquareCenter(i, 2, &x, &y);
+		TreeData data2(x, y);
+		m_treeData.push_back(data2);
+
+		CalculateSquareCenter(i, 3, &x, &y);
+		TreeData data3(x, y);
+		m_treeData.push_back(data3);
+
+		CalculateSquareCenter(i, 4, &x, &y);
+		TreeData data4(x, y);
+		m_treeData.push_back(data4);
+
+		CalculateSquareCenter(i, 5, &x, &y);
+		TreeData data5(x, y);
+		m_treeData.push_back(data5);
+
+		CalculateSquareCenter(i, 6, &x, &y);
+		TreeData data6(x, y);
+		m_treeData.push_back(data6);
+
+		CalculateSquareCenter(i, 11, &x, &y);
+		TreeData data11(x, y);
+		m_treeData.push_back(data11);
+
+		CalculateSquareCenter(i, 12, &x, &y);
+		TreeData data12(x, y);
+		m_treeData.push_back(data12);
+
+		CalculateSquareCenter(i, 13, &x, &y);
+		TreeData data13(x, y);
+		m_treeData.push_back(data13);
+
+		CalculateSquareCenter(i, 14, &x, &y);
+		TreeData data14(x, y);
+		m_treeData.push_back(data14);
+
+		CalculateSquareCenter(i, 15, &x, &y);
+		TreeData data15(x, y);
+		m_treeData.push_back(data15);
+
+		CalculateSquareCenter(i, 16, &x, &y);
+		TreeData data16(x, y);
+		m_treeData.push_back(data16);
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		CalculateSquareCenter(4, i, &x, &y);
+		TreeData data0(x, y);
+		m_treeData.push_back(data0);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		CalculateSquareCenter(5, i, &x, &y);
+		TreeData data0(x, y);
+		m_treeData.push_back(data0);
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		CalculateSquareCenter(6, i, &x, &y);
+		TreeData data0(x, y);
+		m_treeData.push_back(data0);
+	}
+
+	for (int i = 12; i < 17; i++)
+	{
+		CalculateSquareCenter(4, i, &x, &y);
+		TreeData data0(x, y);
+		m_treeData.push_back(data0);
+	}
+
+	for (int i = 12; i < 17; i++)
+	{
+		CalculateSquareCenter(9, i, &x, &y);
+		TreeData data0(x, y);
+		m_treeData.push_back(data0);
+	}
+
+
+	for (int i = 0; i < 5; i++)
+	{
+		CalculateSquareCenter(9, i, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		CalculateSquareCenter(10, i, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+	}
+
+	for (int i = 11; i < 17; i++)
+	{
+		CalculateSquareCenter(10, i, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+	}
+
+	for (int i = 11; i < 17; i++)
+	{
+		CalculateSquareCenter(11, i, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+	}
+
+	for (int i = 0; i < 7; i++)
+	{
+		CalculateSquareCenter(11, i, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+	}
+
+	for (int i = 12; i < 15; i++)
+	{
+		CalculateSquareCenter(i, 7, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+	}
+
+
+	for (int i = 12; i < 15; i++)
+	{
+		CalculateSquareCenter(i, 0, &x, &y);
+		TreeData data(x, y);
+		m_treeData.push_back(data);
+
+		CalculateSquareCenter(i, 1, &x, &y);
+		TreeData data1(x, y);
+		m_treeData.push_back(data1);
+
+		CalculateSquareCenter(i, 2, &x, &y);
+		TreeData data2(x, y);
+		m_treeData.push_back(data2);
+
+		CalculateSquareCenter(i, 3, &x, &y);
+		TreeData data3(x, y);
+		m_treeData.push_back(data3);
+
+		CalculateSquareCenter(i, 4, &x, &y);
+		TreeData data4(x, y);
+		m_treeData.push_back(data4);
+
+		CalculateSquareCenter(i, 5, &x, &y);
+		TreeData data5(x, y);
+		m_treeData.push_back(data5);
+
+		CalculateSquareCenter(i, 6, &x, &y);
+		TreeData data6(x, y);
+		m_treeData.push_back(data6);
+
+		CalculateSquareCenter(i, 11, &x, &y);
+		TreeData data11(x, y);
+		m_treeData.push_back(data11);
+
+		CalculateSquareCenter(i, 12, &x, &y);
+		TreeData data12(x, y);
+		m_treeData.push_back(data12);
+
+		CalculateSquareCenter(i, 13, &x, &y);
+		TreeData data13(x, y);
+		m_treeData.push_back(data13);
+
+		CalculateSquareCenter(i, 14, &x, &y);
+		TreeData data14(x, y);
+		m_treeData.push_back(data14);
+
+		CalculateSquareCenter(i, 15, &x, &y);
+		TreeData data15(x, y);
+		m_treeData.push_back(data15);
+
+		CalculateSquareCenter(i, 16, &x, &y);
+		TreeData data16(x, y);
+		m_treeData.push_back(data16);
+	}
+}

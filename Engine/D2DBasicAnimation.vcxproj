@@ -196,6 +196,7 @@
     <ClInclude Include="DirectXSample.h" />
     <ClInclude Include="SampleOverlay.h" />
     <ClInclude Include="DirectXBase.h" />
+    <ClInclude Include="ScreenBuilder.h" />
     <ClInclude Include="SimpleController.h" />
     <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="Tree.h" />

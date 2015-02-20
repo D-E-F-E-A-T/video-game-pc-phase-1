@@ -25,15 +25,17 @@ internal:
 private:
     // Input functionality
     void FetchControllerInput();
-    void RenderControllerInput();
+//    void RenderControllerInput();
 
     // Functions for drawing information on screen
+	/*
     void DrawHeader(const wchar_t* pText, const D2D1_RECT_F& loc);
     void DrawText(const wchar_t* pText, const D2D1_RECT_F& loc);
     void DrawText(uint32 value, const D2D1_RECT_F& loc);
     void DrawText(int16 value, const D2D1_RECT_F& loc);
     void DrawText(uint8 value, const D2D1_RECT_F& loc);
     void DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc);
+	*/
 
     // Overlay for default sample graphics
     SampleOverlay^          m_sampleOverlay;

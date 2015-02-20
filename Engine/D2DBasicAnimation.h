@@ -80,6 +80,7 @@ private:
 	void DrawGround();
 	void DrawWater();
 
+	void RenderControllerInput();
 	void CalculateSquareCenter(int row, int column, float * x, float * y);
 
     float ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime);
@@ -104,14 +105,20 @@ private:
     float                                                           m_pathLength;
     float                                                           m_elapsedTime;
 
+	void DrawHeader(const wchar_t* pText, const D2D1_RECT_F& loc);
+	void DrawText(const wchar_t* pText, const D2D1_RECT_F& loc);
+	void DrawText(uint32 value, const D2D1_RECT_F& loc);
+	void DrawText(int16 value, const D2D1_RECT_F& loc);
+	void DrawText(uint8 value, const D2D1_RECT_F& loc);
+	void DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc);
 
 #ifdef SIMPLE_SPRITES
 	SimpleSprites ^ m_renderer;
 #endif // SIMPLE_SPRITES
 
-#ifdef CONTROLLER_RENDERER
-	SimpleController ^ m_controllerRenderer;
-#endif // CONTROLLER_RENDERER
+//#ifdef CONTROLLER_RENDERER
+//	SimpleController ^ m_controllerRenderer;
+//#endif // CONTROLLER_RENDERER
 
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
 
@@ -140,6 +147,10 @@ private:
 	XINPUT_CAPABILITIES     m_xinputCaps;             // Capabilites of the controller
 	XINPUT_STATE            m_xinputState;            // The current state of the controller
 	uint64                  m_lastEnumTime;           // Last time a new controller connection was checked
+
+	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_headerTextFormat;
+	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_dataTextFormat;
+	Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>    m_textBrush;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

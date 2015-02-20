@@ -125,8 +125,10 @@ void SimpleController::CreateWindowSizeDependentResources()
     m_sampleOverlay->UpdateForWindowSizeChange();
 }
 
+
 void SimpleController::Render()
 {
+	/*
     // Bind the render target
     m_d3dContext->OMSetRenderTargets(
         1,
@@ -141,7 +143,9 @@ void SimpleController::Render()
 
     // Render the controller data
     RenderControllerInput();
+*/
 }
+
 
 void SimpleController::FetchControllerInput()
 {
@@ -181,8 +185,21 @@ void SimpleController::FetchControllerInput()
         m_isControllerConnected = false;
         m_lastEnumTime = ::GetTickCount64();
     }
+
+	if (m_xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)
+	{
+		int i = 0; 
+		i++;
+	}
+
+	if (m_xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)
+	{
+		int i = 0;
+		i++;
+	}
 }
 
+/*
 void SimpleController::RenderControllerInput()
 {
     D2D1_SIZE_F size = m_d2dContext->GetSize();
@@ -286,12 +303,14 @@ void SimpleController::RenderControllerInput()
         DX::ThrowIfFailed(hr);
     }
 }
+*/
 
 void SimpleController::Update(float /*timeTotal*/, float /*timeDelta*/)
 {
     FetchControllerInput();
 }
 
+/*
 void SimpleController::DrawHeader(const char16* text, const D2D1_RECT_F& loc)
 {
     m_d2dContext->DrawText(
@@ -302,8 +321,9 @@ void SimpleController::DrawHeader(const char16* text, const D2D1_RECT_F& loc)
         m_textBrush.Get()
         );
 }
+*/
 
-
+/*
 void SimpleController::DrawText(const char16* text, const D2D1_RECT_F& loc)
 {
     m_d2dContext->DrawText(
@@ -314,28 +334,36 @@ void SimpleController::DrawText(const char16* text, const D2D1_RECT_F& loc)
         m_textBrush.Get()
         );
 }
+*/
 
+/*
 void SimpleController::DrawText(uint32 value, const D2D1_RECT_F& loc)
 {
     char16 text[16];
     ::_snwprintf_s(text, sizeof(text)/sizeof(char16), L"0x%08X", value);
     DrawText(text, loc);
 }
+*/
 
+/*
 void SimpleController::DrawText(int16 value, const D2D1_RECT_F& loc)
 {
     char16 text[16];
     ::_snwprintf_s(text, sizeof(text)/sizeof(char16), L"%05d", value);
     DrawText(text, loc);
 }
+*/
 
+/*
 void SimpleController::DrawText(uint8 value, const D2D1_RECT_F& loc)
 {
     char16 text[8];
     ::_snwprintf_s(text, sizeof(text)/sizeof(char16), L"0x%02X", value);
     DrawText(text, loc);
 }
+*/
 
+/*
 void SimpleController::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 {
     char16 text[64];
@@ -427,3 +455,4 @@ void SimpleController::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 
     DrawText(text, loc);
 }
+*/

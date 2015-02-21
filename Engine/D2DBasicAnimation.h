@@ -103,6 +103,7 @@ private:
 	ComPtr<ID2D1SolidColorBrush>					m_grayBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_beigeBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_blueBrush;
+	ComPtr<ID2D1SolidColorBrush>					m_redBrush;
     float                                                           m_pathLength;
     float                                                           m_elapsedTime;
 
@@ -151,21 +152,24 @@ private:
 	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_dataTextFormat;
 	Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>    m_textBrush;
 
-	/*
-	int m_currentPlayerRow;
-	int m_currentPlayerColumn;
-	*/
 
 
 	float m_currentPlayerVerticalOffset;
 	float m_currentPlayerHorizontalOffset;
+
+	int m_collidedSpriteColumn;
+	int m_collidedSpriteRow;
 
 
 	void SetupScreen();
 	void FetchControllerInput();
 	int FetchKeyboardInput();
 
-	int CheckForCollisions();
+	int CheckForCollisions(int * column, int * row);
+	void MovePlayer(uint16 buttons);
+
+	void HighlightSprite(int column, int row);
+	// void HighLightCollidedSprite(ISpriteData sprite);	// TODO
 
 };
 

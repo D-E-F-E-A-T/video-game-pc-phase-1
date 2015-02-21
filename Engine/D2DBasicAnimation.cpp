@@ -13,6 +13,12 @@
 #include "SimpleController.h"
 #include "LeftMargin.h"
 #include "RightMargin.h"
+#include "TreeData.h"
+#include "RockData.h"
+#include "WaterData.h"
+#include "GrassData.h"
+#include "StoneWallData.h"
+#include "OrchiData.h"
 
 
 using namespace Microsoft::WRL;
@@ -74,7 +80,9 @@ D2DBasicAnimation::D2DBasicAnimation() :
     m_windowVisible(true),
     m_pathLength(0.0f),
     m_elapsedTime(0.0f),
-	m_isControllerConnected(false)
+	m_isControllerConnected(false),
+	m_collidedSpriteColumn(0),
+	m_collidedSpriteRow(0)
 //	m_currentPlayerColumn(8),
 //	m_currentPlayerRow(7)
 {
@@ -253,6 +261,12 @@ void D2DBasicAnimation::CreateDeviceResources()
 		&m_blueBrush)
 		);
 
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::Red),
+		&m_redBrush)
+		);
+
 	m_spriteBatch = ref new BasicSprites::SpriteBatch();
 	unsigned int capacity = SampleSettings::Performance::ParticleCountMax +
 		SampleSettings::NumTrees + 1;
@@ -349,7 +363,6 @@ void D2DBasicAnimation::CreateDeviceResources()
 
 void D2DBasicAnimation::Render()
 {
-
     // Retrieve the size of the render target.
     D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
 
@@ -363,6 +376,17 @@ void D2DBasicAnimation::Render()
 
 	DrawGrid();
 	DrawPlayer();
+
+	int column = 0;
+	int row = 0;
+
+	int result = CheckForCollisions(&column, &row);
+
+	if (result == 1)
+	{
+		// Need to undo the transform done above.
+		HighlightSprite(column, row);
+	}
 
 	// Could use factories. Pass in the screen ID, row, column.
 	//DrawTree();
@@ -388,42 +412,7 @@ void D2DBasicAnimation::Render()
     // Center the path.
     m_d2dContext->SetTransform(scale * translation);
 
-    // Draw the path in black.
-#ifdef DRAW_SPIRAL
-    m_d2dContext->DrawGeometry(m_pathGeometry.Get(), m_blackBrush.Get());
-#endif // DRAW_SPIRAL
-
     float length = ComputeTriangleLocation(0.0f, m_pathLength, AnimationDuration, m_elapsedTime);
-
-    // Ask the geometry to give us the point that corresponds with the
-    // length at the current time.
-#ifdef DRAW_SPIRAL
-    D2D1_POINT_2F point;
-    D2D1_POINT_2F tangent;
-
-    DX::ThrowIfFailed(
-        m_pathGeometry->ComputePointAtLength(
-            length,
-            nullptr,
-            &point,
-            &tangent
-            )
-        );
-
-    // Reorient the triangle so that it follows the
-    // direction of the path.
-    D2D1_MATRIX_3X2_F triangleMatrix;
-    triangleMatrix = D2D1::Matrix3x2F(
-        tangent.x, tangent.y,
-        -tangent.y, tangent.x,
-        point.x, point.y
-        );
-
-    m_d2dContext->SetTransform(triangleMatrix * scale * translation);
-
-    // Draw the white triangle.
-    m_d2dContext->FillGeometry(m_objectGeometry.Get(), m_whiteBrush.Get());
-#endif // DRAW_SPIRAL
 
     // When we reach the end of the animation, loop back to the beginning.
     if (m_elapsedTime >= AnimationDuration)
@@ -439,19 +428,12 @@ void D2DBasicAnimation::Render()
     // is lost. It will be handled during the next call to Present.
     HRESULT hr = m_d2dContext->EndDraw();
 
-
 	m_d3dContext->OMSetRenderTargets(
 		1,
 		m_d3dRenderTargetView.GetAddressOf(),
 		nullptr
 		);
 
-	/*
-	m_d3dContext->ClearRenderTargetView(
-		m_d3dRenderTargetView.Get(),
-		reinterpret_cast<float*>(&D2D1::ColorF(D2D1::ColorF::MidnightBlue))
-		);
-	*/
 	m_spriteBatch->Begin();
 
 	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
@@ -493,7 +475,6 @@ void D2DBasicAnimation::Render()
 			water->rot
 			);
 	}
-//#endif // WATER_SPRITE
 
 	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
 	{
@@ -521,15 +502,15 @@ void D2DBasicAnimation::Render()
 			);
 	}
 
-		m_spriteBatch->Draw(
-			m_orchi.Get(),
-			m_orchiData.pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * m_orchiData.scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			m_orchiData.rot
-			);
+	m_spriteBatch->Draw(
+		m_orchi.Get(),
+		m_orchiData.pos,
+		BasicSprites::PositionUnits::DIPs,
+		float2(1.0f, 1.0f) * m_orchiData.scale,
+		BasicSprites::SizeUnits::Normalized,
+		float4(0.8f, 0.8f, 1.0f, 1.0f),
+		m_orchiData.rot
+		);
 
 
 	m_spriteBatch->End();
@@ -621,24 +602,17 @@ void D2DBasicAnimation::Run()
 			timer->Update();
 
 			FetchControllerInput();
+			MovePlayer(m_xinputState.Gamepad.wButtons);
 
 			// if the gamepad is not connected, check the keyboard.
 			if (!m_isControllerConnected)
-			{
-	
+			{	
 			}
 
+			Render();			int column = 0;
+			int row = 0;
 
-
-            Render();
-
-			int result = CheckForCollisions();
-
-			if (result == 1)
-			{
-				int i = 0;
-				i++;
-			}
+			int result = CheckForCollisions(&column, &row);
 
             Present();
         }
@@ -717,18 +691,19 @@ void D2DBasicAnimation::OnResuming(
 
 void D2DBasicAnimation::DrawPlayer()
 {
-		float x = 0.0f;
-		float y = 0.0f;
+	float x = 0.0f;
+	float y = 0.0f;
 
-		m_orchiData.pos.x = m_currentPlayerHorizontalOffset;
-		m_orchiData.pos.y = m_currentPlayerVerticalOffset;
-		float tempRot = 0.0f;
-		float tempMag = 0.0f;
-		m_orchiData.vel.x = tempMag * cosf(tempRot);
-		m_orchiData.vel.y = tempMag * sinf(tempRot);
-		m_orchiData.rot = 0.0f;
-		m_orchiData.scale = 1.0f;
-		m_orchiData.rotVel = 0.0f;
+	m_orchiData.pos.x = m_currentPlayerHorizontalOffset;
+	m_orchiData.pos.y = m_currentPlayerVerticalOffset;
+
+	float tempRot = 0.0f;
+	float tempMag = 0.0f;
+	m_orchiData.vel.x = tempMag * cosf(tempRot);
+	m_orchiData.vel.y = tempMag * sinf(tempRot);
+	m_orchiData.rot = 0.0f;
+	m_orchiData.scale = 1.0f;
+	m_orchiData.rotVel = 0.0f;
 }
 
 void D2DBasicAnimation::DrawGrid()
@@ -1217,6 +1192,8 @@ void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 	}
 
 	size_t groupStart = where;
+
+	/*
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
 		text[where++] = L'U';
@@ -1281,6 +1258,9 @@ void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 				m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO);
 		}
 	}
+
+*/
+
 	if (where != groupStart)
 	{
 		text[where++] = L' ';
@@ -1341,125 +1321,125 @@ void D2DBasicAnimation::SetupScreen()
 	for (int i = 0; i < 4; i++)
 	{
 		CalculateSquareCenter(i, 0, &x, &y);
-		TreeData data(x, y);
+		TreeData data(0, i, x, y);
 		m_treeData.push_back(data);
 
 		CalculateSquareCenter(i, 1, &x, &y);
-		TreeData data1(x, y);
+		TreeData data1(1, i, x, y);
 		m_treeData.push_back(data1);
 
 		CalculateSquareCenter(i, 2, &x, &y);
-		TreeData data2(x, y);
+		TreeData data2(2, i, x, y);
 		m_treeData.push_back(data2);
 
 		CalculateSquareCenter(i, 3, &x, &y);
-		TreeData data3(x, y);
+		TreeData data3(3, i, x, y);
 		m_treeData.push_back(data3);
 
 		CalculateSquareCenter(i, 4, &x, &y);
-		TreeData data4(x, y);
+		TreeData data4(4, i, x, y);
 		m_treeData.push_back(data4);
 
 		CalculateSquareCenter(i, 5, &x, &y);
-		TreeData data5(x, y);
+		TreeData data5(5, i, x, y);
 		m_treeData.push_back(data5);
 
 		CalculateSquareCenter(i, 6, &x, &y);
-		TreeData data6(x, y);
+		TreeData data6(6, i, x, y);
 		m_treeData.push_back(data6);
 
 		CalculateSquareCenter(i, 11, &x, &y);
-		TreeData data11(x, y);
+		TreeData data11(11, i, x, y);
 		m_treeData.push_back(data11);
 
 		CalculateSquareCenter(i, 12, &x, &y);
-		TreeData data12(x, y);
+		TreeData data12(12, i, x, y);
 		m_treeData.push_back(data12);
 
 		CalculateSquareCenter(i, 13, &x, &y);
-		TreeData data13(x, y);
+		TreeData data13(13, i, x, y);
 		m_treeData.push_back(data13);
 
 		CalculateSquareCenter(i, 14, &x, &y);
-		TreeData data14(x, y);
+		TreeData data14(14, i, x, y);
 		m_treeData.push_back(data14);
 
 		CalculateSquareCenter(i, 15, &x, &y);
-		TreeData data15(x, y);
+		TreeData data15(15, i, x, y);
 		m_treeData.push_back(data15);
 
 		CalculateSquareCenter(i, 16, &x, &y);
-		TreeData data16(x, y);
+		TreeData data16(16, i, x, y);
 		m_treeData.push_back(data16);
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
 		CalculateSquareCenter(4, i, &x, &y);
-		TreeData data0(x, y);
+		TreeData data0(4, i, x, y);
 		m_treeData.push_back(data0);
 	}
 
 	for (int i = 0; i < 4; i++)
 	{
 		CalculateSquareCenter(5, i, &x, &y);
-		TreeData data0(x, y);
+		TreeData data0(5, i, x, y);
 		m_treeData.push_back(data0);
 	}
 
 	for (int i = 0; i < 3; i++)
 	{
 		CalculateSquareCenter(6, i, &x, &y);
-		TreeData data0(x, y);
+		TreeData data0(6, i, x, y);
 		m_treeData.push_back(data0);
 	}
 
 	for (int i = 12; i < 17; i++)
 	{
 		CalculateSquareCenter(4, i, &x, &y);
-		TreeData data0(x, y);
+		TreeData data0(4, i, x, y);
 		m_treeData.push_back(data0);
 	}
 
 	for (int i = 12; i < 17; i++)
 	{
 		CalculateSquareCenter(9, i, &x, &y);
-		TreeData data0(x, y);
+		TreeData data0(9, i, x, y);
 		m_treeData.push_back(data0);
 	}
 
 	for (int i = 0; i < 6; i++)
 	{
 		CalculateSquareCenter(10, i, &x, &y);
-		TreeData data(x, y);
+		TreeData data(10, i, x, y);
 		m_treeData.push_back(data);
 	}
 
 	for (int i = 11; i < 17; i++)
 	{
 		CalculateSquareCenter(10, i, &x, &y);
-		TreeData data(x, y);
+		TreeData data(10, i, x, y);
 		m_treeData.push_back(data);
 	}
 
 	for (int i = 11; i < 17; i++)
 	{
 		CalculateSquareCenter(11, i, &x, &y);
-		TreeData data(x, y);
+		TreeData data(i, 11, x, y);
 		m_treeData.push_back(data);
 	}
 
 	for (int i = 0; i < 7; i++)
 	{
 		CalculateSquareCenter(11, i, &x, &y);
-		TreeData data(x, y);
+		TreeData data(i, 11, x, y);
 		m_treeData.push_back(data);
 	}
 
 	for (int i = 12; i < 15; i++)
 	{
 		CalculateSquareCenter(i, 7, &x, &y);
-		TreeData data(x, y);
+		TreeData data(7, i, x, y);
 		m_treeData.push_back(data);
 	}
 
@@ -1467,55 +1447,55 @@ void D2DBasicAnimation::SetupScreen()
 	for (int i = 12; i < 15; i++)
 	{
 		CalculateSquareCenter(i, 0, &x, &y);
-		TreeData data(x, y);
+		TreeData data(0, i, x, y);
 		m_treeData.push_back(data);
 
 		CalculateSquareCenter(i, 1, &x, &y);
-		TreeData data1(x, y);
+		TreeData data1(1, i, x, y);
 		m_treeData.push_back(data1);
 
 		CalculateSquareCenter(i, 2, &x, &y);
-		TreeData data2(x, y);
+		TreeData data2(2, i, x, y);
 		m_treeData.push_back(data2);
 
 		CalculateSquareCenter(i, 3, &x, &y);
-		TreeData data3(x, y);
+		TreeData data3(3, i, x, y);
 		m_treeData.push_back(data3);
 
 		CalculateSquareCenter(i, 4, &x, &y);
-		TreeData data4(x, y);
+		TreeData data4(4, i, x, y);
 		m_treeData.push_back(data4);
 
 		CalculateSquareCenter(i, 5, &x, &y);
-		TreeData data5(x, y);
+		TreeData data5(5, i, x, y);
 		m_treeData.push_back(data5);
 
 		CalculateSquareCenter(i, 6, &x, &y);
-		TreeData data6(x, y);
+		TreeData data6(6, i, x, y);
 		m_treeData.push_back(data6);
 
 		CalculateSquareCenter(i, 11, &x, &y);
-		TreeData data11(x, y);
+		TreeData data11(11, i, x, y);
 		m_treeData.push_back(data11);
 
 		CalculateSquareCenter(i, 12, &x, &y);
-		TreeData data12(x, y);
+		TreeData data12(12, i, x, y);
 		m_treeData.push_back(data12);
 
 		CalculateSquareCenter(i, 13, &x, &y);
-		TreeData data13(x, y);
+		TreeData data13(13, i, x, y);
 		m_treeData.push_back(data13);
 
 		CalculateSquareCenter(i, 14, &x, &y);
-		TreeData data14(x, y);
+		TreeData data14(14, i, x, y);
 		m_treeData.push_back(data14);
 
 		CalculateSquareCenter(i, 15, &x, &y);
-		TreeData data15(x, y);
+		TreeData data15(15, i, x, y);
 		m_treeData.push_back(data15);
 
 		CalculateSquareCenter(i, 16, &x, &y);
-		TreeData data16(x, y);
+		TreeData data16(16, i, x, y);
 		m_treeData.push_back(data16);
 	}
 }
@@ -1568,7 +1548,8 @@ int D2DBasicAnimation::FetchKeyboardInput()
 	return 1;
 }
 
-int D2DBasicAnimation::CheckForCollisions()
+// TODO: Pass arrays rather than separate argument lists.
+int D2DBasicAnimation::CheckForCollisions(int * column, int * row)
 {
 	RECT rect1;
 
@@ -1580,13 +1561,6 @@ int D2DBasicAnimation::CheckForCollisions()
 	float bottom = m_currentPlayerVerticalOffset + size.y / 2.0f;
 
 	// Now I know the size (remember to scale accordingly, if needed using m_orchiData).
-	RECT rectOrchi
-	{
-		left,
-		top,
-		right, 
-		bottom		
-	};
 
 	// Look for collisions with all trees
 	float2 treeSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
@@ -1611,28 +1585,127 @@ int D2DBasicAnimation::CheckForCollisions()
 			left <= treeRight &&
 			top >= treeTop &&
 			top <= treeBottom)
+		{
+			*column = tree->column;
+			*row = tree->row;
 			return 1;
+		}
 
 		// Does the top, right vertex overlap the tree's bounding box?
 		if (right >= treeLeft &&
 			right <= treeRight &&
 			top >= treeTop &&
 			top <= treeBottom)
+		{
+			*column = tree->column;
+			*row = tree->row;
 			return 1;
+		}
 
 		// Does the bottom, right vertex overlap the tree's bounding box?
 		if (right >= treeLeft &&
 			right <= treeRight &&
 			bottom >= treeTop &&
 			bottom <= treeBottom)
+		{
+			*column = tree->column;
+			*row = tree->row;
 			return 1;
+		}
 
 		// Does the bottom, left vertex overlap the tree's bounding box?
 		if (left >= treeLeft &&
 			left <= treeRight &&
 			bottom >= treeTop &&
 			bottom <= treeBottom)
+		{
+			*column = tree->column;
+			*row = tree->row;
 			return 1;
+		}
 	}
 	return 0;
+}
+
+void D2DBasicAnimation::MovePlayer(uint16 buttons)
+{
+	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
+	{
+		float prospectiveVerticalOffset =
+			m_currentPlayerVerticalOffset -= PLAYER_WALKING_VELOCITY;
+
+		// Don't go above the top of the screen. 
+		//	Later this will be the trigger to move to the next screen.
+		if (prospectiveVerticalOffset >= 0.f)
+			m_currentPlayerVerticalOffset = prospectiveVerticalOffset;
+		else
+			m_currentPlayerVerticalOffset = 0.0f;
+	}
+
+	if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
+	{
+		float prospectiveVerticalOffset =
+			m_currentPlayerVerticalOffset += PLAYER_WALKING_VELOCITY;
+
+		// Don't go above the top of the screen. 
+		//	Later this will be the trigger to move to the next screen.
+		if (prospectiveVerticalOffset <= m_window->Bounds.Height)
+			m_currentPlayerVerticalOffset = prospectiveVerticalOffset;
+		else
+			m_currentPlayerVerticalOffset = m_window->Bounds.Height;
+	}
+
+	if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
+	{
+		float prospectiveHorizontalOffset =
+			m_currentPlayerHorizontalOffset -= PLAYER_WALKING_VELOCITY;
+
+		if (prospectiveHorizontalOffset >= (m_window->Bounds.Width * LEFT_MARGIN_RATIO))
+		{
+			m_currentPlayerHorizontalOffset = prospectiveHorizontalOffset;
+		}
+		else
+		{
+			m_currentPlayerHorizontalOffset = m_window->Bounds.Width * LEFT_MARGIN_RATIO;
+		}
+	}
+	if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
+	{
+		float prospectiveHorizontalOffset =
+			m_currentPlayerHorizontalOffset += PLAYER_WALKING_VELOCITY;
+
+		if (prospectiveHorizontalOffset <=
+			m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO))
+		{
+			m_currentPlayerHorizontalOffset = prospectiveHorizontalOffset;
+		}
+		else
+		{
+			m_currentPlayerHorizontalOffset =
+				m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO);
+		}
+	}
+}
+
+/*
+	Highlight the sprite that is being collided with.
+*/
+void D2DBasicAnimation::HighlightSprite(int column, int row)
+{
+	float x = 0.0f;
+	float y = 0.0f;
+
+	CalculateSquareCenter(column, row, &x, &y);
+
+	D2D1_RECT_F rect
+	{
+		x - 50.f,
+		y - 50.f,
+		x + 50.f,
+		y + 50.f
+	};
+
+	m_d2dContext->FillRectangle(
+		rect,
+		m_redBrush.Get());
 }

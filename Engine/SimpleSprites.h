@@ -11,6 +11,12 @@
 //#include "SampleOverlay.h"
 //#include "AutoThrottle.h"
 #include "BasicSprites.h"
+#include "TreeData.h"
+#include "RockData.h"
+#include "WaterData.h"
+#include "GrassData.h"
+#include "StoneWallData.h"
+#include "OrchiData.h"
 
 namespace SampleSettings
 {
@@ -36,75 +42,6 @@ namespace SampleSettings
     }
 }
 
-class ISpriteData
-{
-
-};
-
-class TreeData : public ISpriteData
-{
-public:
-    float2 pos;
-    float2 vel;
-    float rot;
-    float rotVel;
-    float scale;
-
-	TreeData(float x, float y)
-	{
-		this->pos.x = x;
-		this->pos.y = y;
-
-		this->rot = 0.0f;
-		this->scale = 1.0f;
-		this->rotVel = 0.0f;
-	}
-};
-
-struct RockData : public ISpriteData
-{
-	float2 pos;
-	float2 vel;
-	float rot;
-	float rotVel;
-	float scale;
-};
-
-struct WaterData : public ISpriteData
-{
-	float2 pos;
-	float2 vel;
-	float rot;
-	float rotVel;
-	float scale;
-};
-
-struct GrassData : public ISpriteData
-{
-	float2 pos;
-	float2 vel;
-	float rot;
-	float rotVel;
-	float scale;
-};
-
-struct StoneWallData : public ISpriteData
-{
-	float2 pos;
-	float2 vel;
-	float rot;
-	float rotVel;
-	float scale;
-};
-
-struct OrchiData
-{
-	float2 pos;
-	float2 vel;
-	float rot;
-	float rotVel;
-	float scale;
-};
 
 struct ParticleData
 {

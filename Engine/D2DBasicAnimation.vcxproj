@@ -189,7 +189,12 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="GrassData.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="BaseSpriteData.h" />
+    <ClInclude Include="OrchiData.h" />
+    <ClInclude Include="StoneWallData.h" />
+    <ClInclude Include="WaterData.h" />
     <ClInclude Include="LeftMargin.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RightMargin.h" />
@@ -197,6 +202,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="D2DBasicAnimation.h" />
     <ClInclude Include="DirectXSample.h" />
+    <ClInclude Include="RockData.h" />
     <ClInclude Include="SampleOverlay.h" />
     <ClInclude Include="DirectXBase.h" />
     <ClInclude Include="Screen.h" />
@@ -204,6 +210,7 @@
     <ClInclude Include="SimpleController.h" />
     <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="Tree.h" />
+    <ClInclude Include="TreeData.h" />
     <ClInclude Include="Water.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

@@ -51,6 +51,13 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="Screen.h" />
+    <ClInclude Include="TreeData.h" />
+    <ClInclude Include="RockData.h" />
+    <ClInclude Include="WaterData.h" />
+    <ClInclude Include="GrassData.h" />
+    <ClInclude Include="StoneWallData.h" />
+    <ClInclude Include="OrchiData.h" />
+    <ClInclude Include="BaseSpriteData.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

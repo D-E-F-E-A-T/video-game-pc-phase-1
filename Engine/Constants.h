@@ -46,8 +46,32 @@
 
 #ifndef LEFT_MARGIN_RATIO
 #define LEFT_MARGIN_RATIO 0.2f
-#endif // LEFT_MARGIN_RATION
+#endif // LEFT_MARGIN_RATIO
 
 #ifndef RIGHT_MARGIN_RATIO
 #define RIGHT_MARGIN_RATIO 0.2f
 #endif // RIGHT_MARGIN_RATIO
+
+#ifndef PLAYER_WALKING_VELOCITY
+#define PLAYER_WALKING_VELOCITY 7.5f	
+#endif // PLAYER_WALKING_VELOCITY
+
+#ifndef PLAYER_RUNNING_VELOCITY
+#define PLAYER_RUNNING_VELOCITY 12.5f
+#endif // PLAYER_RUNNING_VELOCITY
+
+#ifndef NORTH
+#define NORTH 0
+#endif // NORTH
+
+#ifndef EAST 
+#define EAST 1
+#endif // EAST
+
+#ifndef SOUTH
+#define SOUTH 2
+#endif // SOUTH 
+
+#ifndef WEST
+#define WEST 3
+#endif // WEST

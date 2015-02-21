@@ -140,6 +140,8 @@ namespace BasicSprites
             _In_ BlendMode blendMode
             );
 
+		float2 GetSpriteSize(ID3D11Texture2D * texture);
+
     private:
         unsigned int MakeUnorm(float4 color);
         float2 StandardOrigin(float2 position, PositionUnits positionUnits, float2 renderTargetSize, float dpi);

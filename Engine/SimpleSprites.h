@@ -17,12 +17,9 @@ namespace SampleSettings
     static const unsigned int NumTrees = 10;
 	static const unsigned int NumRocks = 10;
 
-//#ifdef WATER_SPRITE
 	static const unsigned int NumWaters = 10;
 	static const unsigned int NumGrasses = 10;
 	static const unsigned int NumStoneWalls = 10;
-	static const unsigned int NumLinks = 1;
-//#endif // WATER_SPRITE
 
     namespace Performance
     {
@@ -39,7 +36,12 @@ namespace SampleSettings
     }
 }
 
-class TreeData
+class ISpriteData
+{
+
+};
+
+class TreeData : public ISpriteData
 {
 public:
     float2 pos;
@@ -59,7 +61,7 @@ public:
 	}
 };
 
-struct RockData
+struct RockData : public ISpriteData
 {
 	float2 pos;
 	float2 vel;
@@ -68,7 +70,7 @@ struct RockData
 	float scale;
 };
 
-struct WaterData
+struct WaterData : public ISpriteData
 {
 	float2 pos;
 	float2 vel;
@@ -77,7 +79,7 @@ struct WaterData
 	float scale;
 };
 
-struct GrassData
+struct GrassData : public ISpriteData
 {
 	float2 pos;
 	float2 vel;
@@ -86,7 +88,7 @@ struct GrassData
 	float scale;
 };
 
-struct StoneWallData
+struct StoneWallData : public ISpriteData
 {
 	float2 pos;
 	float2 vel;
@@ -95,7 +97,7 @@ struct StoneWallData
 	float scale;
 };
 
-struct LinkData
+struct OrchiData
 {
 	float2 pos;
 	float2 vel;
@@ -127,11 +129,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_rock;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_water;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_stoneWall;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_link;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_orchi;
 
     std::vector<TreeData> m_treeData;
 	std::vector<RockData> m_rockData;
 	std::vector<WaterData> m_waterData;
 	std::vector<StoneWallData> m_stoneWallData;
-	std::vector<LinkData> m_linkData;
+	std::vector<OrchiData> m_orchiData;
 };

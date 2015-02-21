@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pch.h"
 #include "Constants.h"
 #include "DirectXBase.h"
 #include "SampleOverlay.h"
@@ -128,10 +129,8 @@ private:
 	ComPtr<ID3D11Texture2D> m_rock;
 	std::vector<RockData> m_rockData;
 
-//#ifdef WATER_SPRITE
 	ComPtr<ID3D11Texture2D> m_water;
 	std::vector<WaterData> m_waterData;
-//#endif // WATER_SPRITE
 
 	ComPtr<ID3D11Texture2D> m_stoneWall;
 	std::vector<StoneWallData> m_stoneWallData;
@@ -139,8 +138,8 @@ private:
 	ComPtr<ID3D11Texture2D> m_grass;
 	std::vector<GrassData> m_grassData;
 
-	ComPtr<ID3D11Texture2D> m_link;
-	std::vector<LinkData> m_linkData;
+	ComPtr<ID3D11Texture2D> m_orchi;
+	OrchiData m_orchiData;
 
 	// Input related members
 	bool                    m_isControllerConnected;  // Do we have a controller connected
@@ -152,10 +151,22 @@ private:
 	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_dataTextFormat;
 	Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>    m_textBrush;
 
+	/*
 	int m_currentPlayerRow;
 	int m_currentPlayerColumn;
+	*/
+
+
+	float m_currentPlayerVerticalOffset;
+	float m_currentPlayerHorizontalOffset;
+
 
 	void SetupScreen();
+	void FetchControllerInput();
+	int FetchKeyboardInput();
+
+	int CheckForCollisions();
+
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

@@ -813,8 +813,7 @@ void SpriteBatch::Draw(
     _In_ float2 position,
     _In_ PositionUnits positionUnits,
     _In_ float2 size,
-    _In_ SizeUnits sizeUnits,
-    _In_ float4 color,
+    _In_ SizeUnits sizeUnits,_In_ float4 color,
     _In_ float rotation,
     _In_ BlendMode blendMode
     )
@@ -910,4 +909,9 @@ void SpriteBatch::Draw(
 
     m_spritesInRun++;
     m_numSpritesDrawn++;
+}
+
+float2 SpriteBatch::GetSpriteSize(ID3D11Texture2D * texture)
+{
+	return m_textureMap[texture].size;
 }

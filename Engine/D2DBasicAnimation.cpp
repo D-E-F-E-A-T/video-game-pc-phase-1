@@ -74,9 +74,9 @@ D2DBasicAnimation::D2DBasicAnimation() :
     m_windowVisible(true),
     m_pathLength(0.0f),
     m_elapsedTime(0.0f),
-	m_isControllerConnected(false),
-	m_currentPlayerColumn(8),
-	m_currentPlayerRow(7)
+	m_isControllerConnected(false)
+//	m_currentPlayerColumn(8),
+//	m_currentPlayerRow(7)
 {
 }
 
@@ -301,10 +301,10 @@ void D2DBasicAnimation::CreateDeviceResources()
 
 	loader->LoadTexture(
 		"link.dds",
-		&m_link,
+		&m_orchi,
 		nullptr);
 
-	m_spriteBatch->AddTexture(m_link.Get());
+	m_spriteBatch->AddTexture(m_orchi.Get());
 
 	//
 	// Setup the local graphics objects
@@ -337,6 +337,13 @@ void D2DBasicAnimation::CreateDeviceResources()
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_textBrush)
 		);
+
+
+	CalculateSquareCenter(
+		7, 
+		8, 
+		&m_currentPlayerHorizontalOffset,
+		&m_currentPlayerVerticalOffset);
 }
 
 
@@ -514,18 +521,15 @@ void D2DBasicAnimation::Render()
 			);
 	}
 
-	for (auto link = m_linkData.begin(); link != m_linkData.end(); link++)
-	{
 		m_spriteBatch->Draw(
-			m_link.Get(),
-			link->pos,
+			m_orchi.Get(),
+			m_orchiData.pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * link->scale,
+			float2(1.0f, 1.0f) * m_orchiData.scale,
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			link->rot
+			m_orchiData.rot
 			);
-	}
 
 
 	m_spriteBatch->End();
@@ -607,233 +611,42 @@ void D2DBasicAnimation::Load(
 
 void D2DBasicAnimation::Run()
 {
-//#ifdef SIMPLE_SPRITES
 	BasicTimer ^ timer = ref new BasicTimer();
-//#endif // SIMPLE_SPRITES
 
     while (!m_windowClosed)
     {
         if (m_windowVisible)
         {
-#ifdef CONTROLLER_RENDERER
-//			timer->Update();
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-//			m_controllerRenderer->Update(timer->Total, timer->Delta);
-//			m_controllerRenderer->Render();
-//			m_controllerRenderer->Present();
-#endif // CONTROLLER_RENDERER
-
-//#ifdef SIMPLE_SPRITES
-//			timer->Update();
-//			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-//			m_renderer->Update(timer->Total, timer->Delta);
-//			m_renderer->Render();
-//			m_renderer->Present();
-//#else // SIMPLE_SPRITES
-
 			// TODO: Put all of these into a Renderer class
 			timer->Update();
 
-#ifdef USE_CONTROLLER
+			FetchControllerInput();
+
+			// if the gamepad is not connected, check the keyboard.
 			if (!m_isControllerConnected)
 			{
-				//
-				// Ennumerating for XInput devices takes 'time' on the order of milliseconds.
-				// Any time a device is not currently known as connected (not yet called XInput, or calling
-				// an XInput function after a failure) ennumeration happens.
-				// An app should avoid repeatedly calling XInput functions if there are no known devices connected
-				// as this can slow down application performance.
-				// This sample takes the simple approach of not calling XInput functions after failure
-				// until a specified timeout has passed.
-				//
-				uint64 currentTime = ::GetTickCount64();
-				if (currentTime - m_lastEnumTime < XINPUT_ENUM_TIMEOUT_MS)
-				{
-					return;
-				}
-				m_lastEnumTime = currentTime;
-
-				// Check for controller connection by trying to get the capabilties
-				uint32 capsResult = XInputGetCapabilities(0, XINPUT_FLAG_GAMEPAD, &m_xinputCaps);
-				if (capsResult != ERROR_SUCCESS)
-				{
-					return;
-				}
-
-				// Device is connected
-				m_isControllerConnected = true;
+	
 			}
 
-			uint32 stateResult = XInputGetState(0, &m_xinputState);
-			if (stateResult != ERROR_SUCCESS)
-			{
-				// Device is no longer connected
-				m_isControllerConnected = false;
-				m_lastEnumTime = ::GetTickCount64();
-			}
-
-			if (m_xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)
-			{
-				int i = 0;
-				i++;
-			}
-
-			if (m_xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)
-			{
-				int i = 0;
-				i++;
-			}
-#endif // USE_CONTROLLER
-//			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-
-			for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
-			{
-				/*
-				static const float border = 100.0f;
-				tree->pos = tree->pos + tree->vel * timer->Delta;// timeDelta;
-				if (tree->vel.x < 0)
-				{
-					if (tree->pos.x < -border)
-					{
-						tree->pos.x = m_windowBounds.Width + border;
-					}
-				}
-				else
-				{
-					if (tree->pos.x > m_windowBounds.Width + border)
-					{
-						tree->pos.x = -border;
-					}
-				}
-				if (tree->vel.y < 0)
-				{
-					if (tree->pos.y < -border)
-					{
-						tree->pos.y = m_windowBounds.Height + border;
-					}
-				}
-				else
-				{
-					if (tree->pos.y > m_windowBounds.Height + border)
-					{
-						tree->pos.y = -border;
-					}
-				}
-
-				tree->rot += tree->rotVel * timer->Delta;// timeDelta;
-				if (tree->rot > PI_F)
-				{
-					tree->rot -= 2.0f * PI_F;
-				}
-				if (tree->rot < -PI_F)
-				{
-					tree->rot += 2.0f * PI_F;
-				}
-*/
-			}
-
-			for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
-			{
-				static const float border = 100.0f;
-				rock->pos = rock->pos + rock->vel * timer->Delta;// timeDelta;
-				if (rock->vel.x < 0)
-				{
-					if (rock->pos.x < -border)
-					{
-						rock->pos.x = m_windowBounds.Width + border;
-					}
-				}
-				else
-				{
-					if (rock->pos.x > m_windowBounds.Width + border)
-					{
-						rock->pos.x = -border;
-					}
-				}
-				if (rock->vel.y < 0)
-				{
-					if (rock->pos.y < -border)
-					{
-						rock->pos.y = m_windowBounds.Height + border;
-					}
-				}
-				else
-				{
-					if (rock->pos.y > m_windowBounds.Height + border)
-					{
-						rock->pos.y = -border;
-					}
-				}
-
-				rock->rot += rock->rotVel * timer->Delta;// timeDelta;
-				if (rock->rot > PI_F)
-				{
-					rock->rot -= 2.0f * PI_F;
-				}
-				if (rock->rot < -PI_F)
-				{
-					rock->rot += 2.0f * PI_F;
-				}
-			}
-
-
-
-			for (auto link = m_linkData.begin(); link != m_linkData.end(); link++)
-			{
-				static const float border = 100.0f;
-				link->pos = link->pos + link->vel * timer->Delta;// timeDelta;
-				if (link->vel.x < 0)
-				{
-					if (link->pos.x < -border)
-					{
-						link->pos.x = m_windowBounds.Width + border;
-					}
-				}
-				else
-				{
-					if (link->pos.x > m_windowBounds.Width + border)
-					{
-						link->pos.x = -border;
-					}
-				}
-				if (link->vel.y < 0)
-				{
-					if (link->pos.y < -border)
-					{
-						link->pos.y = m_windowBounds.Height + border;
-					}
-				}
-				else
-				{
-					if (link->pos.y > m_windowBounds.Height + border)
-					{
-						link->pos.y = -border;
-					}
-				}
-
-				link->rot += link->rotVel * timer->Delta;// timeDelta;
-				if (link->rot > PI_F)
-				{
-					link->rot -= 2.0f * PI_F;
-				}
-				if (link->rot < -PI_F)
-				{
-					link->rot += 2.0f * PI_F;
-				}
-			}
 
 
             Render();
+
+			int result = CheckForCollisions();
+
+			if (result == 1)
+			{
+				int i = 0;
+				i++;
+			}
+
             Present();
-//#endif // SIMPLE_SPRITES:
         }
         else
         {
-#ifdef SIMPLE_SPRITES
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
-#else // SIMPLE_SPRITES
-//            m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
-#endif // SIMPLE_SPRITES
+			CoreWindow::GetForCurrentThread()->
+				Dispatcher->ProcessEvents(
+				CoreProcessEventsOption::ProcessOneAndAllPending);
         }
     }
 }
@@ -904,26 +717,18 @@ void D2DBasicAnimation::OnResuming(
 
 void D2DBasicAnimation::DrawPlayer()
 {
-	for (int i = 0; i < SampleSettings::NumLinks; i++)
-	{
 		float x = 0.0f;
 		float y = 0.0f;
 
-		CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
-
-		LinkData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_linkData.clear();
-		m_linkData.push_back(data);
-	}
+		m_orchiData.pos.x = m_currentPlayerHorizontalOffset;
+		m_orchiData.pos.y = m_currentPlayerVerticalOffset;
+		float tempRot = 0.0f;
+		float tempMag = 0.0f;
+		m_orchiData.vel.x = tempMag * cosf(tempRot);
+		m_orchiData.vel.y = tempMag * sinf(tempRot);
+		m_orchiData.rot = 0.0f;
+		m_orchiData.scale = 1.0f;
+		m_orchiData.rotVel = 0.0f;
 }
 
 void D2DBasicAnimation::DrawGrid()
@@ -1335,151 +1140,195 @@ void D2DBasicAnimation::RenderControllerInput()
 
 void D2DBasicAnimation::DrawHeader(const char16* text, const D2D1_RECT_F& loc)
 {
-m_d2dContext->DrawText(
-text,
-static_cast<UINT32>(::wcslen(text)),
-m_headerTextFormat.Get(),
-loc,
-m_textBrush.Get()
-);
+	m_d2dContext->DrawText(
+		text,
+		static_cast<UINT32>(::wcslen(text)),
+		m_headerTextFormat.Get(),
+		loc,
+		m_textBrush.Get()
+		);
 }
 
 
 
 void D2DBasicAnimation::DrawText(const char16* text, const D2D1_RECT_F& loc)
 {
-m_d2dContext->DrawText(
-text,
-static_cast<UINT32>(::wcslen(text)),
-m_dataTextFormat.Get(),
-loc,
-m_textBrush.Get()
-);
+	m_d2dContext->DrawText(
+		text,
+		static_cast<UINT32>(::wcslen(text)),
+		m_dataTextFormat.Get(),
+		loc,
+		m_textBrush.Get()
+		);
 }
 
 
 
 void D2DBasicAnimation::DrawText(uint32 value, const D2D1_RECT_F& loc)
 {
-char16 text[16];
-::_snwprintf_s(text, sizeof(text)/sizeof(char16), L"0x%08X", value);
-DrawText(text, loc);
+	char16 text[16];
+	::_snwprintf_s(text, sizeof(text) / sizeof(char16), L"0x%08X", value);
+	DrawText(text, loc);
 }
 
 
 
 void D2DBasicAnimation::DrawText(int16 value, const D2D1_RECT_F& loc)
 {
-char16 text[16];
-::_snwprintf_s(text, sizeof(text)/sizeof(char16), L"%05d", value);
-DrawText(text, loc);
+	char16 text[16];
+	::_snwprintf_s(text, sizeof(text) / sizeof(char16), L"%05d", value);
+	DrawText(text, loc);
 }
 
 
 
 void D2DBasicAnimation::DrawText(uint8 value, const D2D1_RECT_F& loc)
 {
-char16 text[8];
-::_snwprintf_s(text, sizeof(text)/sizeof(char16), L"0x%02X", value);
-DrawText(text, loc);
+	char16 text[8];
+	::_snwprintf_s(text, sizeof(text) / sizeof(char16), L"0x%02X", value);
+	DrawText(text, loc);
 }
 
 
 
 void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 {
-char16 text[64];
-size_t where = 0;
-if (buttons & XINPUT_GAMEPAD_A)
-{
-text[where++] = L'A';
-}
-if (buttons & XINPUT_GAMEPAD_B)
-{
-text[where++] = L'B';
-}
-if (buttons & XINPUT_GAMEPAD_X)
-{
-text[where++] = L'X';
-}
-if (buttons & XINPUT_GAMEPAD_Y)
-{
-text[where++] = L'Y';
-}
-if (where != 0)
-{
-text[where++] = L' ';
-}
+	char16 text[64];
+	size_t where = 0;
+	if (buttons & XINPUT_GAMEPAD_A)
+	{
+		text[where++] = L'A';
+	}
+	if (buttons & XINPUT_GAMEPAD_B)
+	{
+		text[where++] = L'B';
+	}
+	if (buttons & XINPUT_GAMEPAD_X)
+	{
+		text[where++] = L'X';
+	}
+	if (buttons & XINPUT_GAMEPAD_Y)
+	{
+		text[where++] = L'Y';
+	}
+	if (where != 0)
+	{
+		text[where++] = L' ';
+	}
 
-size_t groupStart = where;
-if (buttons & XINPUT_GAMEPAD_DPAD_UP)
-{
-text[where++] = L'U';
-m_currentPlayerRow--;
-}
-if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
-{
-text[where++] = L'D';
-m_currentPlayerRow++;
-}
-if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
-{
-text[where++] = L'L';
-m_currentPlayerColumn--;
-}
-if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
-{
-text[where++] = L'R';
-m_currentPlayerColumn++;
-}
-if (where != groupStart)
-{
-text[where++] = L' ';
-}
+	size_t groupStart = where;
+	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
+	{
+		text[where++] = L'U';
 
-if (buttons & XINPUT_GAMEPAD_LEFT_THUMB)
-{
-text[where++] = L'L';
-text[where++] = L'T';
-text[where++] = L' ';
-}
-if (buttons & XINPUT_GAMEPAD_RIGHT_THUMB)
-{
-text[where++] = L'R';
-text[where++] = L'T';
-text[where++] = L' ';
-}
-if (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER)
-{
-text[where++] = L'L';
-text[where++] = L'S';
-text[where++] = L' ';
-}
-if (buttons & XINPUT_GAMEPAD_RIGHT_SHOULDER)
-{
-text[where++] = L'R';
-text[where++] = L'S';
-text[where++] = L' ';
-}
-if (buttons & XINPUT_GAMEPAD_START)
-{
-text[where++] = L'S';
-text[where++] = L't';
-text[where++] = L'a';
-text[where++] = L'r';
-text[where++] = L't';
-text[where++] = L' ';
-}
-if (buttons & XINPUT_GAMEPAD_BACK)
-{
-text[where++] = L'B';
-text[where++] = L'a';
-text[where++] = L'c';
-text[where++] = L'k';
-}
-text[where] = L'\0';
+		float prospectiveVerticalOffset = 
+			m_currentPlayerVerticalOffset -= PLAYER_WALKING_VELOCITY;
 
-DrawText(text, loc);
+		// Don't go above the top of the screen. 
+		//	Later this will be the trigger to move to the next screen.
+		if (prospectiveVerticalOffset >= 0.f)
+			m_currentPlayerVerticalOffset = prospectiveVerticalOffset;
+		else
+			m_currentPlayerVerticalOffset = 0.0f;
+	}
+
+	if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
+	{
+		text[where++] = L'D';
+
+		float prospectiveVerticalOffset =
+			m_currentPlayerVerticalOffset += PLAYER_WALKING_VELOCITY;
+
+		// Don't go above the top of the screen. 
+		//	Later this will be the trigger to move to the next screen.
+		if (prospectiveVerticalOffset <= m_window->Bounds.Height)
+			m_currentPlayerVerticalOffset = prospectiveVerticalOffset;
+		else
+			m_currentPlayerVerticalOffset = m_window->Bounds.Height;
+	}
+
+	if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
+	{
+		text[where++] = L'L';
+
+		float prospectiveHorizontalOffset =
+			m_currentPlayerHorizontalOffset -= PLAYER_WALKING_VELOCITY;
+
+		if (prospectiveHorizontalOffset >= (m_window->Bounds.Width * LEFT_MARGIN_RATIO))
+		{
+			m_currentPlayerHorizontalOffset = prospectiveHorizontalOffset;
+		}
+		else
+		{
+			m_currentPlayerHorizontalOffset = m_window->Bounds.Width * LEFT_MARGIN_RATIO;
+		}
+	}
+	if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
+	{
+		text[where++] = L'R';
+
+		float prospectiveHorizontalOffset =
+			m_currentPlayerHorizontalOffset += PLAYER_WALKING_VELOCITY;
+
+		if (prospectiveHorizontalOffset <=
+			m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO))
+		{
+			m_currentPlayerHorizontalOffset = prospectiveHorizontalOffset;
+		}
+		else
+		{
+			m_currentPlayerHorizontalOffset =
+				m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO);
+		}
+	}
+	if (where != groupStart)
+	{
+		text[where++] = L' ';
+	}
+
+	if (buttons & XINPUT_GAMEPAD_LEFT_THUMB)
+	{
+		text[where++] = L'L';
+		text[where++] = L'T';
+		text[where++] = L' ';
+	}
+	if (buttons & XINPUT_GAMEPAD_RIGHT_THUMB)
+	{
+		text[where++] = L'R';
+		text[where++] = L'T';
+		text[where++] = L' ';
+	}
+	if (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER)
+	{
+		text[where++] = L'L';
+		text[where++] = L'S';
+		text[where++] = L' ';
+	}
+	if (buttons & XINPUT_GAMEPAD_RIGHT_SHOULDER)
+	{
+		text[where++] = L'R';
+		text[where++] = L'S';
+		text[where++] = L' ';
+	}
+	if (buttons & XINPUT_GAMEPAD_START)
+	{
+		text[where++] = L'S';
+		text[where++] = L't';
+		text[where++] = L'a';
+		text[where++] = L'r';
+		text[where++] = L't';
+		text[where++] = L' ';
+	}
+	if (buttons & XINPUT_GAMEPAD_BACK)
+	{
+		text[where++] = L'B';
+		text[where++] = L'a';
+		text[where++] = L'c';
+		text[where++] = L'k';
+	}
+	text[where] = L'\0';
+
+	DrawText(text, loc);
 }
 
 void D2DBasicAnimation::SetupScreen()
@@ -1579,14 +1428,6 @@ void D2DBasicAnimation::SetupScreen()
 		m_treeData.push_back(data0);
 	}
 
-
-	for (int i = 0; i < 5; i++)
-	{
-		CalculateSquareCenter(9, i, &x, &y);
-		TreeData data(x, y);
-		m_treeData.push_back(data);
-	}
-
 	for (int i = 0; i < 6; i++)
 	{
 		CalculateSquareCenter(10, i, &x, &y);
@@ -1677,4 +1518,121 @@ void D2DBasicAnimation::SetupScreen()
 		TreeData data16(x, y);
 		m_treeData.push_back(data16);
 	}
+}
+
+// Need to isolate this functionality so that
+//	the return can return to the Run() loop
+//	rather than exiting the program.
+void D2DBasicAnimation::FetchControllerInput()
+{
+	if (!m_isControllerConnected)
+	{
+		//
+		// Enumerating for XInput devices takes 'time' on the order of milliseconds.
+		// Any time a device is not currently known as connected (not yet called XInput, or calling
+		// an XInput function after a failure) ennumeration happens.
+		// An app should avoid repeatedly calling XInput functions if there are no known devices connected
+		// as this can slow down application performance.
+		// This sample takes the simple approach of not calling XInput functions after failure
+		// until a specified timeout has passed.
+		//
+		uint64 currentTime = ::GetTickCount64();
+		if (currentTime - m_lastEnumTime < XINPUT_ENUM_TIMEOUT_MS)
+		{
+			return;
+		}
+		m_lastEnumTime = currentTime;
+
+		// Check for controller connection by trying to get the capabilties
+		uint32 capsResult = XInputGetCapabilities(0, XINPUT_FLAG_GAMEPAD, &m_xinputCaps);
+		if (capsResult != ERROR_SUCCESS)
+		{
+			return;
+		}
+
+		// Device is connected
+		m_isControllerConnected = true;
+	}
+
+	uint32 stateResult = XInputGetState(0, &m_xinputState);
+	if (stateResult != ERROR_SUCCESS)
+	{
+		// Device is no longer connected
+		m_isControllerConnected = false;
+		m_lastEnumTime = ::GetTickCount64();
+	}
+}
+
+int D2DBasicAnimation::FetchKeyboardInput()
+{
+	return 1;
+}
+
+int D2DBasicAnimation::CheckForCollisions()
+{
+	RECT rect1;
+
+	float2 size = m_spriteBatch->GetSpriteSize(m_orchi.Get());
+	
+	float left = m_currentPlayerHorizontalOffset - size.x / 2.0f;
+	float right = m_currentPlayerHorizontalOffset + size.x / 2.0f;
+	float top = m_currentPlayerVerticalOffset - size.y / 2.0f;
+	float bottom = m_currentPlayerVerticalOffset + size.y / 2.0f;
+
+	// Now I know the size (remember to scale accordingly, if needed using m_orchiData).
+	RECT rectOrchi
+	{
+		left,
+		top,
+		right, 
+		bottom		
+	};
+
+	// Look for collisions with all trees
+	float2 treeSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+
+	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+	{
+		float treeLeft = tree->pos.x - treeSize.x / 2.0f;
+		float treeRight = tree->pos.x + size.x / 2.0f;
+		float treeTop = tree->pos.y - size.y / 2.0f;
+		float treeBottom = tree->pos.y + size.y / 2.0f;
+
+		RECT rectTree
+		{
+			treeLeft,
+			treeRight,
+			treeTop,
+			treeBottom
+		};
+
+		// Does the top, left vertex overlap the tree's bounding box?
+		if (left >= treeLeft &&
+			left <= treeRight &&
+			top >= treeTop &&
+			top <= treeBottom)
+			return 1;
+
+		// Does the top, right vertex overlap the tree's bounding box?
+		if (right >= treeLeft &&
+			right <= treeRight &&
+			top >= treeTop &&
+			top <= treeBottom)
+			return 1;
+
+		// Does the bottom, right vertex overlap the tree's bounding box?
+		if (right >= treeLeft &&
+			right <= treeRight &&
+			bottom >= treeTop &&
+			bottom <= treeBottom)
+			return 1;
+
+		// Does the bottom, left vertex overlap the tree's bounding box?
+		if (left >= treeLeft &&
+			left <= treeRight &&
+			bottom >= treeTop &&
+			bottom <= treeBottom)
+			return 1;
+	}
+	return 0;
 }

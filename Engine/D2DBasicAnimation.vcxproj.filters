@@ -20,6 +20,7 @@
     <ClCompile Include="LeftMargin.cpp" />
     <ClCompile Include="RightMargin.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Screen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -48,6 +49,8 @@
     <ClInclude Include="LeftMargin.h" />
     <ClInclude Include="RightMargin.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="World.h" />
+    <ClInclude Include="Screen.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />
@@ -77,5 +80,8 @@
     <FxCompile Include="BasicSprites.Instancing.vs.hlsl" />
     <FxCompile Include="BasicSprites.ps.hlsl" />
     <FxCompile Include="BasicSprites.Replication.vs.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="README.txt" />
   </ItemGroup>
 </Project>

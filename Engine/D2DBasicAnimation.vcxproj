@@ -190,6 +190,9 @@
     <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="LeftMargin.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="RightMargin.h" />
     <ClInclude Include="Rock.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="D2DBasicAnimation.h" />
@@ -211,6 +214,7 @@
     <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="LeftMargin.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -220,6 +224,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="D2DBasicAnimation.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RightMargin.cpp" />
     <ClCompile Include="Rock.cpp" />
     <ClCompile Include="SampleOverlay.cpp" />
     <ClCompile Include="DirectXBase.cpp" />

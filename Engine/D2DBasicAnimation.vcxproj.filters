@@ -17,6 +17,9 @@
     <ClCompile Include="BasicTimer.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="SimpleController.cpp" />
+    <ClCompile Include="LeftMargin.cpp" />
+    <ClCompile Include="RightMargin.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -42,6 +45,9 @@
     <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="SimpleController.h" />
     <ClInclude Include="ScreenBuilder.h" />
+    <ClInclude Include="LeftMargin.h" />
+    <ClInclude Include="RightMargin.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

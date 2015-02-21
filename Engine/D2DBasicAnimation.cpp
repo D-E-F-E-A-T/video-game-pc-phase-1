@@ -11,6 +11,8 @@
 #include "BasicLoader.h"
 #include "DebugOverlay.h"
 #include "SimpleController.h"
+#include "LeftMargin.h"
+#include "RightMargin.h"
 
 
 using namespace Microsoft::WRL;
@@ -362,7 +364,7 @@ void D2DBasicAnimation::Render()
 	//DrawGround();
 	//DrawWater();
 
-//	RenderControllerInput();
+	RenderControllerInput();
 
     float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
@@ -902,33 +904,12 @@ void D2DBasicAnimation::OnResuming(
 
 void D2DBasicAnimation::DrawPlayer()
 {
-	/*
-	float x = 0.0f;
-	float y = 0.0f;
-
-	CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
-//	CalculateSquareCenter(2, 2, &x, &y);
-
-	D2D1_RECT_F rect
-	{
-		x - 10.0f,
-		y - 10.0f,
-		x + 10.0f,
-		y + 10.0f
-	};
-
-	m_d2dContext->FillRectangle(
-		rect,
-		m_blackBrush.Get());
-*/
-
 	for (int i = 0; i < SampleSettings::NumLinks; i++)
 	{
 		float x = 0.0f;
 		float y = 0.0f;
 
 		CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
-
 
 		LinkData data;
 		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
@@ -950,7 +931,9 @@ void D2DBasicAnimation::DrawGrid()
 	float windowWidth = m_window->Bounds.Width;
 	float windowHeight = m_window->Bounds.Height;
 
-	float gridWidth = windowWidth - (2.0f * SIDE_MARGIN_WIDTH);
+	float gridWidth = windowWidth -
+		(windowWidth * LEFT_MARGIN_RATIO) -
+		(windowWidth * RIGHT_MARGIN_RATIO);
 
 	// TODO: Use arrays instead of separate variables.
 	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
@@ -961,13 +944,13 @@ void D2DBasicAnimation::DrawGrid()
 	{
 		D2D1_POINT_2F src
 		{ 
-			SIDE_MARGIN_WIDTH + MARGIN, 
+			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN, 
 			MARGIN + (rowHeight * (float) row)
 		};
 
 		D2D1_POINT_2F dst
 		{ 
-			windowWidth - SIDE_MARGIN_WIDTH - MARGIN, 
+			windowWidth - (windowWidth * RIGHT_MARGIN_RATIO) - MARGIN, 
 			MARGIN + (rowHeight * (float) row)
 		};
 
@@ -979,13 +962,13 @@ void D2DBasicAnimation::DrawGrid()
 	{
 		D2D1_POINT_2F src
 		{
-			SIDE_MARGIN_WIDTH + MARGIN + (columnWidth * (float) column),
+			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float) column),
 			MARGIN
 		};
 
 		D2D1_POINT_2F dst
 		{
-			SIDE_MARGIN_WIDTH + MARGIN + (columnWidth * (float) column),
+			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float) column),
 			windowHeight - MARGIN,
 		};
 
@@ -1053,12 +1036,14 @@ void D2DBasicAnimation::CalculateSquareCenter(int row, int column, float * x, fl
 	float windowWidth = m_window->Bounds.Width;
 	float windowHeight = m_window->Bounds.Height;
 
-	float gridWidth = windowWidth - 2.0f * SIDE_MARGIN_WIDTH;
+	float gridWidth = windowWidth -
+		(windowWidth * LEFT_MARGIN_RATIO) -
+		(windowWidth * RIGHT_MARGIN_RATIO);
 
 	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
 	float columnWidth = (gridWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
 
-	*x = SIDE_MARGIN_WIDTH + MARGIN + (columnWidth * column) + (columnWidth / 2.0f);
+	*x = (windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * column) + (columnWidth / 2.0f);
 	*y = MARGIN + (rowHeight * row) + (rowHeight / 2.0f);
 }
 
@@ -1204,32 +1189,38 @@ void D2DBasicAnimation::CreateWindowSizeDependentResources()
 
 void D2DBasicAnimation::DrawLeftMargin()
 {
+	LeftMargin leftMargin;
+
 	D2D1_RECT_F rect
 	{
 		0.0f,
 		0.0f,
-		SIDE_MARGIN_WIDTH,
+		m_window->Bounds.Width * LEFT_MARGIN_RATIO,
 		m_windowBounds.Height
 	};
 
-	m_d2dContext->FillRectangle(
-		rect,
-		m_blackBrush.Get());
+	leftMargin.Draw(
+		m_d2dContext,
+		m_blackBrush.Get(),
+		rect);
 }
 
 void D2DBasicAnimation::DrawRightMargin()
 {
+	RightMargin rightMargin;
+
 	D2D1_RECT_F rect
 	{
-		m_windowBounds.Width - SIDE_MARGIN_WIDTH,
+		m_windowBounds.Width - (m_windowBounds.Width * RIGHT_MARGIN_RATIO),
 		0.0f,
 		m_windowBounds.Width,
 		m_windowBounds.Height
 	};
 
-	m_d2dContext->FillRectangle(
-		rect,
-		m_blackBrush.Get());
+	rightMargin.Draw(
+		m_d2dContext,
+		m_blackBrush.Get(),
+		rect);
 }
 
 void D2DBasicAnimation::RenderControllerInput()

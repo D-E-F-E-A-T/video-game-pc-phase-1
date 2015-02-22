@@ -8,6 +8,7 @@
 #include "DebugOverlay.h"
 #include "SimpleController.h"
 #include "CollisionDetectionStrategy.h"
+#include "ScreenBuilder.h"
 
 using namespace Microsoft::WRL;
 
@@ -83,7 +84,7 @@ private:
 	void DrawWater();
 
 	void RenderControllerInput();
-	void CalculateSquareCenter(int row, int column, float * x, float * y);
+//	void CalculateSquareCenter(int row, int column, float * x, float * y);
 
     float ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime);
 
@@ -164,6 +165,7 @@ private:
 	bool m_bSpriteCollisionDetected;
 
 	CollisionDetectionStrategy * m_collisionDetectionStrategy;
+	ScreenBuilder * m_screenBuilder;
 
 
 	void SetupScreen();

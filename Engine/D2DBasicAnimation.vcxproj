@@ -198,6 +198,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="BaseSpriteData.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
+    <ClInclude Include="ScreenUtils.h" />
     <ClInclude Include="SpriteOverlapCollisionStrategy.h" />
     <ClInclude Include="OrchiData.h" />
     <ClInclude Include="StoneWallData.h" />
@@ -247,6 +248,8 @@
     <ClCompile Include="SampleOverlay.cpp" />
     <ClCompile Include="DirectXBase.cpp" />
     <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="ScreenBuilder.cpp" />
+    <ClCompile Include="ScreenUtils.cpp" />
     <ClCompile Include="SimpleController.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Water.cpp" />

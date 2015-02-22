@@ -10,3 +10,5 @@
 #include <math.h>
 #include <agile.h>
 #include <Xinput.h>
+#include <BasicMath.h>
+#include <vector>

@@ -20,6 +20,7 @@
 #include "StoneWallData.h"
 #include "OrchiData.h"
 #include "BoundingBoxCollisionStrategy.h"
+#include "ScreenUtils.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -86,11 +87,11 @@ D2DBasicAnimation::D2DBasicAnimation() :
 	m_isControllerConnected(false),
 	m_nCollidedSpriteColumn(0),
 	m_nCollidedSpriteRow(0)
-//	m_currentPlayerColumn(8),
-//	m_currentPlayerRow(7)
 {
 	m_collisionDetectionStrategy =
 		new BoundingBoxCollisionStrategy();
+
+
 }
 
 void D2DBasicAnimation::CreateDeviceIndependentResources()
@@ -98,92 +99,6 @@ void D2DBasicAnimation::CreateDeviceIndependentResources()
     DirectXBase::CreateDeviceIndependentResources();
 
 }
-
-#ifdef DRAW_SPIRAL
-void D2DBasicAnimation::CreateSpiralPathAndTriangle()
-{
-    DX::ThrowIfFailed(
-        m_d2dFactory->CreatePathGeometry(&m_pathGeometry)
-        );
-
-    {
-        ComPtr<ID2D1GeometrySink> geometrySink;
-
-        // Write to the path geometry using the geometry sink. We are going to create a
-        // spiral.
-        DX::ThrowIfFailed(
-            m_pathGeometry->Open(&geometrySink)
-            );
-
-        D2D1_POINT_2F currentLocation = {0, 0};
-
-        geometrySink->BeginFigure(currentLocation, D2D1_FIGURE_BEGIN_FILLED);
-
-        D2D1_POINT_2F locDelta = {2, 2};
-        float radius = 3;
-
-        for (UINT i = 0; i < 30; ++i)
-        {
-            currentLocation.x += radius * locDelta.x;
-            currentLocation.y += radius * locDelta.y;
-
-            geometrySink->AddArc(
-                D2D1::ArcSegment(
-                    currentLocation,
-                    D2D1::SizeF(2*radius, 2*radius),    // radius x/y
-                    0.0f,                               // rotation angle
-                    D2D1_SWEEP_DIRECTION_CLOCKWISE,
-                    D2D1_ARC_SIZE_SMALL
-                    )
-                );
-
-            locDelta = D2D1::Point2F(-locDelta.y, locDelta.x);
-
-            radius += 3;
-        }
-
-        geometrySink->EndFigure(D2D1_FIGURE_END_OPEN);
-
-        DX::ThrowIfFailed(
-            geometrySink->Close()
-            );
-    }
-
-    DX::ThrowIfFailed(
-        m_d2dFactory->CreatePathGeometry(&m_objectGeometry)
-        );
-
-    {
-        ComPtr<ID2D1GeometrySink> geometrySink;
-
-        // Create a simple triangle by writing the object geometry using the geometry sink.
-        DX::ThrowIfFailed(
-            m_objectGeometry->Open(&geometrySink)
-            );
-
-        geometrySink->BeginFigure(
-            D2D1::Point2F(0.0f, 0.0f),
-            D2D1_FIGURE_BEGIN_FILLED
-            );
-
-        const D2D1_POINT_2F triangle[] = {{-10.0f, -10.0f}, {-10.0f, 10.0f}, {0.0f, 0.0f}};
-        geometrySink->AddLines(triangle, 3);
-
-        geometrySink->EndFigure(D2D1_FIGURE_END_OPEN);
-
-        DX::ThrowIfFailed(
-            geometrySink->Close()
-            );
-    }
-
-    DX::ThrowIfFailed(
-        m_pathGeometry->ComputeLength(
-            nullptr,            // Apply no transform.
-            &m_pathLength
-            )
-        );
-}
-#endif // DRAW_SPIRAL
 
 float D2DBasicAnimation::ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime)
 {
@@ -194,10 +109,6 @@ float D2DBasicAnimation::ComputeTriangleLocation(float startPoint, float endPoin
 void D2DBasicAnimation::CreateDeviceResources()
 {
     DirectXBase::CreateDeviceResources();
-
-#ifdef DRAW_SPIRAL
-    this->CreateSpiralPathAndTriangle();
-#endif // DRAW_SPIRAL
 
 #ifdef SHOW_OVERLAY
     m_sampleOverlay = ref new SampleOverlay();
@@ -358,7 +269,9 @@ void D2DBasicAnimation::CreateDeviceResources()
 		);
 
 
-	CalculateSquareCenter(
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height,
 		7, 
 		8, 
 		&m_fCurrentPlayerHorizontalOffset,
@@ -629,6 +542,14 @@ void D2DBasicAnimation::Run()
 			CoreWindow::GetForCurrentThread()->
 				Dispatcher->ProcessEvents(
 				CoreProcessEventsOption::ProcessOneAndAllPending);
+
+			m_screenBuilder =
+				new ScreenBuilder(
+				m_window->Bounds.Width,
+				m_window->Bounds.Height);
+
+			// Use Builders
+			m_screenBuilder->BuildScreen(&m_treeData);
         }
     }
 }
@@ -769,7 +690,10 @@ void D2DBasicAnimation::DrawTree()
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(0, 0, &x, &y);
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height,
+		0, 0, &x, &y);
 
 	Tree tree{ 0, 0, x, y, m_greenBrush };
 	tree.Draw(m_d2dContext);
@@ -780,7 +704,9 @@ void D2DBasicAnimation::DrawRock()
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(1, 1, &x, &y);
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height, 1, 1, &x, &y);
 
 	Rock rock{ 0, 0, x, y, m_grayBrush };
 	rock.Draw(m_d2dContext);
@@ -791,7 +717,9 @@ void D2DBasicAnimation::DrawDoor()
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(2, 2, &x, &y);
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height, 2, 2, &x, &y);
 
 	Door door{ 0, 0, x, y, m_blackBrush };
 	door.Draw(m_d2dContext);
@@ -802,7 +730,9 @@ void D2DBasicAnimation::DrawGround()
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(3, 3, &x, &y);
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height, 3, 3, &x, &y);
 
 	Ground ground{ 0, 0, x, y, m_beigeBrush };
 	ground.Draw(m_d2dContext);
@@ -813,12 +743,15 @@ void D2DBasicAnimation::DrawWater()
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(8, 8, &x, &y);
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height, 8, 8, &x, &y);
 
 	Water water{ 0, 0, x, y, m_blueBrush };
 	water.Draw(m_d2dContext);
 }
 
+/*
 void D2DBasicAnimation::CalculateSquareCenter(int row, int column, float * x, float * y)
 {
 	float windowWidth = m_window->Bounds.Width;
@@ -834,6 +767,7 @@ void D2DBasicAnimation::CalculateSquareCenter(int row, int column, float * x, fl
 	*x = (windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * column) + (columnWidth / 2.0f);
 	*y = MARGIN + (rowHeight * row) + (rowHeight / 2.0f);
 }
+*/
 
 IFrameworkView^ DirectXAppSource::CreateView()
 {
@@ -851,128 +785,6 @@ int main(Platform::Array<Platform::String^>^)
 void D2DBasicAnimation::CreateWindowSizeDependentResources()
 {
 	DirectXBase::CreateWindowSizeDependentResources();
-
-	// Randomly generate some non-interactive asteroids to fit the screen.
-
-
-	// Use Builders
-	SetupScreen();
-
-
-	/*
-	for (int i = 0; i < SampleSettings::NumRocks; i++)
-	{
-		float x = 0.0f;
-		float y = 0.0f;
-
-		CalculateSquareCenter(8, i, &x, &y);
-
-
-		RockData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_rockData.push_back(data);
-	}
-*/
-
-	/*
-	for (int i = 0; i < SampleSettings::NumWaters; i++)
-	{
-		float x = 0.0f;
-		float y = 0.0f;
-
-		CalculateSquareCenter(5, i, &x, &y);
-
-
-		WaterData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_waterData.push_back(data);
-	}
-*/
-
-	/*
-	for (int i = 0; i < SampleSettings::NumGrasses; i++)
-	{
-		float x = 0.0f;
-		float y = 0.0f;
-
-		CalculateSquareCenter(4, i, &x, &y);
-
-
-		GrassData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_grassData.push_back(data);
-	}
-*/
-
-	/*
-	for (int i = 0; i < SampleSettings::NumStoneWalls; i++)
-	{
-		float x = 0.0f;
-		float y = 0.0f;
-
-		CalculateSquareCenter(6, i, &x, &y);
-
-
-		StoneWallData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_stoneWallData.push_back(data);
-	}
-	*/
-
-	/*
-	for (int i = 0; i < SampleSettings::NumLinks; i++)
-	{
-		float x = 0.0f;
-		float y = 0.0f;
-
-		CalculateSquareCenter(m_currentPlayerRow, m_currentPlayerColumn, &x, &y);
-
-
-		LinkData data;
-		data.pos.x = x; // m_windowBounds.Width / 2.0f;	// (0.0f, m_windowBounds.Width);
-		data.pos.y = y; // m_windowBounds.Height / 2.0f;	//  (0.0f, m_windowBounds.Height);
-		float tempRot = 0.0f; // RandFloat(-PI_F, PI_F);
-		float tempMag = 0.0f; // RandFloat(0.0f, 17.0f);
-		data.vel.x = tempMag * cosf(tempRot);
-		data.vel.y = tempMag * sinf(tempRot);
-		data.rot = 0.0f;	// RandFloat(-PI_F, PI_F);
-		data.scale = 1.0f;	// RandFloat(0.1f, 1.0f);
-		data.rotVel = 0.0f; // RandFloat(-PI_F, PI_F) / (7.0f + 3.0f * data.scale);
-		m_linkData.push_back(data);
-	}
-	*/
 }
 
 void D2DBasicAnimation::DrawLeftMargin()
@@ -1201,74 +1013,6 @@ void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 
 	size_t groupStart = where;
 
-	/*
-	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
-	{
-		text[where++] = L'U';
-
-		float prospectiveVerticalOffset = 
-			m_currentPlayerVerticalOffset -= PLAYER_WALKING_VELOCITY;
-
-		// Don't go above the top of the screen. 
-		//	Later this will be the trigger to move to the next screen.
-		if (prospectiveVerticalOffset >= 0.f)
-			m_currentPlayerVerticalOffset = prospectiveVerticalOffset;
-		else
-			m_currentPlayerVerticalOffset = 0.0f;
-	}
-
-	if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
-	{
-		text[where++] = L'D';
-
-		float prospectiveVerticalOffset =
-			m_currentPlayerVerticalOffset += PLAYER_WALKING_VELOCITY;
-
-		// Don't go above the top of the screen. 
-		//	Later this will be the trigger to move to the next screen.
-		if (prospectiveVerticalOffset <= m_window->Bounds.Height)
-			m_currentPlayerVerticalOffset = prospectiveVerticalOffset;
-		else
-			m_currentPlayerVerticalOffset = m_window->Bounds.Height;
-	}
-
-	if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
-	{
-		text[where++] = L'L';
-
-		float prospectiveHorizontalOffset =
-			m_currentPlayerHorizontalOffset -= PLAYER_WALKING_VELOCITY;
-
-		if (prospectiveHorizontalOffset >= (m_window->Bounds.Width * LEFT_MARGIN_RATIO))
-		{
-			m_currentPlayerHorizontalOffset = prospectiveHorizontalOffset;
-		}
-		else
-		{
-			m_currentPlayerHorizontalOffset = m_window->Bounds.Width * LEFT_MARGIN_RATIO;
-		}
-	}
-	if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
-	{
-		text[where++] = L'R';
-
-		float prospectiveHorizontalOffset =
-			m_currentPlayerHorizontalOffset += PLAYER_WALKING_VELOCITY;
-
-		if (prospectiveHorizontalOffset <=
-			m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO))
-		{
-			m_currentPlayerHorizontalOffset = prospectiveHorizontalOffset;
-		}
-		else
-		{
-			m_currentPlayerHorizontalOffset =
-				m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO);
-		}
-	}
-
-*/
-
 	if (where != groupStart)
 	{
 		text[where++] = L' ';
@@ -1317,198 +1061,6 @@ void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 	text[where] = L'\0';
 
 	DrawText(text, loc);
-}
-
-void D2DBasicAnimation::SetupScreen()
-{
-	m_treeData.clear();
-
-	float x = 0.0f;
-	float y = 0.0f;
-
-	for (int i = 0; i < 4; i++)
-	{
-		// row, column
-		CalculateSquareCenter(i, 0, &x, &y);
-
-		// column, row
-		TreeData data(i, 0, x, y);
-		m_treeData.push_back(data);
-
-		CalculateSquareCenter(i, 1, &x, &y);
-		TreeData data1(i, 1, x, y);
-		m_treeData.push_back(data1);
-
-		CalculateSquareCenter(i, 2, &x, &y);
-		TreeData data2(i, 2, x, y);
-		m_treeData.push_back(data2);
-
-		CalculateSquareCenter(i, 3, &x, &y);
-		TreeData data3(i, 3, x, y);
-		m_treeData.push_back(data3);
-
-		CalculateSquareCenter(i, 4, &x, &y);
-		TreeData data4(i, 4, x, y);
-		m_treeData.push_back(data4);
-
-		CalculateSquareCenter(i, 5, &x, &y);
-		TreeData data5(i, 5, x, y);
-		m_treeData.push_back(data5);
-
-		CalculateSquareCenter(i, 6, &x, &y);
-		TreeData data6(i, 6, x, y);
-		m_treeData.push_back(data6);
-
-		CalculateSquareCenter(i, 11, &x, &y);
-		TreeData data11(i, 11, x, y);
-		m_treeData.push_back(data11);
-
-		CalculateSquareCenter(i, 12, &x, &y);
-		TreeData data12(i, 12, x, y);
-		m_treeData.push_back(data12);
-
-		CalculateSquareCenter(i, 13, &x, &y);
-		TreeData data13(i, 13, x, y);
-		m_treeData.push_back(data13);
-
-		CalculateSquareCenter(i, 14, &x, &y);
-		TreeData data14(i, 14, x, y);
-		m_treeData.push_back(data14);
-
-		CalculateSquareCenter(i, 15, &x, &y);
-		TreeData data15(i, 15, x, y);
-		m_treeData.push_back(data15);
-
-		CalculateSquareCenter(i, 16, &x, &y);
-		TreeData data16(i, 16, x, y);
-		m_treeData.push_back(data16);
-	}
-
-	for (int i = 0; i < 5; i++)
-	{
-		CalculateSquareCenter(4, i, &x, &y);
-		TreeData data0(4, i, x, y);
-		m_treeData.push_back(data0);
-	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		CalculateSquareCenter(5, i, &x, &y);
-		TreeData data0(5, i, x, y);
-		m_treeData.push_back(data0);
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		CalculateSquareCenter(6, i, &x, &y);
-		TreeData data0(6, i, x, y);
-		m_treeData.push_back(data0);
-	}
-
-	for (int i = 12; i < 17; i++)
-	{
-		CalculateSquareCenter(4, i, &x, &y);
-		TreeData data0(4, i, x, y);
-		m_treeData.push_back(data0);
-	}
-
-	for (int i = 12; i < 17; i++)
-	{
-		CalculateSquareCenter(9, i, &x, &y);
-		TreeData data0(9, i, x, y);
-		m_treeData.push_back(data0);
-	}
-
-	for (int i = 0; i < 6; i++)
-	{
-		CalculateSquareCenter(10, i, &x, &y);
-		TreeData data(10, i, x, y);
-		m_treeData.push_back(data);
-	}
-
-	for (int i = 11; i < 17; i++)
-	{
-		CalculateSquareCenter(10, i, &x, &y);
-		TreeData data(10, i, x, y);
-		m_treeData.push_back(data);
-	}
-
-	for (int i = 11; i < 17; i++)
-	{
-		CalculateSquareCenter(11, i, &x, &y);
-		TreeData data(11, i, x, y);
-		m_treeData.push_back(data);
-	}
-
-	for (int i = 0; i < 7; i++)
-	{
-		CalculateSquareCenter(11, i, &x, &y);
-		TreeData data(11, i, x, y);
-		m_treeData.push_back(data);
-	}
-
-	for (int i = 12; i < 15; i++)
-	{
-		CalculateSquareCenter(i, 7, &x, &y);
-		TreeData data(i, 7, x, y);
-		m_treeData.push_back(data);
-	}
-
-
-	for (int i = 12; i < 15; i++)
-	{
-		CalculateSquareCenter(i, 0, &x, &y);
-		TreeData data(i, 0, x, y);
-		m_treeData.push_back(data);
-
-		CalculateSquareCenter(i, 1, &x, &y);
-		TreeData data1(i, 1, x, y);
-		m_treeData.push_back(data1);
-
-		CalculateSquareCenter(i, 2, &x, &y);
-		TreeData data2(i, 2, x, y);
-		m_treeData.push_back(data2);
-
-		CalculateSquareCenter(i, 3, &x, &y);
-		TreeData data3(i, 3, x, y);
-		m_treeData.push_back(data3);
-
-		CalculateSquareCenter(i, 4, &x, &y);
-		TreeData data4(i, 4, x, y);
-		m_treeData.push_back(data4);
-
-		CalculateSquareCenter(i, 5, &x, &y);
-		TreeData data5(i, 5, x, y);
-		m_treeData.push_back(data5);
-
-		CalculateSquareCenter(i, 6, &x, &y);
-		TreeData data6(i, 6, x, y);
-		m_treeData.push_back(data6);
-
-		CalculateSquareCenter(i, 11, &x, &y);
-		TreeData data11(i, 11, x, y);
-		m_treeData.push_back(data11);
-
-		CalculateSquareCenter(i, 12, &x, &y);
-		TreeData data12(i, 12, x, y);
-		m_treeData.push_back(data12);
-
-		CalculateSquareCenter(i, 13, &x, &y);
-		TreeData data13(i, 13, x, y);
-		m_treeData.push_back(data13);
-
-		CalculateSquareCenter(i, 14, &x, &y);
-		TreeData data14(i, 14, x, y);
-		m_treeData.push_back(data14);
-
-		CalculateSquareCenter(i, 15, &x, &y);
-		TreeData data15(i, 15, x, y);
-		m_treeData.push_back(data15);
-
-		CalculateSquareCenter(i, 16, &x, &y);
-		TreeData data16(i, 16, x, y);
-		m_treeData.push_back(data16);
-	}
 }
 
 // Need to isolate this functionality so that
@@ -1706,7 +1258,13 @@ void D2DBasicAnimation::HighlightSprite(int column, int row)
 	float x = 0.0f;
 	float y = 0.0f;
 
-	CalculateSquareCenter(column, row, &x, &y);
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height, 
+		row, 
+		column,
+		&x, 
+		&y);
 
 	D2D1_RECT_F rect
 	{

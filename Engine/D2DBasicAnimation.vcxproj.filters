@@ -7,7 +7,6 @@
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="D2DBasicAnimation.cpp" />
     <ClCompile Include="Rock.cpp" />
     <ClCompile Include="SampleOverlay.cpp" />
     <ClCompile Include="DirectXBase.cpp" />
@@ -16,7 +15,6 @@
     <ClCompile Include="BasicSprites.cpp" />
     <ClCompile Include="BasicTimer.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
-    <ClCompile Include="SimpleController.cpp" />
     <ClCompile Include="LeftMargin.cpp" />
     <ClCompile Include="RightMargin.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -24,6 +22,7 @@
     <ClCompile Include="BoundingBoxCollisionStrategy.cpp" />
     <ClCompile Include="ScreenBuilder.cpp" />
     <ClCompile Include="ScreenUtils.cpp" />
+    <ClCompile Include="Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -35,7 +34,6 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Rock.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="D2DBasicAnimation.h" />
     <ClInclude Include="DirectXSample.h" />
     <ClInclude Include="SampleOverlay.h" />
     <ClInclude Include="DirectXBase.h" />
@@ -47,7 +45,6 @@
     <ClInclude Include="BasicShapes.h" />
     <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="DebugOverlay.h" />
-    <ClInclude Include="SimpleController.h" />
     <ClInclude Include="ScreenBuilder.h" />
     <ClInclude Include="LeftMargin.h" />
     <ClInclude Include="RightMargin.h" />
@@ -69,6 +66,7 @@
     <ClInclude Include="DirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="ScreenUtils.h" />
+    <ClInclude Include="Engine.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

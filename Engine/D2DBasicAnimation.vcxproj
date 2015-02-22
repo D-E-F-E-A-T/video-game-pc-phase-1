@@ -208,14 +208,13 @@
     <ClInclude Include="RightMargin.h" />
     <ClInclude Include="Rock.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="D2DBasicAnimation.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="DirectXSample.h" />
     <ClInclude Include="RockData.h" />
     <ClInclude Include="SampleOverlay.h" />
     <ClInclude Include="DirectXBase.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="ScreenBuilder.h" />
-    <ClInclude Include="SimpleController.h" />
     <ClInclude Include="SimpleSprites.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeData.h" />
@@ -241,7 +240,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="D2DBasicAnimation.cpp" />
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RightMargin.cpp" />
     <ClCompile Include="Rock.cpp" />
@@ -250,7 +249,6 @@
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenBuilder.cpp" />
     <ClCompile Include="ScreenUtils.cpp" />
-    <ClCompile Include="SimpleController.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Water.cpp" />
   </ItemGroup>

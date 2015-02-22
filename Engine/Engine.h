@@ -6,16 +6,16 @@
 #include "SampleOverlay.h"
 #include "SimpleSprites.h"
 #include "DebugOverlay.h"
-#include "SimpleController.h"
 #include "CollisionDetectionStrategy.h"
 #include "ScreenBuilder.h"
+#include "Player.h"
 
 using namespace Microsoft::WRL;
 
-ref class D2DBasicAnimation : public DirectXBase , public Windows::ApplicationModel::Core::IFrameworkView
+ref class Engine : public DirectXBase , public Windows::ApplicationModel::Core::IFrameworkView
 {
 internal:
-    D2DBasicAnimation();
+    Engine();
 
     // DirectXBase Methods
     virtual void CreateDeviceIndependentResources() override;
@@ -66,10 +66,6 @@ private:
         _In_ Windows::UI::Core::CoreWindowEventArgs^ args
         );
 
-    // Sample Methods
-#ifdef DRAW_SPIRAL
-    void CreateSpiralPathAndTriangle();
-#endif // DRAW_SPIRAL
 	void DrawGrid();
 	void DrawPlayer();
 
@@ -84,9 +80,6 @@ private:
 	void DrawWater();
 
 	void RenderControllerInput();
-//	void CalculateSquareCenter(int row, int column, float * x, float * y);
-
-    float ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime);
 
 #ifdef SHOW_OVERLAY
     SampleOverlay^                                                  m_sampleOverlay;
@@ -120,10 +113,6 @@ private:
 	SimpleSprites ^ m_renderer;
 #endif // SIMPLE_SPRITES
 
-//#ifdef CONTROLLER_RENDERER
-//	SimpleController ^ m_controllerRenderer;
-//#endif // CONTROLLER_RENDERER
-
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
 
 	ComPtr<ID3D11Texture2D> m_tree;
@@ -156,8 +145,8 @@ private:
 
 
 
-	float m_fCurrentPlayerVerticalOffset;
-	float m_fCurrentPlayerHorizontalOffset;
+//	float m_fCurrentPlayerVerticalOffset;
+//	float m_fCurrentPlayerHorizontalOffset;
 
 	int m_nCollidedSpriteColumn;
 	int m_nCollidedSpriteRow;
@@ -179,6 +168,8 @@ private:
 	// void HighLightCollidedSprite(ISpriteData sprite);	// TODO	
 	
 	void DisplaySpriteCollisionMessage(int column, int row);
+
+	Player * m_pPlayer;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

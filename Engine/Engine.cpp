@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "D2DBasicAnimation.h"
+#include "Engine.h"
 #include "Constants.h"
 #include "Tree.h"
 #include "Door.h"
@@ -79,9 +79,9 @@ namespace
 	const char16    VALUE_CAPS_VOICE_SUPPORT [] = L"Voice Support";
 };
 
-D2DBasicAnimation::D2DBasicAnimation() :
+Engine::Engine() :
     m_windowClosed(false),
-    m_windowVisible(true),
+    m_windowVisible(false),
     m_pathLength(0.0f),
     m_elapsedTime(0.0f),
 	m_isControllerConnected(false),
@@ -94,19 +94,13 @@ D2DBasicAnimation::D2DBasicAnimation() :
 
 }
 
-void D2DBasicAnimation::CreateDeviceIndependentResources()
+void Engine::CreateDeviceIndependentResources()
 {
     DirectXBase::CreateDeviceIndependentResources();
 
 }
 
-float D2DBasicAnimation::ComputeTriangleLocation(float startPoint, float endPoint, float duration, float elapsedTime)
-{
-    float time = min(max(elapsedTime, 0), duration);
-    return startPoint + ((endPoint - startPoint) * (time / duration));
-}
-
-void D2DBasicAnimation::CreateDeviceResources()
+void Engine::CreateDeviceResources()
 {
     DirectXBase::CreateDeviceResources();
 
@@ -267,19 +261,10 @@ void D2DBasicAnimation::CreateDeviceResources()
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_textBrush)
 		);
-
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height,
-		7, 
-		8, 
-		&m_fCurrentPlayerHorizontalOffset,
-		&m_fCurrentPlayerVerticalOffset);
 }
 
 
-void D2DBasicAnimation::Render()
+void Engine::Render()
 {
     // Retrieve the size of the render target.
     D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
@@ -295,7 +280,6 @@ void D2DBasicAnimation::Render()
 	DrawGrid();
 	DrawPlayer();
 
-	/*
 	int column = 0;
 	int row = 0;
 
@@ -304,10 +288,9 @@ void D2DBasicAnimation::Render()
 	if (result == 1)
 	{
 		// Need to undo the transform done above.
-		HighlightSprite(column, row);
+//		HighlightSprite(column, row);
 		DisplaySpriteCollisionMessage(column, row);
 	}
-	*/
 
 	// Could use factories. Pass in the screen ID, row, column.
 	//DrawTree();
@@ -332,20 +315,6 @@ void D2DBasicAnimation::Render()
 
     // Center the path.
     m_d2dContext->SetTransform(scale * translation);
-
-//    float length = ComputeTriangleLocation(0.0f, m_pathLength, AnimationDuration, m_elapsedTime);
-
-    // When we reach the end of the animation, loop back to the beginning.
-	/*
-    if (m_elapsedTime >= AnimationDuration)
-    {
-        m_elapsedTime = 0.0f;
-    }
-    else
-    {
-        m_elapsedTime += 0.0166f; // This controls the number of time units that time is incremented by on every render call.
-    }
-	*/
 
     // We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
     // is lost. It will be handled during the next call to Present.
@@ -452,46 +421,43 @@ void D2DBasicAnimation::Render()
 #endif // SHOW_OVERLAY
 }
 
-void D2DBasicAnimation::Initialize(
+void Engine::Initialize(
     _In_ CoreApplicationView^ applicationView
     )
 {
     applicationView->Activated +=
-        ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &D2DBasicAnimation::OnActivated);
+        ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Engine::OnActivated);
 
     CoreApplication::Suspending +=
-        ref new EventHandler<SuspendingEventArgs^>(this, &D2DBasicAnimation::OnSuspending);
+        ref new EventHandler<SuspendingEventArgs^>(this, &Engine::OnSuspending);
 
     CoreApplication::Resuming +=
-        ref new EventHandler<Platform::Object^>(this, &D2DBasicAnimation::OnResuming);
+        ref new EventHandler<Platform::Object^>(this, &Engine::OnResuming);
 
 
 #ifdef SIMPLE_SPRITES
 	m_renderer = ref new SimpleSprites();
 #endif // SIMPLE_SPRITES
 
-//#ifdef CONTROLLER_RENDERER
-//	m_controllerRenderer = ref new SimpleController();
-//#endif // CONTROLLER_RENDERER
 }
 
-void D2DBasicAnimation::SetWindow(
+void Engine::SetWindow(
     _In_ CoreWindow^ window
     )
 {
     window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 
     window->SizeChanged +=
-        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &D2DBasicAnimation::OnWindowSizeChanged);
+        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Engine::OnWindowSizeChanged);
 
     window->VisibilityChanged +=
-        ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &D2DBasicAnimation::OnVisibilityChanged);
+        ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Engine::OnVisibilityChanged);
 
     window->Closed +=
-        ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &D2DBasicAnimation::OnWindowClosed);
+        ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Engine::OnWindowClosed);
 
     DisplayInformation::GetForCurrentView()->DpiChanged +=
-        ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &D2DBasicAnimation::OnDpiChanged);
+        ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &Engine::OnDpiChanged);
 
     // Disable all pointer visual feedback for better performance when touching.
     auto pointerVisualizationSettings = PointerVisualizationSettings::GetForCurrentView();
@@ -507,58 +473,19 @@ void D2DBasicAnimation::SetWindow(
 //#endif // SIMPLE_SPRITES
 }
 
-void D2DBasicAnimation::Load(
+void Engine::Load(
     _In_ Platform::String^ entryPoint
     )
 {
 }
 
-void D2DBasicAnimation::Run()
-{
-	BasicTimer ^ timer = ref new BasicTimer();
-
-    while (!m_windowClosed)
-    {
-        if (m_windowVisible)
-        {
-			// TODO: Put all of these into a Renderer class
-			timer->Update();
-
-			FetchControllerInput();
-			MovePlayer(m_xinputState.Gamepad.wButtons);
-
-			// if the gamepad is not connected, check the keyboard.
-			if (!m_isControllerConnected)
-			{	
-			}
-
-			Render();			
 
 
-            Present();
-        }
-        else
-        {
-			CoreWindow::GetForCurrentThread()->
-				Dispatcher->ProcessEvents(
-				CoreProcessEventsOption::ProcessOneAndAllPending);
-
-			m_screenBuilder =
-				new ScreenBuilder(
-				m_window->Bounds.Width,
-				m_window->Bounds.Height);
-
-			// Use Builders
-			m_screenBuilder->BuildScreen(&m_treeData);
-        }
-    }
-}
-
-void D2DBasicAnimation::Uninitialize()
+void Engine::Uninitialize()
 {
 }
 
-void D2DBasicAnimation::OnWindowSizeChanged(
+void Engine::OnWindowSizeChanged(
     _In_ CoreWindow^ sender,
     _In_ WindowSizeChangedEventArgs^ args
     )
@@ -571,15 +498,41 @@ void D2DBasicAnimation::OnWindowSizeChanged(
 #endif // SHOW_OVERLAY
 }
 
-void D2DBasicAnimation::OnVisibilityChanged(
+void Engine::OnVisibilityChanged(
     _In_ CoreWindow^ sender,
     _In_ VisibilityChangedEventArgs^ args
     )
 {
     m_windowVisible = args->Visible;
+
+	m_screenBuilder =
+		new ScreenBuilder(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height);
+
+	// Use Builders
+	m_screenBuilder->BuildScreen(&m_treeData);
+
+	float x = 0.0f;
+	float y = 0.0f;
+
+	ScreenUtils::CalculateSquareCenter(
+		m_window->Bounds.Width,
+		m_window->Bounds.Height,
+		8,
+		7,
+		&x,
+		&y);
+
+	// Putting instantiona here since need to wait for the
+	//	window to be created to get the bounds.
+	m_pPlayer = new Player();
+
+	m_pPlayer->SetHorizontalOffset(x);
+	m_pPlayer->SetVerticalOffset(y);
 }
 
-void D2DBasicAnimation::OnWindowClosed(
+void Engine::OnWindowClosed(
     _In_ CoreWindow^ sender,
     _In_ CoreWindowEventArgs^ args
     )
@@ -587,21 +540,20 @@ void D2DBasicAnimation::OnWindowClosed(
     m_windowClosed = true;
 }
 
-void D2DBasicAnimation::OnDpiChanged(_In_ DisplayInformation^ sender, _In_ Platform::Object^ args)
+void Engine::OnDpiChanged(_In_ DisplayInformation^ sender, _In_ Platform::Object^ args)
 {
     SetDpi(sender->LogicalDpi);
 }
 
-void D2DBasicAnimation::OnActivated(
+void Engine::OnActivated(
     _In_ CoreApplicationView^ applicationView,
     _In_ IActivatedEventArgs^ args
     )
 {
 	CoreWindow::GetForCurrentThread()->Activate();
-//     m_window->Activate();
 }
 
-void D2DBasicAnimation::OnSuspending(
+void Engine::OnSuspending(
     _In_ Platform::Object^ sender,
     _In_ SuspendingEventArgs^ args
     )
@@ -611,20 +563,20 @@ void D2DBasicAnimation::OnSuspending(
     Trim();
 }
 
-void D2DBasicAnimation::OnResuming(
+void Engine::OnResuming(
     _In_ Platform::Object^ sender,
     _In_ Platform::Object^ args
     )
 {
 }
 
-void D2DBasicAnimation::DrawPlayer()
+void Engine::DrawPlayer()
 {
 	float x = 0.0f;
 	float y = 0.0f;
 
-	m_orchiData.pos.x = m_fCurrentPlayerHorizontalOffset;
-	m_orchiData.pos.y = m_fCurrentPlayerVerticalOffset;
+	m_orchiData.pos.x = m_pPlayer->GetHorizontalOffset();
+	m_orchiData.pos.y = m_pPlayer->GetVerticalOffset();
 
 	float tempRot = 0.0f;
 	float tempMag = 0.0f;
@@ -635,7 +587,7 @@ void D2DBasicAnimation::DrawPlayer()
 	m_orchiData.rotVel = 0.0f;
 }
 
-void D2DBasicAnimation::DrawGrid()
+void Engine::DrawGrid()
 {
 	float windowWidth = m_window->Bounds.Width;
 	float windowHeight = m_window->Bounds.Height;
@@ -685,8 +637,9 @@ void D2DBasicAnimation::DrawGrid()
 	}
 }
 
-void D2DBasicAnimation::DrawTree()
+void Engine::DrawTree()
 {
+	/*
 	float x = 0.0f;
 	float y = 0.0f;
 
@@ -697,10 +650,12 @@ void D2DBasicAnimation::DrawTree()
 
 	Tree tree{ 0, 0, x, y, m_greenBrush };
 	tree.Draw(m_d2dContext);
+*/
 }
 
-void D2DBasicAnimation::DrawRock()
+void Engine::DrawRock()
 {
+	/*
 	float x = 0.0f;
 	float y = 0.0f;
 
@@ -710,10 +665,12 @@ void D2DBasicAnimation::DrawRock()
 
 	Rock rock{ 0, 0, x, y, m_grayBrush };
 	rock.Draw(m_d2dContext);
+*/
 }
 
-void D2DBasicAnimation::DrawDoor()
+void Engine::DrawDoor()
 {
+	/*
 	float x = 0.0f;
 	float y = 0.0f;
 
@@ -723,10 +680,12 @@ void D2DBasicAnimation::DrawDoor()
 
 	Door door{ 0, 0, x, y, m_blackBrush };
 	door.Draw(m_d2dContext);
+*/
 }
 
-void D2DBasicAnimation::DrawGround()
+void Engine::DrawGround()
 {
+	/*
 	float x = 0.0f;
 	float y = 0.0f;
 
@@ -736,10 +695,12 @@ void D2DBasicAnimation::DrawGround()
 
 	Ground ground{ 0, 0, x, y, m_beigeBrush };
 	ground.Draw(m_d2dContext);
+*/
 }
 
-void D2DBasicAnimation::DrawWater()
+void Engine::DrawWater()
 {
+	/*
 	float x = 0.0f;
 	float y = 0.0f;
 
@@ -749,29 +710,13 @@ void D2DBasicAnimation::DrawWater()
 
 	Water water{ 0, 0, x, y, m_blueBrush };
 	water.Draw(m_d2dContext);
-}
-
-/*
-void D2DBasicAnimation::CalculateSquareCenter(int row, int column, float * x, float * y)
-{
-	float windowWidth = m_window->Bounds.Width;
-	float windowHeight = m_window->Bounds.Height;
-
-	float gridWidth = windowWidth -
-		(windowWidth * LEFT_MARGIN_RATIO) -
-		(windowWidth * RIGHT_MARGIN_RATIO);
-
-	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
-	float columnWidth = (gridWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
-
-	*x = (windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * column) + (columnWidth / 2.0f);
-	*y = MARGIN + (rowHeight * row) + (rowHeight / 2.0f);
-}
 */
+}
+
 
 IFrameworkView^ DirectXAppSource::CreateView()
 {
-    return ref new D2DBasicAnimation();
+    return ref new Engine();
 }
 
 [Platform::MTAThread]
@@ -782,12 +727,12 @@ int main(Platform::Array<Platform::String^>^)
     return 0;
 }
 
-void D2DBasicAnimation::CreateWindowSizeDependentResources()
+void Engine::CreateWindowSizeDependentResources()
 {
 	DirectXBase::CreateWindowSizeDependentResources();
 }
 
-void D2DBasicAnimation::DrawLeftMargin()
+void Engine::DrawLeftMargin()
 {
 	LeftMargin leftMargin;
 
@@ -805,7 +750,7 @@ void D2DBasicAnimation::DrawLeftMargin()
 		rect);
 }
 
-void D2DBasicAnimation::DrawRightMargin()
+void Engine::DrawRightMargin()
 {
 	RightMargin rightMargin;
 
@@ -823,7 +768,7 @@ void D2DBasicAnimation::DrawRightMargin()
 		rect);
 }
 
-void D2DBasicAnimation::RenderControllerInput()
+void Engine::RenderControllerInput()
 {
 	D2D1_SIZE_F size = m_d2dContext->GetSize();
 	D2D1_RECT_F pos = D2D1::RectF(INFORMATION_START_X, INFORMATION_START_Y, size.width, size.height);
@@ -863,8 +808,9 @@ void D2DBasicAnimation::RenderControllerInput()
 		DrawText(LABEL_STATE_BUTTONS, pos);
 
 		// Values
-		pos.top = INFORMATION_START_Y + LINE_HEIGHT;
-		pos.left = INPUT_DATA_START;
+		pos.top += LINE_HEIGHT;
+//		pos.top = INFORMATION_START_Y + LINE_HEIGHT;
+//		pos.left = INPUT_DATA_START;
 		DrawText(static_cast<uint32>(m_xinputState.dwPacketNumber), pos);
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputState.Gamepad.bLeftTrigger, pos);
@@ -886,8 +832,8 @@ void D2DBasicAnimation::RenderControllerInput()
 		//
 
 		// Labels
-		pos.top = INFORMATION_START_Y;
-		pos.left = CAPS_LABEL_START;
+		pos.top += LINE_HEIGHT;
+//		pos.left = CAPS_LABEL_START;
 		DrawHeader(CAPS_HEADER, pos);
 		pos.top += LINE_HEIGHT;
 		DrawText(LABEL_CAPS_TYPE, pos);
@@ -897,8 +843,8 @@ void D2DBasicAnimation::RenderControllerInput()
 		DrawText(LABEL_CAPS_FLAGS, pos);
 
 		// Values
-		pos.top = INFORMATION_START_Y + LINE_HEIGHT;
-		pos.left = CAPS_DATA_START;
+		pos.top += LINE_HEIGHT;
+//		pos.left = CAPS_DATA_START;
 		DrawText(m_xinputCaps.Type, pos);
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputCaps.SubType, pos);
@@ -933,7 +879,7 @@ void D2DBasicAnimation::RenderControllerInput()
 
 
 
-void D2DBasicAnimation::DrawHeader(const char16* text, const D2D1_RECT_F& loc)
+void Engine::DrawHeader(const char16* text, const D2D1_RECT_F& loc)
 {
 	m_d2dContext->DrawText(
 		text,
@@ -946,7 +892,7 @@ void D2DBasicAnimation::DrawHeader(const char16* text, const D2D1_RECT_F& loc)
 
 
 
-void D2DBasicAnimation::DrawText(const char16* text, const D2D1_RECT_F& loc)
+void Engine::DrawText(const char16* text, const D2D1_RECT_F& loc)
 {
 	m_d2dContext->DrawText(
 		text,
@@ -959,7 +905,7 @@ void D2DBasicAnimation::DrawText(const char16* text, const D2D1_RECT_F& loc)
 
 
 
-void D2DBasicAnimation::DrawText(uint32 value, const D2D1_RECT_F& loc)
+void Engine::DrawText(uint32 value, const D2D1_RECT_F& loc)
 {
 	char16 text[16];
 	::_snwprintf_s(text, sizeof(text) / sizeof(char16), L"0x%08X", value);
@@ -968,7 +914,7 @@ void D2DBasicAnimation::DrawText(uint32 value, const D2D1_RECT_F& loc)
 
 
 
-void D2DBasicAnimation::DrawText(int16 value, const D2D1_RECT_F& loc)
+void Engine::DrawText(int16 value, const D2D1_RECT_F& loc)
 {
 	char16 text[16];
 	::_snwprintf_s(text, sizeof(text) / sizeof(char16), L"%05d", value);
@@ -977,7 +923,7 @@ void D2DBasicAnimation::DrawText(int16 value, const D2D1_RECT_F& loc)
 
 
 
-void D2DBasicAnimation::DrawText(uint8 value, const D2D1_RECT_F& loc)
+void Engine::DrawText(uint8 value, const D2D1_RECT_F& loc)
 {
 	char16 text[8];
 	::_snwprintf_s(text, sizeof(text) / sizeof(char16), L"0x%02X", value);
@@ -986,7 +932,7 @@ void D2DBasicAnimation::DrawText(uint8 value, const D2D1_RECT_F& loc)
 
 
 
-void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
+void Engine::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 {
 	char16 text[64];
 	size_t where = 0;
@@ -1066,7 +1012,7 @@ void D2DBasicAnimation::DrawButtonText(uint16 buttons, const D2D1_RECT_F& loc)
 // Need to isolate this functionality so that
 //	the return can return to the Run() loop
 //	rather than exiting the program.
-void D2DBasicAnimation::FetchControllerInput()
+void Engine::FetchControllerInput()
 {
 	if (!m_isControllerConnected)
 	{
@@ -1106,22 +1052,20 @@ void D2DBasicAnimation::FetchControllerInput()
 	}
 }
 
-int D2DBasicAnimation::FetchKeyboardInput()
+int Engine::FetchKeyboardInput()
 {
 	return 1;
 }
 
 // TODO: Pass arrays rather than separate argument lists.
-int D2DBasicAnimation::CheckForCollisions(int * column, int * row)
+int Engine::CheckForCollisions(int * column, int * row)
 {
-	RECT rect1;
-
 	float2 size = m_spriteBatch->GetSpriteSize(m_orchi.Get());
 	
-	float left = m_fCurrentPlayerHorizontalOffset - size.x / 2.0f;
-	float right = m_fCurrentPlayerHorizontalOffset + size.x / 2.0f;
-	float top = m_fCurrentPlayerVerticalOffset - size.y / 2.0f;
-	float bottom = m_fCurrentPlayerVerticalOffset + size.y / 2.0f;
+	float left = m_pPlayer->GetHorizontalOffset() - size.x / 2.0f;
+	float right = m_pPlayer->GetHorizontalOffset() + size.x / 2.0f;
+	float top = m_pPlayer->GetVerticalOffset() - size.y / 2.0f;
+	float bottom = m_pPlayer->GetVerticalOffset() + size.y / 2.0f;
 
 	// Now I know the size (remember to scale accordingly, if needed using m_orchiData).
 
@@ -1134,14 +1078,6 @@ int D2DBasicAnimation::CheckForCollisions(int * column, int * row)
 		float treeRight = tree->pos.x + size.x / 2.0f;
 		float treeTop = tree->pos.y - size.y / 2.0f;
 		float treeBottom = tree->pos.y + size.y / 2.0f;
-
-		RECT rectTree
-		{
-			treeLeft,
-			treeRight,
-			treeTop,
-			treeBottom
-		};
 
 		// Does the top, left vertex overlap the tree's bounding box?
 		if (left >= treeLeft &&
@@ -1190,70 +1126,34 @@ int D2DBasicAnimation::CheckForCollisions(int * column, int * row)
 	return 0;
 }
 
-void D2DBasicAnimation::MovePlayer(uint16 buttons)
+// TODO: Could use function pointers.
+void Engine::MovePlayer(uint16 buttons)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
-		float prospectiveVerticalOffset =
-			m_fCurrentPlayerVerticalOffset -= PLAYER_WALKING_VELOCITY;
-
-		// Don't go above the top of the screen. 
-		//	Later this will be the trigger to move to the next screen.
-		if (prospectiveVerticalOffset >= 0.f)
-			m_fCurrentPlayerVerticalOffset = prospectiveVerticalOffset;
-		else
-			m_fCurrentPlayerVerticalOffset = 0.0f;
+		m_pPlayer->MoveNorth(m_window->Bounds.Height);
 	}
 
 	if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 	{
-		float prospectiveVerticalOffset =
-			m_fCurrentPlayerVerticalOffset += PLAYER_WALKING_VELOCITY;
-
-		// Don't go above the top of the screen. 
-		//	Later this will be the trigger to move to the next screen.
-		if (prospectiveVerticalOffset <= m_window->Bounds.Height)
-			m_fCurrentPlayerVerticalOffset = prospectiveVerticalOffset;
-		else
-			m_fCurrentPlayerVerticalOffset = m_window->Bounds.Height;
+		m_pPlayer->MoveSouth(m_window->Bounds.Height);
 	}
 
 	if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
-		float prospectiveHorizontalOffset =
-			m_fCurrentPlayerHorizontalOffset -= PLAYER_WALKING_VELOCITY;
-
-		if (prospectiveHorizontalOffset >= (m_window->Bounds.Width * LEFT_MARGIN_RATIO))
-		{
-			m_fCurrentPlayerHorizontalOffset = prospectiveHorizontalOffset;
-		}
-		else
-		{
-			m_fCurrentPlayerHorizontalOffset = m_window->Bounds.Width * LEFT_MARGIN_RATIO;
-		}
+		m_pPlayer->MoveWest(m_window->Bounds.Width);
 	}
+
 	if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
-		float prospectiveHorizontalOffset =
-			m_fCurrentPlayerHorizontalOffset += PLAYER_WALKING_VELOCITY;
-
-		if (prospectiveHorizontalOffset <=
-			m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO))
-		{
-			m_fCurrentPlayerHorizontalOffset = prospectiveHorizontalOffset;
-		}
-		else
-		{
-			m_fCurrentPlayerHorizontalOffset =
-				m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO);
-		}
+		m_pPlayer->MoveEast(m_window->Bounds.Width);
 	}
 }
 
 /*
 	Highlight the sprite that is being collided with.
 */
-void D2DBasicAnimation::HighlightSprite(int column, int row)
+void Engine::HighlightSprite(int column, int row)
 {
 	float x = 0.0f;
 	float y = 0.0f;
@@ -1279,7 +1179,7 @@ void D2DBasicAnimation::HighlightSprite(int column, int row)
 		m_redBrush.Get());
 }
 
-void D2DBasicAnimation::DisplaySpriteCollisionMessage(int column, int row)
+void Engine::DisplaySpriteCollisionMessage(int column, int row)
 {
 	D2D1_RECT_F pos = D2D1::RectF(0.0f, 0.0f, 200.0f, 200.0f);
 	DrawText(SPRITE_COLLISION_MSG, pos);
@@ -1293,4 +1193,35 @@ void D2DBasicAnimation::DisplaySpriteCollisionMessage(int column, int row)
 	pos.top += LINE_HEIGHT;
 	DrawText(static_cast<uint32>(row), pos);
 	pos.top += LINE_HEIGHT;
+}
+
+
+void Engine::Run()
+{
+	BasicTimer ^ timer = ref new BasicTimer();
+
+	while (!m_windowClosed)
+	{
+		if (m_windowVisible)
+		{
+			timer->Update();
+
+			FetchControllerInput();
+			MovePlayer(m_xinputState.Gamepad.wButtons);
+
+			// if the gamepad is not connected, check the keyboard.
+			if (!m_isControllerConnected)
+			{
+			}
+
+			Render();
+			Present();
+		}
+		else
+		{
+			CoreWindow::GetForCurrentThread()->
+				Dispatcher->ProcessEvents(
+				CoreProcessEventsOption::ProcessOneAndAllPending);
+		}
+	}
 }

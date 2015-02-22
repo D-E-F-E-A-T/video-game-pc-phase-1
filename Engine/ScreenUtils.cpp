@@ -5,8 +5,8 @@
 void ScreenUtils::CalculateSquareCenter(
 	float screenWidth,
 	float screenHeight,
-	int row,
 	int column,
+	int row,
 	float * x,
 	float * y)
 {

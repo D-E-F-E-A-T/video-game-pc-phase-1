@@ -7,6 +7,7 @@
 #include "SimpleSprites.h"
 #include "DebugOverlay.h"
 #include "SimpleController.h"
+#include "CollisionDetectionStrategy.h"
 
 using namespace Microsoft::WRL;
 
@@ -154,11 +155,15 @@ private:
 
 
 
-	float m_currentPlayerVerticalOffset;
-	float m_currentPlayerHorizontalOffset;
+	float m_fCurrentPlayerVerticalOffset;
+	float m_fCurrentPlayerHorizontalOffset;
 
-	int m_collidedSpriteColumn;
-	int m_collidedSpriteRow;
+	int m_nCollidedSpriteColumn;
+	int m_nCollidedSpriteRow;
+
+	bool m_bSpriteCollisionDetected;
+
+	CollisionDetectionStrategy * m_collisionDetectionStrategy;
 
 
 	void SetupScreen();
@@ -169,8 +174,9 @@ private:
 	void MovePlayer(uint16 buttons);
 
 	void HighlightSprite(int column, int row);
-	// void HighLightCollidedSprite(ISpriteData sprite);	// TODO
-
+	// void HighLightCollidedSprite(ISpriteData sprite);	// TODO	
+	
+	void DisplaySpriteCollisionMessage(int column, int row);
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

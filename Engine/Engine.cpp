@@ -288,16 +288,9 @@ void Engine::Render()
 	if (result == 1)
 	{
 		// Need to undo the transform done above.
-//		HighlightSprite(column, row);
+		HighlightSprite(column, row);
 		DisplaySpriteCollisionMessage(column, row);
 	}
-
-	// Could use factories. Pass in the screen ID, row, column.
-	//DrawTree();
-	//DrawRock();
-	//DrawDoor();
-	//DrawGround();
-	//DrawWater();
 
 	RenderControllerInput();
 
@@ -1161,8 +1154,8 @@ void Engine::HighlightSprite(int column, int row)
 	ScreenUtils::CalculateSquareCenter(
 		m_window->Bounds.Width,
 		m_window->Bounds.Height, 
-		row, 
-		column,
+		column, 
+		row,
 		&x, 
 		&y);
 

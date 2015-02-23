@@ -116,19 +116,19 @@ private:
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
 
 	ComPtr<ID3D11Texture2D> m_tree;
-	std::vector<TreeData> m_treeData;
+	std::vector<BaseSpriteData> m_spriteData;
 
 	ComPtr<ID3D11Texture2D> m_rock;
-	std::vector<RockData> m_rockData;
+	std::vector<BaseSpriteData> m_rockData;
 
 	ComPtr<ID3D11Texture2D> m_water;
-	std::vector<WaterData> m_waterData;
+	std::vector<BaseSpriteData> m_waterData;
 
 	ComPtr<ID3D11Texture2D> m_stoneWall;
-	std::vector<StoneWallData> m_stoneWallData;
+	std::vector<BaseSpriteData> m_stoneWallData;
 
 	ComPtr<ID3D11Texture2D> m_grass;
-	std::vector<GrassData> m_grassData;
+	std::vector<BaseSpriteData> m_grassData;
 
 	ComPtr<ID3D11Texture2D> m_orchi;
 	OrchiData m_orchiData;

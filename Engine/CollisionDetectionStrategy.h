@@ -1,6 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "CollisionDetectionInfo.h"
+#include <vector>
+#include "Player.h"
+#include "BaseSpriteData.h"
+
+using namespace std;
 
 // Possible strategies:
 //	1. Character bounding box enters obstacle bounding box.
@@ -20,6 +25,14 @@ public:
 	CollisionDetectionStrategy(){}
 
 	virtual bool Detect(CollisionDetectionInfo * info) = 0;
+
+	virtual int Detect(
+		int * column,
+		int * row,
+		float2 playerSize,
+		float2 spriteSize,
+		Player * pPlayer,
+		vector<BaseSpriteData> * sprites) = 0;
 
 protected:
 

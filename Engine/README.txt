@@ -7,3 +7,6 @@ and the player attemps to move to the corner, then scrolling to the next screen 
 Have exit squares to mark the North, East, South, and West squares for each screen.
 
 Shovels for digging in the dirt.
+
+Other Notes
+Try to use Proto Buffers for storing the map files.

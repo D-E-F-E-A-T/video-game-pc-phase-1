@@ -1,13 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "CollisionDetectionStrategy.h"
-#include "Player.h"
-#include "BaseSpriteData.h"
 
-class CircularZoneCollisionStrategy : public CollisionDetectionStrategy
+class BoundingBoxMidpointCollisionStrategy : public CollisionDetectionStrategy
 {
 public:
-	CircularZoneCollisionStrategy();
+	BoundingBoxMidpointCollisionStrategy();
 	bool Detect(CollisionDetectionInfo * info);
 	int Detect(
 		int * column,

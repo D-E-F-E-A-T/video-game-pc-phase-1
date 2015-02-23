@@ -19,10 +19,13 @@
     <ClCompile Include="RightMargin.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Screen.cpp" />
-    <ClCompile Include="BoundingBoxCollisionStrategy.cpp" />
     <ClCompile Include="ScreenBuilder.cpp" />
     <ClCompile Include="ScreenUtils.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="BoundingBoxCornerCollisionStrategy.cpp" />
+    <ClCompile Include="BoundingBoxMidpointCollisionStrategy.cpp" />
+    <ClCompile Include="CircularZoneCollisionStrategy.cpp" />
+    <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -60,13 +63,14 @@
     <ClInclude Include="BaseSpriteData.h" />
     <ClInclude Include="CollisionDetectionStrategy.h" />
     <ClInclude Include="SpriteOverlapCollisionStrategy.h" />
-    <ClInclude Include="BoundingBoxCollisionStrategy.h" />
     <ClInclude Include="CircularZoneCollisionStrategy.h" />
     <ClInclude Include="CollisionDetectionInfo.h" />
     <ClInclude Include="DirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="ScreenUtils.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="BoundingBoxCornerCollisionStrategy.h" />
+    <ClInclude Include="BoundingBoxMidpointCollisionStrategy.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

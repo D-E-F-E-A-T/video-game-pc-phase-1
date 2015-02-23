@@ -19,7 +19,8 @@
 #include "GrassData.h"
 #include "StoneWallData.h"
 #include "OrchiData.h"
-#include "BoundingBoxCollisionStrategy.h"
+#include "BoundingBoxCornerCollisionStrategy.h"
+#include "BoundingBoxMidpointCollisionStrategy.h"
 #include "ScreenUtils.h"
 
 using namespace Microsoft::WRL;
@@ -89,7 +90,7 @@ Engine::Engine() :
 	m_nCollidedSpriteRow(0)
 {
 	m_collisionDetectionStrategy =
-		new BoundingBoxCollisionStrategy();
+		new BoundingBoxCornerCollisionStrategy();
 
 
 }
@@ -283,7 +284,16 @@ void Engine::Render()
 	int column = 0;
 	int row = 0;
 
-	int result = CheckForCollisions(&column, &row);
+	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
+	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+
+	int result = m_collisionDetectionStrategy->Detect(
+		&column,
+		&row,
+		playerSize,
+		spriteSize,
+		m_pPlayer,
+		&m_spriteData);
 	
 	if (result == 1)
 	{
@@ -321,7 +331,7 @@ void Engine::Render()
 
 	m_spriteBatch->Begin();
 
-	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+	for (auto tree = m_spriteData.begin(); tree != m_spriteData.end(); tree++)
 	{
 		m_spriteBatch->Draw(
 			m_tree.Get(),
@@ -504,7 +514,7 @@ void Engine::OnVisibilityChanged(
 		m_window->Bounds.Height);
 
 	// Use Builders
-	m_screenBuilder->BuildScreen(&m_treeData);
+	m_screenBuilder->BuildScreen(&m_spriteData);
 
 	float x = 0.0f;
 	float y = 0.0f;
@@ -1065,7 +1075,7 @@ int Engine::CheckForCollisions(int * column, int * row)
 	// Look for collisions with all trees
 	float2 treeSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
 
-	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+	for (auto tree = m_spriteData.begin(); tree != m_spriteData.end(); tree++)
 	{
 		float treeLeft = tree->pos.x - treeSize.x / 2.0f;
 		float treeRight = tree->pos.x + size.x / 2.0f;

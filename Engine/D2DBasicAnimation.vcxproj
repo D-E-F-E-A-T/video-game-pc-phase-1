@@ -184,7 +184,8 @@
     <ClInclude Include="BasicShapes.h" />
     <ClInclude Include="BasicSprites.h" />
     <ClInclude Include="BasicTimer.h" />
-    <ClInclude Include="BoundingBoxCollisionStrategy.h" />
+    <ClInclude Include="BoundingBoxCornerCollisionStrategy.h" />
+    <ClInclude Include="BoundingBoxMidpointCollisionStrategy.h" />
     <ClInclude Include="CircularZoneCollisionStrategy.h" />
     <ClInclude Include="CollisionDetectionInfo.h" />
     <ClInclude Include="CollisionDetectionStrategy.h" />
@@ -226,7 +227,9 @@
     <ClCompile Include="BasicReaderWriter.cpp" />
     <ClCompile Include="BasicSprites.cpp" />
     <ClCompile Include="BasicTimer.cpp" />
-    <ClCompile Include="BoundingBoxCollisionStrategy.cpp" />
+    <ClCompile Include="BoundingBoxCornerCollisionStrategy.cpp" />
+    <ClCompile Include="BoundingBoxMidpointCollisionStrategy.cpp" />
+    <ClCompile Include="CircularZoneCollisionStrategy.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="Door.cpp" />
@@ -249,6 +252,7 @@
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenBuilder.cpp" />
     <ClCompile Include="ScreenUtils.cpp" />
+    <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Water.cpp" />
   </ItemGroup>

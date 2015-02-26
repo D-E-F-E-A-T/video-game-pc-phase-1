@@ -515,6 +515,11 @@ void Engine::CreateWindowSizeDependentResources()
 	DirectXBase::CreateWindowSizeDependentResources();
 
 	CreateLifeText();
+	CreateButtonsText();
+
+	CreateMapText();
+	CreateInventoryText();
+	CreatePackText();
 }
 
 void Engine::DrawLeftMargin()
@@ -938,6 +943,12 @@ void Engine::Render()
 	DrawRightMargin();
 
 	DrawLifeText();
+	DrawButtonsText();
+
+	DrawMapText();
+	DrawInventoryText();
+	DrawPackText();
+
 
 
 	// If the Player moves to the sides of the screen, scroll
@@ -1331,8 +1342,8 @@ void Engine::CreateLifeText()
 	Platform::String ^ text = "Life";
 
 	D2D1_SIZE_F size = m_d2dContext->GetSize();
-	size.height = size.height * 0.05f;
-	size.width = size.width - (size.width * RIGHT_MARGIN_RATIO);
+	size.height = size.height / 3.0f;
+	size.width = size.width * RIGHT_MARGIN_RATIO;
 
 	ComPtr<IDWriteTextLayout> textLayout;
 
@@ -1347,25 +1358,202 @@ void Engine::CreateLifeText()
 		)
 		);
 
-	textLayout.As(&m_textLayout1);
+	textLayout.As(&m_textLayoutLife);
 
 	m_textRange.startPosition = 0;
 	m_textRange.length = text->Length();
-	m_textLayout1->SetFontSize(64, m_textRange);
-	m_textLayout1->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
-//	m_textLayout1->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	m_textLayoutLife->SetFontSize(SECTION_HEADER_FONT_SIZE, m_textRange);
+	m_textLayoutLife->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
+	m_textLayoutLife->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+}
+
+
+void Engine::CreateMapText()
+{
+	Platform::String ^ text = "Map";
+
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+	size.height = size.height / 3.0f;
+	size.width = size.width * LEFT_MARGIN_RATIO;
+
+	ComPtr<IDWriteTextLayout> textLayout;
+
+	DX::ThrowIfFailed(
+		m_dwriteFactory->CreateTextLayout(
+		text->Data(),
+		text->Length(),
+		m_textFormat.Get(),
+		size.width,
+		size.height,
+		&textLayout
+		)
+		);
+
+	textLayout.As(&m_textLayoutMap);
+
+	m_textRange.startPosition = 0;
+	m_textRange.length = text->Length();
+	m_textLayoutMap->SetFontSize(SECTION_HEADER_FONT_SIZE, m_textRange);
+	m_textLayoutMap->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
+	m_textLayoutMap->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+}
+
+void Engine::CreateButtonsText()
+{
+	Platform::String ^ text = "Buttons";
+
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+	size.height = size.height / 3.0f;
+	size.width = size.width * RIGHT_MARGIN_RATIO;
+
+	ComPtr<IDWriteTextLayout> textLayout;
+
+	DX::ThrowIfFailed(
+		m_dwriteFactory->CreateTextLayout(
+		text->Data(),
+		text->Length(),
+		m_textFormat.Get(),
+		size.width,
+		size.height,
+		&textLayout
+		)
+		);
+
+	textLayout.As(&m_textLayoutButtons);
+
+	m_textRange.startPosition = 0;
+	m_textRange.length = text->Length();
+	m_textLayoutButtons->SetFontSize(SECTION_HEADER_FONT_SIZE, m_textRange);
+	m_textLayoutButtons->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
+	m_textLayoutButtons->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+}
+
+void Engine::CreateInventoryText()
+{
+	Platform::String ^ text = "Inventory";
+
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+	size.height = size.height / 3.0f;
+	size.width = size.width * LEFT_MARGIN_RATIO;
+
+	ComPtr<IDWriteTextLayout> textLayout;
+
+	DX::ThrowIfFailed(
+		m_dwriteFactory->CreateTextLayout(
+		text->Data(),
+		text->Length(),
+		m_textFormat.Get(),
+		size.width,
+		size.height,
+		&textLayout
+		)
+		);
+
+	textLayout.As(&m_textLayoutInventory);
+
+	m_textRange.startPosition = 0;
+	m_textRange.length = text->Length();
+	m_textLayoutInventory->SetFontSize(SECTION_HEADER_FONT_SIZE, m_textRange);
+	m_textLayoutInventory->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
+	m_textLayoutInventory->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+}
+
+void Engine::CreatePackText()
+{
+	Platform::String ^ text = "Pack";
+
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+	size.height = size.height / 3.0f;
+	size.width = size.width * RIGHT_MARGIN_RATIO;
+
+	ComPtr<IDWriteTextLayout> textLayout;
+
+	DX::ThrowIfFailed(
+		m_dwriteFactory->CreateTextLayout(
+		text->Data(),
+		text->Length(),
+		m_textFormat.Get(),
+		size.width,
+		size.height,
+		&textLayout
+		)
+		);
+
+	textLayout.As(&m_textLayoutPack);
+
+	m_textRange.startPosition = 0;
+	m_textRange.length = text->Length();
+	m_textLayoutPack->SetFontSize(SECTION_HEADER_FONT_SIZE, m_textRange);
+	m_textLayoutPack->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
+	m_textLayoutPack->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 }
 
 void Engine::DrawLifeText()
 {
 	D2D1_SIZE_F size = m_d2dContext->GetSize();
 
-	size.height = size.height * 0.01f;
-	size.width = size.width - (size.width * RIGHT_MARGIN_RATIO);
+	float fTop = size.height * 0.01f;
+	float fLeft = size.width - (size.width * RIGHT_MARGIN_RATIO);
 
 	m_d2dContext->DrawTextLayout(
-		D2D1::Point2F(size.width, size.height),
-		m_textLayout1.Get(),
+		D2D1::Point2F(fLeft, fTop),
+		m_textLayoutLife.Get(),
+		m_whiteBrush.Get()
+		);
+}
+
+void Engine::DrawMapText()
+{
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+
+	float fTop = size.height * 0.01f;
+	float fLeft = 0.0f;// size.width - (size.width * LEFT_MARGIN_RATIO);
+
+	m_d2dContext->DrawTextLayout(
+		D2D1::Point2F(fLeft, fTop),
+		m_textLayoutMap.Get(),
+		m_whiteBrush.Get()
+		);
+}
+
+void Engine::DrawButtonsText()
+{
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+
+	float fTop = size.height / 3.0f;
+	float fLeft = size.width - (size.width * RIGHT_MARGIN_RATIO);
+
+	m_d2dContext->DrawTextLayout(
+		D2D1::Point2F(fLeft, fTop),
+		m_textLayoutButtons.Get(),
+		m_whiteBrush.Get()
+		);
+}
+
+void Engine::DrawInventoryText()
+{
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+
+	float fTop = size.height / 3.0f;
+	float fLeft = 0.0f;
+
+	m_d2dContext->DrawTextLayout(
+		D2D1::Point2F(fLeft, fTop),
+		m_textLayoutInventory.Get(),
+		m_whiteBrush.Get()
+		);
+}
+
+void Engine::DrawPackText()
+{
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+
+	float fTop = size.height / 3.0f * 2.0f;
+	float fLeft = 0.0f; // size.width - (size.width * LEFT_MARGIN_RATIO);
+
+	m_d2dContext->DrawTextLayout(
+		D2D1::Point2F(fLeft, fTop),
+		m_textLayoutPack.Get(),
 		m_whiteBrush.Get()
 		);
 }

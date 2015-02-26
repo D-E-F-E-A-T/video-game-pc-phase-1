@@ -159,7 +159,16 @@ private:
 	int FetchKeyboardInput();
 
 	void CreateLifeText();
+	void CreateMapText();
+	void CreateButtonsText();
+	void CreateInventoryText();
+	void CreatePackText();
+
 	void DrawLifeText();
+	void DrawMapText();
+	void DrawButtonsText();
+	void DrawInventoryText();
+	void DrawPackText();
 
 	void MovePlayer(uint16 buttons);
 
@@ -170,7 +179,12 @@ private:
 
 	Player * m_pPlayer;
 
-	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayout1;
+	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayoutLife;
+	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayoutButtons;
+	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayoutMap;
+	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayoutInventory;
+	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayoutPack;
+
 	DWRITE_TEXT_RANGE m_textRange;
 };
 

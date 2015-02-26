@@ -165,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="grass.dds" />
+    <Image Include="heart.dds" />
     <Image Include="ida.dds" />
     <Image Include="link.dds" />
     <Image Include="rock.dds" />
@@ -198,6 +199,8 @@
     <ClInclude Include="GrassData.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="BaseSpriteData.h" />
+    <ClInclude Include="HeartData.h" />
+    <ClInclude Include="LifePanel.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="ScreenUtils.h" />
     <ClInclude Include="SpriteOverlapCollisionStrategy.h" />
@@ -221,6 +224,7 @@
     <ClInclude Include="TreeData.h" />
     <ClInclude Include="Water.h" />
     <ClInclude Include="World.h" />
+    <ClInclude Include="WorldBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicLoader.cpp" />
@@ -235,6 +239,7 @@
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="LeftMargin.cpp" />
+    <ClCompile Include="LifePanel.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -255,6 +260,7 @@
     <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Water.cpp" />
+    <ClCompile Include="WorldBuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest">

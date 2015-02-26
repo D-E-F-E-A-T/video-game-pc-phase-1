@@ -28,9 +28,9 @@
 #define MARGIN 0.0f
 #endif // SCREEN_BORDER_WIDTH
 
-#ifndef SHOW_OVERLAY
-#define SHOW_OVERLAY
-#endif // SHOW_OVERLAY
+//#ifndef SHOW_OVERLAY
+//#define SHOW_OVERLAY
+//#endif // SHOW_OVERLAY
 
 #ifndef USE_CONTROLLER
 #define USE_CONTROLLER
@@ -75,3 +75,29 @@
 #ifndef WEST
 #define WEST 3
 #endif // WEST
+
+// 5 percent of the screen / second.
+#ifndef SCROLLING_VELOCITY
+#define SCROLLING_VELOCITY 5
+#endif // SCROLLING_VELOCITY
+
+#ifndef SHOW_GRID
+#define SHOW_GRID
+#endif // SHOW_GRID
+
+#ifndef NUM_HEART_ROWS 
+#define NUM_HEART_ROWS 2
+#endif // NUM_HEART_ROWS
+
+#ifndef NUM_HEART_COLUMNS
+#define NUM_HEART_COLUMNS 10
+#endif // NUM_HEART_COLUMN
+
+#ifndef HEART_PANEL_HEIGHT_RATIO
+#define HEART_PANEL_HEIGHT_RATIO 0.2f
+#endif // HEART_PANEL_RATIO
+
+#ifndef HEART_PANEL_HEIGHT
+#define HEART_PANEL_HEIGHT 250.0f
+#endif // HEART_PANEL_HEIGHT
+

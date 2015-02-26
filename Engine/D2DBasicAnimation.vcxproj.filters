@@ -26,6 +26,8 @@
     <ClCompile Include="BoundingBoxMidpointCollisionStrategy.cpp" />
     <ClCompile Include="CircularZoneCollisionStrategy.cpp" />
     <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
+    <ClCompile Include="WorldBuilder.cpp" />
+    <ClCompile Include="LifePanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -71,6 +73,9 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="BoundingBoxCornerCollisionStrategy.h" />
     <ClInclude Include="BoundingBoxMidpointCollisionStrategy.h" />
+    <ClInclude Include="WorldBuilder.h" />
+    <ClInclude Include="LifePanel.h" />
+    <ClInclude Include="HeartData.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />
@@ -85,6 +90,7 @@
     <Image Include="grass.dds" />
     <Image Include="stonewall.dds" />
     <Image Include="link.dds" />
+    <Image Include="heart.dds" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

@@ -7,7 +7,7 @@ class ScreenBuilder
 {
 public:
 	ScreenBuilder(float screenWidth, float screenHeight);
-	void BuildScreen(std::vector<BaseSpriteData> * m_spriteData);
+	void BuildScreen(std::vector<BaseSpriteData> * m_treeData);
 
 protected:
 

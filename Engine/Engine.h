@@ -68,16 +68,10 @@ private:
 
 	void DrawGrid();
 	void DrawPlayer();
+	void DrawSprites();
 
 	void DrawLeftMargin();
 	void DrawRightMargin();
-
-	// Put these into XML files.
-	void DrawTree();
-	void DrawRock();
-	void DrawDoor();
-	void DrawGround();
-	void DrawWater();
 
 	void RenderControllerInput();
 
@@ -116,7 +110,7 @@ private:
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
 
 	ComPtr<ID3D11Texture2D> m_tree;
-	std::vector<BaseSpriteData> m_spriteData;
+	std::vector<BaseSpriteData> m_treeData;
 
 	ComPtr<ID3D11Texture2D> m_rock;
 	std::vector<BaseSpriteData> m_rockData;
@@ -132,6 +126,9 @@ private:
 
 	ComPtr<ID3D11Texture2D> m_orchi;
 	OrchiData m_orchiData;
+
+	ComPtr<ID3D11Texture2D> m_heart;
+	std::vector<BaseSpriteData> m_heartData;
 
 	// Input related members
 	bool                    m_isControllerConnected;  // Do we have a controller connected
@@ -161,7 +158,9 @@ private:
 	void FetchControllerInput();
 	int FetchKeyboardInput();
 
-	int CheckForCollisions(int * column, int * row);
+	void CreateLifeText();
+	void DrawLifeText();
+
 	void MovePlayer(uint16 buttons);
 
 	void HighlightSprite(int column, int row);
@@ -170,6 +169,9 @@ private:
 	void DisplaySpriteCollisionMessage(int column, int row);
 
 	Player * m_pPlayer;
+
+	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayout1;
+	DWRITE_TEXT_RANGE m_textRange;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

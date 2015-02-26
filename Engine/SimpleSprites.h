@@ -68,7 +68,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_stoneWall;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_orchi;
 
-    std::vector<TreeData> m_spriteData;
+	std::vector<TreeData> m_treeData;
 	std::vector<RockData> m_rockData;
 	std::vector<WaterData> m_waterData;
 	std::vector<StoneWallData> m_stoneWallData;

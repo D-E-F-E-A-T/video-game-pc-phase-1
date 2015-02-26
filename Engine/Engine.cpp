@@ -22,6 +22,7 @@
 #include "BoundingBoxCornerCollisionStrategy.h"
 #include "BoundingBoxMidpointCollisionStrategy.h"
 #include "ScreenUtils.h"
+#include "LifePanel.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -99,33 +100,45 @@ void Engine::CreateDeviceIndependentResources()
 {
     DirectXBase::CreateDeviceIndependentResources();
 
+	DX::ThrowIfFailed(
+		m_dwriteFactory->CreateTextFormat(
+		L"Segoe UI",
+		nullptr,
+		DWRITE_FONT_WEIGHT_REGULAR,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		64.0f,
+		L"en-US",
+		&m_textFormat)
+		);
+
 }
 
 void Engine::CreateDeviceResources()
 {
     DirectXBase::CreateDeviceResources();
 
-#ifdef SHOW_OVERLAY
-    m_sampleOverlay = ref new SampleOverlay();
-
-    m_sampleOverlay->Initialize(
-        m_d2dDevice.Get(),
-        m_d2dContext.Get(),
-        m_wicFactory.Get(),
-        m_dwriteFactory.Get(),
-        ""
-        );
-
-	m_debugOverlay = ref new DebugOverlay();
-
-	m_debugOverlay->Initialize(
-		m_d2dDevice.Get(),
-		m_d2dContext.Get(),
-		m_wicFactory.Get(),
-		m_dwriteFactory.Get(),
-		"Debug overlay"
-		);
-#endif // SHOW_OVERLAY
+//#ifdef SHOW_OVERLAY
+//    m_sampleOverlay = ref new SampleOverlay();
+//
+//    m_sampleOverlay->Initialize(
+//        m_d2dDevice.Get(),
+//        m_d2dContext.Get(),
+//        m_wicFactory.Get(),
+//        m_dwriteFactory.Get(),
+//        ""
+//        );
+//
+//	m_debugOverlay = ref new DebugOverlay();
+//
+//	m_debugOverlay->Initialize(
+//		m_d2dDevice.Get(),
+//		m_d2dContext.Get(),
+//		m_wicFactory.Get(),
+//		m_dwriteFactory.Get(),
+//		"Debug overlay"
+//		);
+//#endif // SHOW_OVERLAY
 
     DX::ThrowIfFailed(
         m_d2dContext->CreateSolidColorBrush(
@@ -231,6 +244,13 @@ void Engine::CreateDeviceResources()
 
 	m_spriteBatch->AddTexture(m_orchi.Get());
 
+	loader->LoadTexture(
+		"heart.dds",
+		&m_heart,
+		nullptr);
+
+	m_spriteBatch->AddTexture(m_heart.Get());
+
 	//
 	// Setup the local graphics objects
 	//
@@ -264,166 +284,6 @@ void Engine::CreateDeviceResources()
 		);
 }
 
-
-void Engine::Render()
-{
-    // Retrieve the size of the render target.
-    D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
-
-    m_d2dContext->BeginDraw();
-
-    m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
-    m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
-
-	DrawLeftMargin();
-	DrawRightMargin();
-
-	DrawGrid();
-	DrawPlayer();
-
-	int column = 0;
-	int row = 0;
-
-	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
-	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
-
-	int result = m_collisionDetectionStrategy->Detect(
-		&column,
-		&row,
-		playerSize,
-		spriteSize,
-		m_pPlayer,
-		&m_spriteData);
-	
-	if (result == 1)
-	{
-		// Need to undo the transform done above.
-		HighlightSprite(column, row);
-		DisplaySpriteCollisionMessage(column, row);
-	}
-
-	RenderControllerInput();
-
-    float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
-
-    D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
-        minWidthHeightScale,
-        minWidthHeightScale
-        );
-
-    D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
-        renderTargetSize.width / 2.0f,
-        renderTargetSize.height / 2.0f
-        );
-
-    // Center the path.
-    m_d2dContext->SetTransform(scale * translation);
-
-    // We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
-    // is lost. It will be handled during the next call to Present.
-    HRESULT hr = m_d2dContext->EndDraw();
-
-	m_d3dContext->OMSetRenderTargets(
-		1,
-		m_d3dRenderTargetView.GetAddressOf(),
-		nullptr
-		);
-
-	m_spriteBatch->Begin();
-
-	for (auto tree = m_spriteData.begin(); tree != m_spriteData.end(); tree++)
-	{
-		m_spriteBatch->Draw(
-			m_tree.Get(),
-			tree->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * tree->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			tree->rot
-			);
-	}
-
-	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
-	{
-		m_spriteBatch->Draw(
-			m_rock.Get(),
-			rock->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * rock->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			rock->rot
-			);
-	}
-
-//#ifdef WATER_SPRITE
-	for (auto water  = m_waterData.begin(); water != m_waterData.end(); water++)
-	{
-		m_spriteBatch->Draw(
-			m_water.Get(),
-			water->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * water->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			water->rot
-			);
-	}
-
-	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
-	{
-		m_spriteBatch->Draw(
-			m_grass.Get(),
-			grass->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * grass->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			grass->rot
-			);
-	}
-
-	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
-	{
-		m_spriteBatch->Draw(
-			m_stoneWall.Get(),
-			stoneWall->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * stoneWall->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			stoneWall->rot
-			);
-	}
-
-	m_spriteBatch->Draw(
-		m_orchi.Get(),
-		m_orchiData.pos,
-		BasicSprites::PositionUnits::DIPs,
-		float2(1.0f, 1.0f) * m_orchiData.scale,
-		BasicSprites::SizeUnits::Normalized,
-		float4(0.8f, 0.8f, 1.0f, 1.0f),
-		m_orchiData.rot
-		);
-
-
-	m_spriteBatch->End();
-
-
-
-    if (hr != D2DERR_RECREATE_TARGET)
-    {
-        DX::ThrowIfFailed(hr);
-    }
-
-#ifdef SHOW_OVERLAY
-	
-    m_sampleOverlay->Render();
-	m_debugOverlay->Render("Hello World");
-#endif // SHOW_OVERLAY
-}
-
 void Engine::Initialize(
     _In_ CoreApplicationView^ applicationView
     )
@@ -436,12 +296,6 @@ void Engine::Initialize(
 
     CoreApplication::Resuming +=
         ref new EventHandler<Platform::Object^>(this, &Engine::OnResuming);
-
-
-#ifdef SIMPLE_SPRITES
-	m_renderer = ref new SimpleSprites();
-#endif // SIMPLE_SPRITES
-
 }
 
 void Engine::SetWindow(
@@ -467,13 +321,7 @@ void Engine::SetWindow(
     pointerVisualizationSettings->IsContactFeedbackEnabled = false;
     pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 
-//#ifdef SIMPLE_SPRITES
-//	m_renderer->Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
-//#elif defined CONTROLLER_RENDERER
-//	m_controllerRenderer->Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
-//#else
     DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
-//#endif // SIMPLE_SPRITES
 }
 
 void Engine::Load(
@@ -495,10 +343,10 @@ void Engine::OnWindowSizeChanged(
 {
     UpdateForWindowSizeChange();
 
-#ifdef SHOW_OVERLAY
-    m_sampleOverlay->UpdateForWindowSizeChange();
-	m_debugOverlay->UpdateForWindowSizeChange();
-#endif // SHOW_OVERLAY
+//#ifdef SHOW_OVERLAY
+//    m_sampleOverlay->UpdateForWindowSizeChange();
+//	m_debugOverlay->UpdateForWindowSizeChange();
+//#endif // SHOW_OVERLAY
 }
 
 void Engine::OnVisibilityChanged(
@@ -513,8 +361,16 @@ void Engine::OnVisibilityChanged(
 		m_window->Bounds.Width,
 		m_window->Bounds.Height);
 
-	// Use Builders
-	m_screenBuilder->BuildScreen(&m_spriteData);
+	// Use chain-of-responsibility?
+	m_screenBuilder->BuildScreen(&m_treeData);
+
+	LifePanel lifePanel(
+		m_window->Bounds.Width - m_window->Bounds.Width * RIGHT_MARGIN_RATIO,
+		m_window->Bounds.Height * HEART_PANEL_HEIGHT_RATIO,
+		m_window->Bounds.Width * RIGHT_MARGIN_RATIO,
+		HEART_PANEL_HEIGHT);
+
+	lifePanel.BuildPanel(&m_heartData);
 
 	float x = 0.0f;
 	float y = 0.0f;
@@ -640,82 +496,6 @@ void Engine::DrawGrid()
 	}
 }
 
-void Engine::DrawTree()
-{
-	/*
-	float x = 0.0f;
-	float y = 0.0f;
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height,
-		0, 0, &x, &y);
-
-	Tree tree{ 0, 0, x, y, m_greenBrush };
-	tree.Draw(m_d2dContext);
-*/
-}
-
-void Engine::DrawRock()
-{
-	/*
-	float x = 0.0f;
-	float y = 0.0f;
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height, 1, 1, &x, &y);
-
-	Rock rock{ 0, 0, x, y, m_grayBrush };
-	rock.Draw(m_d2dContext);
-*/
-}
-
-void Engine::DrawDoor()
-{
-	/*
-	float x = 0.0f;
-	float y = 0.0f;
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height, 2, 2, &x, &y);
-
-	Door door{ 0, 0, x, y, m_blackBrush };
-	door.Draw(m_d2dContext);
-*/
-}
-
-void Engine::DrawGround()
-{
-	/*
-	float x = 0.0f;
-	float y = 0.0f;
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height, 3, 3, &x, &y);
-
-	Ground ground{ 0, 0, x, y, m_beigeBrush };
-	ground.Draw(m_d2dContext);
-*/
-}
-
-void Engine::DrawWater()
-{
-	/*
-	float x = 0.0f;
-	float y = 0.0f;
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height, 8, 8, &x, &y);
-
-	Water water{ 0, 0, x, y, m_blueBrush };
-	water.Draw(m_d2dContext);
-*/
-}
-
 
 IFrameworkView^ DirectXAppSource::CreateView()
 {
@@ -733,6 +513,8 @@ int main(Platform::Array<Platform::String^>^)
 void Engine::CreateWindowSizeDependentResources()
 {
 	DirectXBase::CreateWindowSizeDependentResources();
+
+	CreateLifeText();
 }
 
 void Engine::DrawLeftMargin()
@@ -757,6 +539,13 @@ void Engine::DrawRightMargin()
 {
 	RightMargin rightMargin;
 
+	float rightBorderWidth =
+		(m_windowBounds.Width * RIGHT_MARGIN_RATIO);
+
+	float rightBorder = 
+		m_windowBounds.Width - 
+		rightBorderWidth;
+
 	D2D1_RECT_F rect
 	{
 		m_windowBounds.Width - (m_windowBounds.Width * RIGHT_MARGIN_RATIO),
@@ -769,14 +558,28 @@ void Engine::DrawRightMargin()
 		m_d2dContext,
 		m_blackBrush.Get(),
 		rect);
+
+	/*
+	LPD3DXFont
+	D2D1_RECT_F
+	{
+		rightBorder + rightBorder
+	}
+
+		m_d2dContext->DrawText(
+			text,
+			static_cast<UINT32>(::wcslen(text)),
+			m_headerTextFormat.Get(),
+			loc,
+			m_textBrush.Get()
+			);
+*/
 }
 
 void Engine::RenderControllerInput()
 {
 	D2D1_SIZE_F size = m_d2dContext->GetSize();
 	D2D1_RECT_F pos = D2D1::RectF(INFORMATION_START_X, INFORMATION_START_Y, size.width, size.height);
-
-//	m_d2dContext->BeginDraw();
 
 	if (!m_isControllerConnected)
 	{
@@ -812,8 +615,6 @@ void Engine::RenderControllerInput()
 
 		// Values
 		pos.top += LINE_HEIGHT;
-//		pos.top = INFORMATION_START_Y + LINE_HEIGHT;
-//		pos.left = INPUT_DATA_START;
 		DrawText(static_cast<uint32>(m_xinputState.dwPacketNumber), pos);
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputState.Gamepad.bLeftTrigger, pos);
@@ -830,13 +631,8 @@ void Engine::RenderControllerInput()
 		pos.top += LINE_HEIGHT;
 		DrawButtonText(m_xinputState.Gamepad.wButtons, pos);
 
-		//
-		// Display Capabilties
-		//
-
 		// Labels
 		pos.top += LINE_HEIGHT;
-//		pos.left = CAPS_LABEL_START;
 		DrawHeader(CAPS_HEADER, pos);
 		pos.top += LINE_HEIGHT;
 		DrawText(LABEL_CAPS_TYPE, pos);
@@ -847,7 +643,6 @@ void Engine::RenderControllerInput()
 
 		// Values
 		pos.top += LINE_HEIGHT;
-//		pos.left = CAPS_DATA_START;
 		DrawText(m_xinputCaps.Type, pos);
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputCaps.SubType, pos);
@@ -1060,75 +855,6 @@ int Engine::FetchKeyboardInput()
 	return 1;
 }
 
-// TODO: Pass arrays rather than separate argument lists.
-int Engine::CheckForCollisions(int * column, int * row)
-{
-	float2 size = m_spriteBatch->GetSpriteSize(m_orchi.Get());
-	
-	float left = m_pPlayer->GetHorizontalOffset() - size.x / 2.0f;
-	float right = m_pPlayer->GetHorizontalOffset() + size.x / 2.0f;
-	float top = m_pPlayer->GetVerticalOffset() - size.y / 2.0f;
-	float bottom = m_pPlayer->GetVerticalOffset() + size.y / 2.0f;
-
-	// Now I know the size (remember to scale accordingly, if needed using m_orchiData).
-
-	// Look for collisions with all trees
-	float2 treeSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
-
-	for (auto tree = m_spriteData.begin(); tree != m_spriteData.end(); tree++)
-	{
-		float treeLeft = tree->pos.x - treeSize.x / 2.0f;
-		float treeRight = tree->pos.x + size.x / 2.0f;
-		float treeTop = tree->pos.y - size.y / 2.0f;
-		float treeBottom = tree->pos.y + size.y / 2.0f;
-
-		// Does the top, left vertex overlap the tree's bounding box?
-		if (left >= treeLeft &&
-			left <= treeRight &&
-			top >= treeTop &&
-			top <= treeBottom)
-		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
-		}
-
-		// Does the top, right vertex overlap the tree's bounding box?
-		if (right >= treeLeft &&
-			right <= treeRight &&
-			top >= treeTop &&
-			top <= treeBottom)
-		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
-		}
-
-		// Does the bottom, right vertex overlap the tree's bounding box?
-		if (right >= treeLeft &&
-			right <= treeRight &&
-			bottom >= treeTop &&
-			bottom <= treeBottom)
-		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
-		}
-
-		// Does the bottom, left vertex overlap the tree's bounding box?
-		if (left >= treeLeft &&
-			left <= treeRight &&
-			bottom >= treeTop &&
-			bottom <= treeBottom)
-		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
-		}
-	}
-	return 0;
-}
-
 // TODO: Could use function pointers.
 void Engine::MovePlayer(uint16 buttons)
 {
@@ -1198,6 +924,278 @@ void Engine::DisplaySpriteCollisionMessage(int column, int row)
 	pos.top += LINE_HEIGHT;
 }
 
+void Engine::Render()
+{
+	// Retrieve the size of the render target.
+	D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
+
+	m_d2dContext->BeginDraw();
+
+	m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
+	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+	DrawLeftMargin();
+	DrawRightMargin();
+
+	DrawLifeText();
+
+
+	// If the Player moves to the sides of the screen, scroll
+	//	 and don't render the grid.
+#ifndef SHOW_GRID
+	DrawGrid();
+#endif // SHOW_GRID
+
+	DrawPlayer();
+
+	int column = 0;
+	int row = 0;
+
+	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
+	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+
+	int result = m_collisionDetectionStrategy->Detect(
+		&column,
+		&row,
+		playerSize,
+		spriteSize,
+		m_pPlayer,
+		&m_treeData);
+
+	if (result == 1)
+	{
+		// Need to undo the transform done above.
+		HighlightSprite(column, row);
+		DisplaySpriteCollisionMessage(column, row);
+	}
+
+	RenderControllerInput();
+
+	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
+
+	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
+		minWidthHeightScale,
+		minWidthHeightScale
+		);
+
+	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
+		renderTargetSize.width / 2.0f,
+		renderTargetSize.height / 2.0f
+		);
+
+	// Center the path.
+	m_d2dContext->SetTransform(scale * translation);
+
+	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
+	// is lost. It will be handled during the next call to Present.
+	HRESULT hr = m_d2dContext->EndDraw();
+
+	m_d3dContext->OMSetRenderTargets(
+		1,
+		m_d3dRenderTargetView.GetAddressOf(),
+		nullptr
+		);
+
+	DrawSprites();
+
+	if (hr != D2DERR_RECREATE_TARGET)
+	{
+		DX::ThrowIfFailed(hr);
+	}
+}
+
+//void Engine::Render()
+//{
+	// Retrieve the size of the render target.
+	/*
+	D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
+
+	m_d2dContext->BeginDraw();
+
+	m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
+
+	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
+	*/
+
+	/*
+	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
+		minWidthHeightScale * 0.5f,
+		minWidthHeightScale * 0.5f
+	);
+
+	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
+	renderTargetSize.width / 2.0f,
+	renderTargetSize.height / 2.0f
+	);
+
+	// Center the path.
+	m_d2dContext->SetTransform(scale * translation);
+	*/
+
+//	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+	/*
+	m_d3dContext->OMSetRenderTargets(
+		1,
+		m_d3dRenderTargetView.GetAddressOf(),
+		nullptr
+		);
+		*/
+
+	/*
+	m_spriteBatch->Begin();
+
+	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+	{
+		m_spriteBatch->Draw(
+			m_tree.Get(),
+			tree->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * tree->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			tree->rot
+			);
+	}
+
+	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
+	{
+		m_spriteBatch->Draw(
+			m_rock.Get(),
+			rock->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * rock->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			rock->rot
+			);
+	}
+
+	for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
+	{
+		m_spriteBatch->Draw(
+			m_water.Get(),
+			water->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * water->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			water->rot
+			);
+	}
+
+	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
+	{
+		m_spriteBatch->Draw(
+			m_grass.Get(),
+			grass->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * grass->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			grass->rot
+			);
+	}
+
+	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
+	{
+		m_spriteBatch->Draw(
+			m_stoneWall.Get(),
+			stoneWall->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * stoneWall->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			stoneWall->rot
+			);
+	}
+
+	m_spriteBatch->Draw(
+		m_orchi.Get(),
+		m_orchiData.pos,
+		BasicSprites::PositionUnits::DIPs,
+		float2(1.0f, 1.0f) * m_orchiData.scale,
+		BasicSprites::SizeUnits::Normalized,
+		float4(0.8f, 0.8f, 1.0f, 1.0f),
+		m_orchiData.rot
+		);
+
+
+	m_spriteBatch->End();
+	*/
+
+
+
+
+	/*
+	DrawLeftMargin();
+	DrawRightMargin();
+
+
+	DrawGrid();
+	DrawPlayer();
+
+	int column = 0;
+	int row = 0;
+
+	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
+	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+
+	int result = m_collisionDetectionStrategy->Detect(
+		&column,
+		&row,
+		playerSize,
+		spriteSize,
+		m_pPlayer,
+		&m_treeData);
+
+	if (result == 1)
+	{
+		// Need to undo the transform done above.
+		HighlightSprite(column, row);
+		DisplaySpriteCollisionMessage(column, row);
+	}
+
+	RenderControllerInput();
+	*/
+	/*
+	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
+
+	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
+		minWidthHeightScale * 0.5f,
+		minWidthHeightScale * 0.5f
+		);
+
+	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
+		renderTargetSize.width / 2.0f,
+		renderTargetSize.height / 2.0f
+		);
+
+	// Center the path.
+	m_d2dContext->SetTransform(scale * translation);
+	*/
+
+	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
+	// is lost. It will be handled during the next call to Present.
+//	HRESULT hr = m_d2dContext->EndDraw();
+
+
+
+
+	/*
+	if (hr != D2DERR_RECREATE_TARGET)
+	{
+		DX::ThrowIfFailed(hr);
+	}
+	*/
+
+
+//#ifdef SHOW_OVERLAY
+//
+//	m_sampleOverlay->Render();
+//	m_debugOverlay->Render("Hello World");
+//#endif // SHOW_OVERLAY
+//}
 
 void Engine::Run()
 {
@@ -1227,4 +1225,147 @@ void Engine::Run()
 				CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
 	}
+}
+
+void Engine::DrawSprites()
+{
+	m_spriteBatch->Begin();
+
+	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+	{
+		m_spriteBatch->Draw(
+			m_tree.Get(),
+			tree->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * tree->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			tree->rot
+			);
+	}
+
+	/*
+	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
+	{
+		m_spriteBatch->Draw(
+			m_rock.Get(),
+			rock->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * rock->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			rock->rot
+			);
+	}
+
+	for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
+	{
+		m_spriteBatch->Draw(
+			m_water.Get(),
+			water->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * water->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			water->rot
+			);
+	}
+
+	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
+	{
+		m_spriteBatch->Draw(
+			m_grass.Get(),
+			grass->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * grass->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			grass->rot
+			);
+	}
+
+	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
+	{
+		m_spriteBatch->Draw(
+			m_stoneWall.Get(),
+			stoneWall->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * stoneWall->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			stoneWall->rot
+			);
+	}
+	*/
+
+	for (auto heart = m_heartData.begin(); heart != m_heartData.end(); heart++)
+	{
+		m_spriteBatch->Draw(
+			m_heart.Get(),
+			heart->pos,
+			BasicSprites::PositionUnits::DIPs,
+			float2(1.0f, 1.0f) * heart->scale,
+			BasicSprites::SizeUnits::Normalized,
+			float4(0.8f, 0.8f, 1.0f, 1.0f),
+			heart->rot
+			);
+	}
+
+	m_spriteBatch->Draw(
+		m_orchi.Get(),
+		m_orchiData.pos,
+		BasicSprites::PositionUnits::DIPs,
+		float2(1.0f, 1.0f) * m_orchiData.scale,
+		BasicSprites::SizeUnits::Normalized,
+		float4(0.8f, 0.8f, 1.0f, 1.0f),
+		m_orchiData.rot
+		);
+
+
+	m_spriteBatch->End();
+}
+
+
+void Engine::CreateLifeText()
+{
+	Platform::String ^ text = "Life";
+
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+	size.height = size.height * 0.05f;
+	size.width = size.width - (size.width * RIGHT_MARGIN_RATIO);
+
+	ComPtr<IDWriteTextLayout> textLayout;
+
+	DX::ThrowIfFailed(
+		m_dwriteFactory->CreateTextLayout(
+		text->Data(),
+		text->Length(),
+		m_textFormat.Get(),
+		size.width,
+		size.height,
+		&textLayout
+		)
+		);
+
+	textLayout.As(&m_textLayout1);
+
+	m_textRange.startPosition = 0;
+	m_textRange.length = text->Length();
+	m_textLayout1->SetFontSize(64, m_textRange);
+	m_textLayout1->SetCharacterSpacing(0.5f, 0.5f, 0, m_textRange);
+//	m_textLayout1->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+}
+
+void Engine::DrawLifeText()
+{
+	D2D1_SIZE_F size = m_d2dContext->GetSize();
+
+	size.height = size.height * 0.01f;
+	size.width = size.width - (size.width * RIGHT_MARGIN_RATIO);
+
+	m_d2dContext->DrawTextLayout(
+		D2D1::Point2F(size.width, size.height),
+		m_textLayout1.Get(),
+		m_whiteBrush.Get()
+		);
 }

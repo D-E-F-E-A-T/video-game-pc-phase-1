@@ -28,6 +28,7 @@
     <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
     <ClCompile Include="WorldBuilder.cpp" />
     <ClCompile Include="LifePanel.cpp" />
+    <ClCompile Include="KeyboardControllerInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -76,6 +77,8 @@
     <ClInclude Include="WorldBuilder.h" />
     <ClInclude Include="LifePanel.h" />
     <ClInclude Include="HeartData.h" />
+    <ClInclude Include="KeyboardControllerInput.h" />
+    <ClInclude Include="XBox360ControllerInput.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />
@@ -91,6 +94,9 @@
     <Image Include="stonewall.dds" />
     <Image Include="link.dds" />
     <Image Include="heart.dds" />
+    <Image Include="heart.png" />
+    <Image Include="key.png" />
+    <Image Include="tree.png" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

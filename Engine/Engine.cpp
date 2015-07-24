@@ -93,7 +93,7 @@ Engine::Engine() :
 	m_collisionDetectionStrategy =
 		new BoundingBoxCornerCollisionStrategy();
 
-
+	m_pKeyboardController = new KeyboardControllerInput();
 }
 
 void Engine::CreateDeviceIndependentResources()

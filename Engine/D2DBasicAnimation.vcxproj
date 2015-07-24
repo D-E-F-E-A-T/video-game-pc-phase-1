@@ -120,7 +120,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>d2d1.lib; d3d11.lib; dxgi.lib; ole32.lib; windowscodecs.lib; dwrite.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;d3d11.lib;dxgi.lib;ole32.lib;windowscodecs.lib;dwrite.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
     <ClCompile>
@@ -166,7 +166,9 @@
   <ItemGroup>
     <Image Include="grass.dds" />
     <Image Include="heart.dds" />
+    <Image Include="heart.png" />
     <Image Include="ida.dds" />
+    <Image Include="key.png" />
     <Image Include="link.dds" />
     <Image Include="rock.dds" />
     <Image Include="squaretile-sdk.png" />
@@ -175,6 +177,7 @@
     <Image Include="storelogo-sdk.png" />
     <Image Include="splash-sdk.png" />
     <Image Include="tree.dds" />
+    <Image Include="tree.png" />
     <Image Include="water.dds" />
     <Image Include="windowsbig-sdk.png" />
   </ItemGroup>
@@ -200,6 +203,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="BaseSpriteData.h" />
     <ClInclude Include="HeartData.h" />
+    <ClInclude Include="KeyboardControllerInput.h" />
     <ClInclude Include="LifePanel.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="ScreenUtils.h" />
@@ -225,6 +229,7 @@
     <ClInclude Include="Water.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="WorldBuilder.h" />
+    <ClInclude Include="XBox360ControllerInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicLoader.cpp" />
@@ -238,6 +243,7 @@
     <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="KeyboardControllerInput.cpp" />
     <ClCompile Include="LeftMargin.cpp" />
     <ClCompile Include="LifePanel.cpp" />
     <ClCompile Include="pch.cpp">

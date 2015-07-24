@@ -9,6 +9,7 @@
 #include "CollisionDetectionStrategy.h"
 #include "ScreenBuilder.h"
 #include "Player.h"
+#include "KeyboardControllerInput.h"
 
 using namespace Microsoft::WRL;
 
@@ -186,6 +187,8 @@ private:
 	Microsoft::WRL::ComPtr<IDWriteTextLayout1> m_textLayoutPack;
 
 	DWRITE_TEXT_RANGE m_textRange;
+
+	KeyboardControllerInput * m_pKeyboardController;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

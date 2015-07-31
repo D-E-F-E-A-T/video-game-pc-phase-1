@@ -189,6 +189,8 @@ private:
 	DWRITE_TEXT_RANGE m_textRange;
 
 	KeyboardControllerInput * m_pKeyboardController;
+
+	void OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

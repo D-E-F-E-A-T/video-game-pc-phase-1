@@ -313,6 +313,9 @@ void Engine::SetWindow(
 	window->Closed +=
 		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Engine::OnWindowClosed);
 
+	// See DirectX marble maze sample
+	window->KeyDown += ref new TypedEventHandler<CoreWindow^, KeyEventArgs ^>(this, &Engine::OnKeyDown);
+
 	DisplayInformation::GetForCurrentView()->DpiChanged +=
 		ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &Engine::OnDpiChanged);
 
@@ -875,12 +878,12 @@ void Engine::MovePlayer(uint16 buttons)
 
 	if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
-		m_pPlayer->MoveWest(m_window->Bounds.Width);
+		m_pPlayer->MoveEast(m_window->Bounds.Width);
 	}
 
 	if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
-		m_pPlayer->MoveEast(m_window->Bounds.Width);
+		m_pPlayer->MoveWest(m_window->Bounds.Width);
 	}
 }
 
@@ -1560,4 +1563,29 @@ void Engine::DrawPackText()
 		m_textLayoutPack.Get(),
 		m_whiteBrush.Get()
 		);
+}
+
+void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
+{
+
+	if (args->VirtualKey == Windows::System::VirtualKey::P)       // Pause
+	{
+	}
+
+	if (args->VirtualKey == Windows::System::VirtualKey::Left)
+	{
+		m_pPlayer->MoveEast(m_window->Bounds.Width);
+	}
+	else if (args->VirtualKey == Windows::System::VirtualKey::Down)
+	{
+		m_pPlayer->MoveSouth(m_window->Bounds.Width);
+	}
+	else if (args->VirtualKey == Windows::System::VirtualKey::Right)
+	{
+		m_pPlayer->MoveWest(m_window->Bounds.Width);
+	}
+	else if (args->VirtualKey == Windows::System::VirtualKey::Up)
+	{
+		m_pPlayer->MoveNorth(m_window->Bounds.Width);
+	}
 }

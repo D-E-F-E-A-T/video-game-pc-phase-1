@@ -20,7 +20,7 @@ void Player::MoveNorth(float fScreenHeight)
 		m_fVerticalOffset = 0.0f;
 }
 
-void Player::MoveEast(float fScreenWidth)
+void Player::MoveWest(float fScreenWidth)
 {
 	float prospectiveHorizontalOffset =
 		m_fHorizontalOffset += PLAYER_WALKING_VELOCITY;
@@ -50,7 +50,7 @@ void Player::MoveSouth(float fScreenHeight)
 		m_fVerticalOffset = fScreenHeight;
 }
 
-void Player::MoveWest(float fScreenWidth)
+void Player::MoveEast(float fScreenWidth)
 {
 	float prospectiveHorizontalOffset =
 		m_fHorizontalOffset -= PLAYER_WALKING_VELOCITY;

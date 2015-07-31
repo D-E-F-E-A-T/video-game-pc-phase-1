@@ -38,12 +38,12 @@ static const float AnimationDuration = 20.0f; // Defines how long it takes the t
 
 namespace
 {
-	const char16    APPLICATION_TITLE [] = L"XInput game controller sample";
+	const char16    APPLICATION_TITLE[] = L"XInput game controller sample";
 
 	const float     CLEAR_COLOR[4] = { 0.071f, 0.040f, 0.561f, 1.0f };
 
-	const char16    FONT_LOCAL [] = L"en-US";
-	const char16    FONT_NAME [] = L"Segoe UI";
+	const char16    FONT_LOCAL[] = L"en-US";
+	const char16    FONT_NAME[] = L"Segoe UI";
 	const float     FONT_SIZE_HEADER = 18.0f;
 	const float     FONT_SIZE_TEXT = 18.0f;
 
@@ -56,36 +56,36 @@ namespace
 	const float     CAPS_LABEL_START = INFORMATION_START_X + 300.0f;
 	const float     CAPS_DATA_START = INFORMATION_START_X + 400.0f;
 
-	const char16    MSG_NEED_CONTROLLER [] = L"Please attach an Xbox 360 common controller device.";
-	const char16	SPRITE_COLLISION_MSG [] = L"Sprite collision:";
-	const char16	SPRITE_COLLISION_MSG_ROW [] = L"Row";
-	const char16	SPRITE_COLLISION_MSG_COLUMN [] = L"Column";
-//	const uint64    XINPUT_ENUM_TIMEOUT_MS = 2000;  // 2 seconds
+	const char16    MSG_NEED_CONTROLLER[] = L"Please attach an Xbox 360 common controller device.";
+	const char16	SPRITE_COLLISION_MSG[] = L"Sprite collision:";
+	const char16	SPRITE_COLLISION_MSG_ROW[] = L"Row";
+	const char16	SPRITE_COLLISION_MSG_COLUMN[] = L"Column";
+	//	const uint64    XINPUT_ENUM_TIMEOUT_MS = 2000;  // 2 seconds
 
-	const char16    STATE_HEADER [] = L"XInput State";
-	const char16    LABEL_STATE_PACKET_NUMBER [] = L"Packet Number";
-	const char16    LABEL_STATE_LEFT_TRIGGER [] = L"Left Trigger";
-	const char16    LABEL_STATE_RIGHT_TRIGGER [] = L"Right Trigger";
-	const char16    LABEL_STATE_LEFT_THUMB_X [] = L"Left Thumb X";
-	const char16    LABEL_STATE_LEFT_THUMB_Y [] = L"Left Thumb Y";
-	const char16    LABEL_STATE_RIGHT_THUMB_X [] = L"Right Thumb X";
-	const char16    LABEL_STATE_RIGHT_THUMB_Y [] = L"Right Thumb Y";
-	const char16    LABEL_STATE_BUTTONS [] = L"Buttons";
+	const char16    STATE_HEADER[] = L"XInput State";
+	const char16    LABEL_STATE_PACKET_NUMBER[] = L"Packet Number";
+	const char16    LABEL_STATE_LEFT_TRIGGER[] = L"Left Trigger";
+	const char16    LABEL_STATE_RIGHT_TRIGGER[] = L"Right Trigger";
+	const char16    LABEL_STATE_LEFT_THUMB_X[] = L"Left Thumb X";
+	const char16    LABEL_STATE_LEFT_THUMB_Y[] = L"Left Thumb Y";
+	const char16    LABEL_STATE_RIGHT_THUMB_X[] = L"Right Thumb X";
+	const char16    LABEL_STATE_RIGHT_THUMB_Y[] = L"Right Thumb Y";
+	const char16    LABEL_STATE_BUTTONS[] = L"Buttons";
 
-	const char16    CAPS_HEADER [] = L"XInput Capabilties";
-	const char16    LABEL_CAPS_TYPE [] = L"Type";
-	const char16    LABEL_CAPS_SUBTYPE [] = L"Subtype";
-	const char16    LABEL_CAPS_FLAGS [] = L"Flags";
-	const char16    VALUE_CAPS_WIRED [] = L"Wired";
-	const char16    VALUE_CAPS_WIRELESS [] = L"Wireless";
-	const char16    VALUE_CAPS_VOICE_SUPPORT [] = L"Voice Support";
+	const char16    CAPS_HEADER[] = L"XInput Capabilties";
+	const char16    LABEL_CAPS_TYPE[] = L"Type";
+	const char16    LABEL_CAPS_SUBTYPE[] = L"Subtype";
+	const char16    LABEL_CAPS_FLAGS[] = L"Flags";
+	const char16    VALUE_CAPS_WIRED[] = L"Wired";
+	const char16    VALUE_CAPS_WIRELESS[] = L"Wireless";
+	const char16    VALUE_CAPS_VOICE_SUPPORT[] = L"Voice Support";
 };
 
 Engine::Engine() :
-    m_windowClosed(false),
-    m_windowVisible(false),
-    m_pathLength(0.0f),
-    m_elapsedTime(0.0f),
+	m_windowClosed(false),
+	m_windowVisible(false),
+	m_pathLength(0.0f),
+	m_elapsedTime(0.0f),
 	m_isControllerConnected(false),
 	m_nCollidedSpriteColumn(0),
 	m_nCollidedSpriteRow(0)
@@ -98,97 +98,97 @@ Engine::Engine() :
 
 void Engine::CreateDeviceIndependentResources()
 {
-    DirectXBase::CreateDeviceIndependentResources();
+	DirectXBase::CreateDeviceIndependentResources();
 
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextFormat(
-		L"Segoe UI",
-		nullptr,
-		DWRITE_FONT_WEIGHT_REGULAR,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		64.0f,
-		L"en-US",
-		&m_textFormat)
+			L"Segoe UI",
+			nullptr,
+			DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			64.0f,
+			L"en-US",
+			&m_textFormat)
 		);
 
 }
 
 void Engine::CreateDeviceResources()
 {
-    DirectXBase::CreateDeviceResources();
+	DirectXBase::CreateDeviceResources();
 
-//#ifdef SHOW_OVERLAY
-//    m_sampleOverlay = ref new SampleOverlay();
-//
-//    m_sampleOverlay->Initialize(
-//        m_d2dDevice.Get(),
-//        m_d2dContext.Get(),
-//        m_wicFactory.Get(),
-//        m_dwriteFactory.Get(),
-//        ""
-//        );
-//
-//	m_debugOverlay = ref new DebugOverlay();
-//
-//	m_debugOverlay->Initialize(
-//		m_d2dDevice.Get(),
-//		m_d2dContext.Get(),
-//		m_wicFactory.Get(),
-//		m_dwriteFactory.Get(),
-//		"Debug overlay"
-//		);
-//#endif // SHOW_OVERLAY
-
-    DX::ThrowIfFailed(
-        m_d2dContext->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::Black),
-            &m_blackBrush
-            )
-        );
-
-    DX::ThrowIfFailed(
-        m_d2dContext->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::White),
-            &m_whiteBrush
-            )
-        );
+	//#ifdef SHOW_OVERLAY
+	//    m_sampleOverlay = ref new SampleOverlay();
+	//
+	//    m_sampleOverlay->Initialize(
+	//        m_d2dDevice.Get(),
+	//        m_d2dContext.Get(),
+	//        m_wicFactory.Get(),
+	//        m_dwriteFactory.Get(),
+	//        ""
+	//        );
+	//
+	//	m_debugOverlay = ref new DebugOverlay();
+	//
+	//	m_debugOverlay->Initialize(
+	//		m_d2dDevice.Get(),
+	//		m_d2dContext.Get(),
+	//		m_wicFactory.Get(),
+	//		m_dwriteFactory.Get(),
+	//		"Debug overlay"
+	//		);
+	//#endif // SHOW_OVERLAY
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Orange),
-		&m_orangeBrush
+			D2D1::ColorF(D2D1::ColorF::Black),
+			&m_blackBrush
 			)
 		);
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Green),
-		&m_greenBrush)
+			D2D1::ColorF(D2D1::ColorF::White),
+			&m_whiteBrush
+			)
 		);
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Gray),
-		&m_grayBrush)
+			D2D1::ColorF(D2D1::ColorF::Orange),
+			&m_orangeBrush
+			)
 		);
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Beige),
-		&m_beigeBrush)
+			D2D1::ColorF(D2D1::ColorF::Green),
+			&m_greenBrush)
 		);
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::SkyBlue),
-		&m_blueBrush)
+			D2D1::ColorF(D2D1::ColorF::Gray),
+			&m_grayBrush)
 		);
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Red),
-		&m_redBrush)
+			D2D1::ColorF(D2D1::ColorF::Beige),
+			&m_beigeBrush)
+		);
+
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::SkyBlue),
+			&m_blueBrush)
+		);
+
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Red),
+			&m_redBrush)
 		);
 
 	m_spriteBatch = ref new BasicSprites::SpriteBatch();
@@ -256,27 +256,27 @@ void Engine::CreateDeviceResources()
 	//
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextFormat(
-		FONT_NAME,
-		nullptr,
-		DWRITE_FONT_WEIGHT_SEMI_BOLD,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		FONT_SIZE_HEADER,
-		FONT_LOCAL,
-		&m_headerTextFormat
-		)
+			FONT_NAME,
+			nullptr,
+			DWRITE_FONT_WEIGHT_SEMI_BOLD,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			FONT_SIZE_HEADER,
+			FONT_LOCAL,
+			&m_headerTextFormat
+			)
 		);
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextFormat(
-		FONT_NAME,
-		nullptr,
-		DWRITE_FONT_WEIGHT_NORMAL,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		FONT_SIZE_TEXT,
-		FONT_LOCAL,
-		&m_dataTextFormat
-		)
+			FONT_NAME,
+			nullptr,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			FONT_SIZE_TEXT,
+			FONT_LOCAL,
+			&m_dataTextFormat
+			)
 		);
 
 	DX::ThrowIfFailed(
@@ -285,48 +285,48 @@ void Engine::CreateDeviceResources()
 }
 
 void Engine::Initialize(
-    _In_ CoreApplicationView^ applicationView
-    )
+	_In_ CoreApplicationView^ applicationView
+	)
 {
-    applicationView->Activated +=
-        ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Engine::OnActivated);
+	applicationView->Activated +=
+		ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Engine::OnActivated);
 
-    CoreApplication::Suspending +=
-        ref new EventHandler<SuspendingEventArgs^>(this, &Engine::OnSuspending);
+	CoreApplication::Suspending +=
+		ref new EventHandler<SuspendingEventArgs^>(this, &Engine::OnSuspending);
 
-    CoreApplication::Resuming +=
-        ref new EventHandler<Platform::Object^>(this, &Engine::OnResuming);
+	CoreApplication::Resuming +=
+		ref new EventHandler<Platform::Object^>(this, &Engine::OnResuming);
 }
 
 void Engine::SetWindow(
-    _In_ CoreWindow^ window
-    )
+	_In_ CoreWindow^ window
+	)
 {
-    window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 
-    window->SizeChanged +=
-        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Engine::OnWindowSizeChanged);
+	window->SizeChanged +=
+		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Engine::OnWindowSizeChanged);
 
-    window->VisibilityChanged +=
-        ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Engine::OnVisibilityChanged);
+	window->VisibilityChanged +=
+		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Engine::OnVisibilityChanged);
 
-    window->Closed +=
-        ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Engine::OnWindowClosed);
+	window->Closed +=
+		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Engine::OnWindowClosed);
 
-    DisplayInformation::GetForCurrentView()->DpiChanged +=
-        ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &Engine::OnDpiChanged);
+	DisplayInformation::GetForCurrentView()->DpiChanged +=
+		ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &Engine::OnDpiChanged);
 
-    // Disable all pointer visual feedback for better performance when touching.
-    auto pointerVisualizationSettings = PointerVisualizationSettings::GetForCurrentView();
-    pointerVisualizationSettings->IsContactFeedbackEnabled = false;
-    pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
+	// Disable all pointer visual feedback for better performance when touching.
+	auto pointerVisualizationSettings = PointerVisualizationSettings::GetForCurrentView();
+	pointerVisualizationSettings->IsContactFeedbackEnabled = false;
+	pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 
-    DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
+	DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
 }
 
 void Engine::Load(
-    _In_ Platform::String^ entryPoint
-    )
+	_In_ Platform::String^ entryPoint
+	)
 {
 }
 
@@ -337,29 +337,29 @@ void Engine::Uninitialize()
 }
 
 void Engine::OnWindowSizeChanged(
-    _In_ CoreWindow^ sender,
-    _In_ WindowSizeChangedEventArgs^ args
-    )
+	_In_ CoreWindow^ sender,
+	_In_ WindowSizeChangedEventArgs^ args
+	)
 {
-    UpdateForWindowSizeChange();
+	UpdateForWindowSizeChange();
 
-//#ifdef SHOW_OVERLAY
-//    m_sampleOverlay->UpdateForWindowSizeChange();
-//	m_debugOverlay->UpdateForWindowSizeChange();
-//#endif // SHOW_OVERLAY
+	//#ifdef SHOW_OVERLAY
+	//    m_sampleOverlay->UpdateForWindowSizeChange();
+	//	m_debugOverlay->UpdateForWindowSizeChange();
+	//#endif // SHOW_OVERLAY
 }
 
 void Engine::OnVisibilityChanged(
-    _In_ CoreWindow^ sender,
-    _In_ VisibilityChangedEventArgs^ args
-    )
+	_In_ CoreWindow^ sender,
+	_In_ VisibilityChangedEventArgs^ args
+	)
 {
-    m_windowVisible = args->Visible;
+	m_windowVisible = args->Visible;
 
 	m_screenBuilder =
 		new ScreenBuilder(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height);
+			m_window->Bounds.Width,
+			m_window->Bounds.Height);
 
 	// Use chain-of-responsibility?
 	m_screenBuilder->BuildScreen(&m_treeData);
@@ -392,40 +392,40 @@ void Engine::OnVisibilityChanged(
 }
 
 void Engine::OnWindowClosed(
-    _In_ CoreWindow^ sender,
-    _In_ CoreWindowEventArgs^ args
-    )
+	_In_ CoreWindow^ sender,
+	_In_ CoreWindowEventArgs^ args
+	)
 {
-    m_windowClosed = true;
+	m_windowClosed = true;
 }
 
 void Engine::OnDpiChanged(_In_ DisplayInformation^ sender, _In_ Platform::Object^ args)
 {
-    SetDpi(sender->LogicalDpi);
+	SetDpi(sender->LogicalDpi);
 }
 
 void Engine::OnActivated(
-    _In_ CoreApplicationView^ applicationView,
-    _In_ IActivatedEventArgs^ args
-    )
+	_In_ CoreApplicationView^ applicationView,
+	_In_ IActivatedEventArgs^ args
+	)
 {
 	CoreWindow::GetForCurrentThread()->Activate();
 }
 
 void Engine::OnSuspending(
-    _In_ Platform::Object^ sender,
-    _In_ SuspendingEventArgs^ args
-    )
+	_In_ Platform::Object^ sender,
+	_In_ SuspendingEventArgs^ args
+	)
 {
-    // Hint to the driver that the app is entering an idle state and that its memory
-    // can be temporarily used for other apps.
-    Trim();
+	// Hint to the driver that the app is entering an idle state and that its memory
+	// can be temporarily used for other apps.
+	Trim();
 }
 
 void Engine::OnResuming(
-    _In_ Platform::Object^ sender,
-    _In_ Platform::Object^ args
-    )
+	_In_ Platform::Object^ sender,
+	_In_ Platform::Object^ args
+	)
 {
 }
 
@@ -463,15 +463,15 @@ void Engine::DrawGrid()
 	for (int row = 0; row <= NUM_GRID_ROWS; row++)
 	{
 		D2D1_POINT_2F src
-		{ 
-			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN, 
-			MARGIN + (rowHeight * (float) row)
+		{
+			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN,
+			MARGIN + (rowHeight * (float)row)
 		};
 
 		D2D1_POINT_2F dst
-		{ 
-			windowWidth - (windowWidth * RIGHT_MARGIN_RATIO) - MARGIN, 
-			MARGIN + (rowHeight * (float) row)
+		{
+			windowWidth - (windowWidth * RIGHT_MARGIN_RATIO) - MARGIN,
+			MARGIN + (rowHeight * (float)row)
 		};
 
 		m_d2dContext->DrawLine(src, dst, m_blackBrush.Get());
@@ -482,13 +482,13 @@ void Engine::DrawGrid()
 	{
 		D2D1_POINT_2F src
 		{
-			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float) column),
+			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float)column),
 			MARGIN
 		};
 
 		D2D1_POINT_2F dst
 		{
-			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float) column),
+			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float)column),
 			windowHeight - MARGIN,
 		};
 
@@ -499,15 +499,15 @@ void Engine::DrawGrid()
 
 IFrameworkView^ DirectXAppSource::CreateView()
 {
-    return ref new Engine();
+	return ref new Engine();
 }
 
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)
 {
-    auto directXAppSource = ref new DirectXAppSource();
-    CoreApplication::Run(directXAppSource);
-    return 0;
+	auto directXAppSource = ref new DirectXAppSource();
+	CoreApplication::Run(directXAppSource);
+	return 0;
 }
 
 void Engine::CreateWindowSizeDependentResources()
@@ -547,8 +547,8 @@ void Engine::DrawRightMargin()
 	float rightBorderWidth =
 		(m_windowBounds.Width * RIGHT_MARGIN_RATIO);
 
-	float rightBorder = 
-		m_windowBounds.Width - 
+	float rightBorder =
+		m_windowBounds.Width -
 		rightBorderWidth;
 
 	D2D1_RECT_F rect
@@ -568,17 +568,17 @@ void Engine::DrawRightMargin()
 	LPD3DXFont
 	D2D1_RECT_F
 	{
-		rightBorder + rightBorder
+	rightBorder + rightBorder
 	}
 
-		m_d2dContext->DrawText(
-			text,
-			static_cast<UINT32>(::wcslen(text)),
-			m_headerTextFormat.Get(),
-			loc,
-			m_textBrush.Get()
-			);
-*/
+	m_d2dContext->DrawText(
+	text,
+	static_cast<UINT32>(::wcslen(text)),
+	m_headerTextFormat.Get(),
+	loc,
+	m_textBrush.Get()
+	);
+	*/
 }
 
 void Engine::RenderControllerInput()
@@ -673,7 +673,7 @@ void Engine::RenderControllerInput()
 	HRESULT hr = m_d2dContext->EndDraw();
 	if (hr != D2DERR_RECREATE_TARGET)
 	{
-		DX::ThrowIfFailed(hr);
+	DX::ThrowIfFailed(hr);
 	}
 	*/
 }
@@ -885,7 +885,7 @@ void Engine::MovePlayer(uint16 buttons)
 }
 
 /*
-	Highlight the sprite that is being collided with.
+Highlight the sprite that is being collided with.
 */
 void Engine::HighlightSprite(int column, int row)
 {
@@ -894,10 +894,10 @@ void Engine::HighlightSprite(int column, int row)
 
 	ScreenUtils::CalculateSquareCenter(
 		m_window->Bounds.Width,
-		m_window->Bounds.Height, 
-		column, 
+		m_window->Bounds.Height,
+		column,
 		row,
-		&x, 
+		&x,
 		&y);
 
 	D2D1_RECT_F rect
@@ -1017,188 +1017,188 @@ void Engine::Render()
 
 //void Engine::Render()
 //{
-	// Retrieve the size of the render target.
-	/*
-	D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
+// Retrieve the size of the render target.
+/*
+D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
 
-	m_d2dContext->BeginDraw();
+m_d2dContext->BeginDraw();
 
-	m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
+m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
 
-	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
-	*/
+float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
+*/
 
-	/*
-	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
-		minWidthHeightScale * 0.5f,
-		minWidthHeightScale * 0.5f
-	);
+/*
+D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
+minWidthHeightScale * 0.5f,
+minWidthHeightScale * 0.5f
+);
 
-	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
-	renderTargetSize.width / 2.0f,
-	renderTargetSize.height / 2.0f
-	);
+D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
+renderTargetSize.width / 2.0f,
+renderTargetSize.height / 2.0f
+);
 
-	// Center the path.
-	m_d2dContext->SetTransform(scale * translation);
-	*/
+// Center the path.
+m_d2dContext->SetTransform(scale * translation);
+*/
 
 //	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
-	/*
-	m_d3dContext->OMSetRenderTargets(
-		1,
-		m_d3dRenderTargetView.GetAddressOf(),
-		nullptr
-		);
-		*/
+/*
+m_d3dContext->OMSetRenderTargets(
+1,
+m_d3dRenderTargetView.GetAddressOf(),
+nullptr
+);
+*/
 
-	/*
-	m_spriteBatch->Begin();
+/*
+m_spriteBatch->Begin();
 
-	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
-	{
-		m_spriteBatch->Draw(
-			m_tree.Get(),
-			tree->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * tree->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			tree->rot
-			);
-	}
+for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+{
+m_spriteBatch->Draw(
+m_tree.Get(),
+tree->pos,
+BasicSprites::PositionUnits::DIPs,
+float2(1.0f, 1.0f) * tree->scale,
+BasicSprites::SizeUnits::Normalized,
+float4(0.8f, 0.8f, 1.0f, 1.0f),
+tree->rot
+);
+}
 
-	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
-	{
-		m_spriteBatch->Draw(
-			m_rock.Get(),
-			rock->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * rock->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			rock->rot
-			);
-	}
+for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
+{
+m_spriteBatch->Draw(
+m_rock.Get(),
+rock->pos,
+BasicSprites::PositionUnits::DIPs,
+float2(1.0f, 1.0f) * rock->scale,
+BasicSprites::SizeUnits::Normalized,
+float4(0.8f, 0.8f, 1.0f, 1.0f),
+rock->rot
+);
+}
 
-	for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
-	{
-		m_spriteBatch->Draw(
-			m_water.Get(),
-			water->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * water->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			water->rot
-			);
-	}
+for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
+{
+m_spriteBatch->Draw(
+m_water.Get(),
+water->pos,
+BasicSprites::PositionUnits::DIPs,
+float2(1.0f, 1.0f) * water->scale,
+BasicSprites::SizeUnits::Normalized,
+float4(0.8f, 0.8f, 1.0f, 1.0f),
+water->rot
+);
+}
 
-	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
-	{
-		m_spriteBatch->Draw(
-			m_grass.Get(),
-			grass->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * grass->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			grass->rot
-			);
-	}
+for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
+{
+m_spriteBatch->Draw(
+m_grass.Get(),
+grass->pos,
+BasicSprites::PositionUnits::DIPs,
+float2(1.0f, 1.0f) * grass->scale,
+BasicSprites::SizeUnits::Normalized,
+float4(0.8f, 0.8f, 1.0f, 1.0f),
+grass->rot
+);
+}
 
-	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
-	{
-		m_spriteBatch->Draw(
-			m_stoneWall.Get(),
-			stoneWall->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * stoneWall->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			stoneWall->rot
-			);
-	}
+for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
+{
+m_spriteBatch->Draw(
+m_stoneWall.Get(),
+stoneWall->pos,
+BasicSprites::PositionUnits::DIPs,
+float2(1.0f, 1.0f) * stoneWall->scale,
+BasicSprites::SizeUnits::Normalized,
+float4(0.8f, 0.8f, 1.0f, 1.0f),
+stoneWall->rot
+);
+}
 
-	m_spriteBatch->Draw(
-		m_orchi.Get(),
-		m_orchiData.pos,
-		BasicSprites::PositionUnits::DIPs,
-		float2(1.0f, 1.0f) * m_orchiData.scale,
-		BasicSprites::SizeUnits::Normalized,
-		float4(0.8f, 0.8f, 1.0f, 1.0f),
-		m_orchiData.rot
-		);
-
-
-	m_spriteBatch->End();
-	*/
+m_spriteBatch->Draw(
+m_orchi.Get(),
+m_orchiData.pos,
+BasicSprites::PositionUnits::DIPs,
+float2(1.0f, 1.0f) * m_orchiData.scale,
+BasicSprites::SizeUnits::Normalized,
+float4(0.8f, 0.8f, 1.0f, 1.0f),
+m_orchiData.rot
+);
 
 
+m_spriteBatch->End();
+*/
 
 
-	/*
-	DrawLeftMargin();
-	DrawRightMargin();
 
 
-	DrawGrid();
-	DrawPlayer();
+/*
+DrawLeftMargin();
+DrawRightMargin();
 
-	int column = 0;
-	int row = 0;
 
-	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
-	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+DrawGrid();
+DrawPlayer();
 
-	int result = m_collisionDetectionStrategy->Detect(
-		&column,
-		&row,
-		playerSize,
-		spriteSize,
-		m_pPlayer,
-		&m_treeData);
+int column = 0;
+int row = 0;
 
-	if (result == 1)
-	{
-		// Need to undo the transform done above.
-		HighlightSprite(column, row);
-		DisplaySpriteCollisionMessage(column, row);
-	}
+float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
+float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
 
-	RenderControllerInput();
-	*/
-	/*
-	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
+int result = m_collisionDetectionStrategy->Detect(
+&column,
+&row,
+playerSize,
+spriteSize,
+m_pPlayer,
+&m_treeData);
 
-	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
-		minWidthHeightScale * 0.5f,
-		minWidthHeightScale * 0.5f
-		);
+if (result == 1)
+{
+// Need to undo the transform done above.
+HighlightSprite(column, row);
+DisplaySpriteCollisionMessage(column, row);
+}
 
-	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
-		renderTargetSize.width / 2.0f,
-		renderTargetSize.height / 2.0f
-		);
+RenderControllerInput();
+*/
+/*
+float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
-	// Center the path.
-	m_d2dContext->SetTransform(scale * translation);
-	*/
+D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
+minWidthHeightScale * 0.5f,
+minWidthHeightScale * 0.5f
+);
 
-	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
-	// is lost. It will be handled during the next call to Present.
+D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
+renderTargetSize.width / 2.0f,
+renderTargetSize.height / 2.0f
+);
+
+// Center the path.
+m_d2dContext->SetTransform(scale * translation);
+*/
+
+// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
+// is lost. It will be handled during the next call to Present.
 //	HRESULT hr = m_d2dContext->EndDraw();
 
 
 
 
-	/*
-	if (hr != D2DERR_RECREATE_TARGET)
-	{
-		DX::ThrowIfFailed(hr);
-	}
-	*/
+/*
+if (hr != D2DERR_RECREATE_TARGET)
+{
+DX::ThrowIfFailed(hr);
+}
+*/
 
 
 //#ifdef SHOW_OVERLAY
@@ -1216,6 +1216,10 @@ void Engine::Run()
 	{
 		if (m_windowVisible)
 		{
+			// For Windows 10, need this so that the app window
+			//	is response.
+			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+
 			timer->Update();
 
 			FetchControllerInput();
@@ -1233,7 +1237,7 @@ void Engine::Run()
 		{
 			CoreWindow::GetForCurrentThread()->
 				Dispatcher->ProcessEvents(
-				CoreProcessEventsOption::ProcessOneAndAllPending);
+					CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
 	}
 }
@@ -1258,54 +1262,54 @@ void Engine::DrawSprites()
 	/*
 	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
 	{
-		m_spriteBatch->Draw(
-			m_rock.Get(),
-			rock->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * rock->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			rock->rot
-			);
+	m_spriteBatch->Draw(
+	m_rock.Get(),
+	rock->pos,
+	BasicSprites::PositionUnits::DIPs,
+	float2(1.0f, 1.0f) * rock->scale,
+	BasicSprites::SizeUnits::Normalized,
+	float4(0.8f, 0.8f, 1.0f, 1.0f),
+	rock->rot
+	);
 	}
 
 	for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
 	{
-		m_spriteBatch->Draw(
-			m_water.Get(),
-			water->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * water->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			water->rot
-			);
+	m_spriteBatch->Draw(
+	m_water.Get(),
+	water->pos,
+	BasicSprites::PositionUnits::DIPs,
+	float2(1.0f, 1.0f) * water->scale,
+	BasicSprites::SizeUnits::Normalized,
+	float4(0.8f, 0.8f, 1.0f, 1.0f),
+	water->rot
+	);
 	}
 
 	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
 	{
-		m_spriteBatch->Draw(
-			m_grass.Get(),
-			grass->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * grass->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			grass->rot
-			);
+	m_spriteBatch->Draw(
+	m_grass.Get(),
+	grass->pos,
+	BasicSprites::PositionUnits::DIPs,
+	float2(1.0f, 1.0f) * grass->scale,
+	BasicSprites::SizeUnits::Normalized,
+	float4(0.8f, 0.8f, 1.0f, 1.0f),
+	grass->rot
+	);
 	}
 
 	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
 	{
-		m_spriteBatch->Draw(
-			m_stoneWall.Get(),
-			stoneWall->pos,
-			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * stoneWall->scale,
-			BasicSprites::SizeUnits::Normalized,
-			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			stoneWall->rot
-			);
+	m_spriteBatch->Draw(
+	m_stoneWall.Get(),
+	stoneWall->pos,
+	BasicSprites::PositionUnits::DIPs,
+	float2(1.0f, 1.0f) * stoneWall->scale,
+	BasicSprites::SizeUnits::Normalized,
+	float4(0.8f, 0.8f, 1.0f, 1.0f),
+	stoneWall->rot
+	);
 	}
 	*/
 
@@ -1349,13 +1353,13 @@ void Engine::CreateLifeText()
 
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextLayout(
-		text->Data(),
-		text->Length(),
-		m_textFormat.Get(),
-		size.width,
-		size.height,
-		&textLayout
-		)
+			text->Data(),
+			text->Length(),
+			m_textFormat.Get(),
+			size.width,
+			size.height,
+			&textLayout
+			)
 		);
 
 	textLayout.As(&m_textLayoutLife);
@@ -1380,13 +1384,13 @@ void Engine::CreateMapText()
 
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextLayout(
-		text->Data(),
-		text->Length(),
-		m_textFormat.Get(),
-		size.width,
-		size.height,
-		&textLayout
-		)
+			text->Data(),
+			text->Length(),
+			m_textFormat.Get(),
+			size.width,
+			size.height,
+			&textLayout
+			)
 		);
 
 	textLayout.As(&m_textLayoutMap);
@@ -1410,13 +1414,13 @@ void Engine::CreateButtonsText()
 
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextLayout(
-		text->Data(),
-		text->Length(),
-		m_textFormat.Get(),
-		size.width,
-		size.height,
-		&textLayout
-		)
+			text->Data(),
+			text->Length(),
+			m_textFormat.Get(),
+			size.width,
+			size.height,
+			&textLayout
+			)
 		);
 
 	textLayout.As(&m_textLayoutButtons);
@@ -1440,13 +1444,13 @@ void Engine::CreateInventoryText()
 
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextLayout(
-		text->Data(),
-		text->Length(),
-		m_textFormat.Get(),
-		size.width,
-		size.height,
-		&textLayout
-		)
+			text->Data(),
+			text->Length(),
+			m_textFormat.Get(),
+			size.width,
+			size.height,
+			&textLayout
+			)
 		);
 
 	textLayout.As(&m_textLayoutInventory);
@@ -1470,13 +1474,13 @@ void Engine::CreatePackText()
 
 	DX::ThrowIfFailed(
 		m_dwriteFactory->CreateTextLayout(
-		text->Data(),
-		text->Length(),
-		m_textFormat.Get(),
-		size.width,
-		size.height,
-		&textLayout
-		)
+			text->Data(),
+			text->Length(),
+			m_textFormat.Get(),
+			size.width,
+			size.height,
+			&textLayout
+			)
 		);
 
 	textLayout.As(&m_textLayoutPack);

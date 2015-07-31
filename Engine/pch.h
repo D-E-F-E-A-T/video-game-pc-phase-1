@@ -12,3 +12,4 @@
 #include <Xinput.h>
 #include <BasicMath.h>
 #include <vector>
+#include <dinput.h>

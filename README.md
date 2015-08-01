@@ -5,5 +5,5 @@ At its completion, this project could serve as a starter kit for students, hobby
 
 While advanced and mature out-of-the-box game engines such as Unity, Unreal, and Torque that can be used to create 3D games much more quickly, the purpose here is to create a pedagogical example from scratch using nothing more than C++ and DirectX 11.
 
-To build and run the app, you will need to have at least Visual Studio 2013 and Windows 8 installed on your machine.
+To build and run the app, you will need to have at Visual Studio 2015 and Windows 10 installed on your machine.
 

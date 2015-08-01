@@ -156,6 +156,7 @@ private:
 
 
 	void SetupScreen();
+	void BuildScreen();
 	void FetchControllerInput();
 	int FetchKeyboardInput();
 

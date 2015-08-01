@@ -206,7 +206,7 @@ void Engine::CreateDeviceResources()
 		"tree.dds",
 		&m_tree,
 		nullptr);
-
+	
 	m_spriteBatch->AddTexture(m_tree.Get());
 
 	loader->LoadTexture(
@@ -339,25 +339,9 @@ void Engine::Uninitialize()
 {
 }
 
-void Engine::OnWindowSizeChanged(
-	_In_ CoreWindow^ sender,
-	_In_ WindowSizeChangedEventArgs^ args
-	)
+void Engine::BuildScreen()
 {
-	UpdateForWindowSizeChange();
-
-	//#ifdef SHOW_OVERLAY
-	//    m_sampleOverlay->UpdateForWindowSizeChange();
-	//	m_debugOverlay->UpdateForWindowSizeChange();
-	//#endif // SHOW_OVERLAY
-}
-
-void Engine::OnVisibilityChanged(
-	_In_ CoreWindow^ sender,
-	_In_ VisibilityChangedEventArgs^ args
-	)
-{
-	m_windowVisible = args->Visible;
+	delete m_screenBuilder;
 
 	m_screenBuilder =
 		new ScreenBuilder(
@@ -388,10 +372,30 @@ void Engine::OnVisibilityChanged(
 
 	// Putting instantiona here since need to wait for the
 	//	window to be created to get the bounds.
+	delete m_pPlayer;
+
 	m_pPlayer = new Player();
 
 	m_pPlayer->SetHorizontalOffset(x);
 	m_pPlayer->SetVerticalOffset(y);
+
+}
+void Engine::OnWindowSizeChanged(
+	_In_ CoreWindow^ sender,
+	_In_ WindowSizeChangedEventArgs^ args
+	)
+{
+	UpdateForWindowSizeChange();
+	BuildScreen();
+}
+
+void Engine::OnVisibilityChanged(
+	_In_ CoreWindow^ sender,
+	_In_ VisibilityChangedEventArgs^ args
+	)
+{
+	m_windowVisible = args->Visible;
+	BuildScreen();
 }
 
 void Engine::OnWindowClosed(
@@ -1203,6 +1207,12 @@ void Engine::Run()
 void Engine::DrawSprites()
 {
 	m_spriteBatch->Begin();
+	
+	// @see: http://www.gamedev.net/topic/603359-c-dx11-how-to-get-texture-size/
+	ID3D11Texture2D * pTextureInterface = NULL;
+	m_tree.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
+	D3D11_TEXTURE2D_DESC treeDesc;
+	pTextureInterface->GetDesc(&treeDesc);
 
 	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
 	{
@@ -1210,7 +1220,7 @@ void Engine::DrawSprites()
 			m_tree.Get(),
 			tree->pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(3.0f, 3.0f) * tree->scale,
+			float2(grid.GetColumnWidth() / treeDesc.Width, grid.GetRowHeight() / treeDesc.Height),
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			tree->rot
@@ -1271,13 +1281,17 @@ void Engine::DrawSprites()
 	}
 	*/
 
+	m_heart.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
+	D3D11_TEXTURE2D_DESC heartDesc;
+	pTextureInterface->GetDesc(&heartDesc);
+
 	for (auto heart = m_heartData.begin(); heart != m_heartData.end(); heart++)
 	{
 		m_spriteBatch->Draw(
 			m_heart.Get(),
 			heart->pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * heart->scale,
+			float2(grid.GetColumnWidth() / treeDesc.Width, grid.GetRowHeight() / heartDesc.Height),
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			heart->rot

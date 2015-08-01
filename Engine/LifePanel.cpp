@@ -22,11 +22,8 @@ void LifePanel::BuildPanel(std::vector<BaseSpriteData> * m_heartData)
 
 	m_heartData->clear();
 
-	float fHeartPanelWidth = m_fPanelWidth * 0.9f;
-	float fHeartPanelHeight = m_fPanelHeight * 0.25f;
-
-	float fHeartPanelColumnWidth = fHeartPanelWidth / NUM_HEART_COLUMNS;
-	float fHeartPanelRowHeight = fHeartPanelHeight / NUM_HEART_ROWS;
+	float fHeartPanelColumnWidth = m_fPanelWidth / NUM_HEART_COLUMNS;
+	float fHeartPanelRowHeight = m_fPanelHeight / NUM_HEART_ROWS;
 
 	for (int row = 0; row < 2; row++)
 	{
@@ -35,8 +32,8 @@ void LifePanel::BuildPanel(std::vector<BaseSpriteData> * m_heartData)
 			HeartData data(
 				0,
 				0,
-				m_fHorizontalOffset + fHeartPanelColumnWidth * static_cast<float>(column),
-				m_fVerticalOffset + fHeartPanelRowHeight * static_cast<float>(row));
+				m_fHorizontalOffset + fHeartPanelColumnWidth * static_cast<float>(column) + (fHeartPanelColumnWidth / 2.0f),
+				m_fVerticalOffset + fHeartPanelRowHeight * static_cast<float>(row) + (fHeartPanelRowHeight / 2.0f));
 
 			m_heartData->push_back(data);
 		}

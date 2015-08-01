@@ -173,11 +173,13 @@ void Engine::CreateDeviceResources()
 			&m_grayBrush)
 		);
 
+	/*
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF::Beige),
 			&m_beigeBrush)
 		);
+		*/
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
@@ -501,19 +503,12 @@ void Engine::DrawRightMargin()
 {
 	RightMargin rightMargin;
 
-	float rightBorderWidth =
-		(m_windowBounds.Width * RIGHT_MARGIN_RATIO);
-
-	float rightBorder =
-		m_windowBounds.Width -
-		rightBorderWidth;
-
 	D2D1_RECT_F rect
 	{
-		m_windowBounds.Width - (m_windowBounds.Width * RIGHT_MARGIN_RATIO),
+		m_window->Bounds.Width - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO),
 		0.0f,
-		m_windowBounds.Width,
-		m_windowBounds.Height
+		m_window->Bounds.Width,
+		m_window->Bounds.Height
 	};
 
 	rightMargin.Draw(
@@ -1183,12 +1178,11 @@ void Engine::Run()
 
 			timer->Update();
 
+			FetchControllerInput();
+
 			// if the gamepad is not connected, check the keyboard.
 			if (m_isControllerConnected)
-			{
-				FetchControllerInput();
 				MovePlayer(m_xinputState.Gamepad.wButtons);
-			}
 
 			// OnKeyDown callback will check if the keyboard is used.
 
@@ -1291,7 +1285,9 @@ void Engine::DrawSprites()
 			m_heart.Get(),
 			heart->pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(grid.GetColumnWidth() / treeDesc.Width, grid.GetRowHeight() / heartDesc.Height),
+			float2(
+				((m_window->Bounds.Width - m_window->Bounds.Width * RIGHT_MARGIN_RATIO) / NUM_HEART_COLUMNS) / heartDesc.Width / 2.0f * 0.85f, 
+				(HEART_PANEL_HEIGHT / NUM_HEART_ROWS) / heartDesc.Height) * 0.85f,
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			heart->rot

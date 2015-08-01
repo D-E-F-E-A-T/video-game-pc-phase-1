@@ -8,6 +8,9 @@ ScreenBuilder::ScreenBuilder(float screenWidth, float screenHeight)
 	m_fScreenHeight = screenHeight;
 }
 
+/*
+	TODO: Use web services
+*/
 void ScreenBuilder::BuildScreen(std::vector<BaseSpriteData> * m_treeData)
 {
 	m_treeData->clear();

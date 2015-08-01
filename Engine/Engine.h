@@ -91,7 +91,7 @@ private:
 	ComPtr<ID2D1SolidColorBrush>					m_orangeBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_greenBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_grayBrush;
-	ComPtr<ID2D1SolidColorBrush>					m_beigeBrush;
+//	ComPtr<ID2D1SolidColorBrush>					m_beigeBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_blueBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_redBrush;
     float                                                           m_pathLength;

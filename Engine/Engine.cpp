@@ -449,56 +449,6 @@ void Engine::DrawPlayer()
 	m_orchiData.rotVel = 0.0f;
 }
 
-void Engine::DrawGrid()
-{
-	float windowWidth = m_window->Bounds.Width;
-	float windowHeight = m_window->Bounds.Height;
-
-	float gridWidth = windowWidth -
-		(windowWidth * LEFT_MARGIN_RATIO) -
-		(windowWidth * RIGHT_MARGIN_RATIO);
-
-	// TODO: Use arrays instead of separate variables.
-	float rowHeight = (windowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
-	float columnWidth = (gridWidth - 2.0f * MARGIN) / NUM_GRID_COLUMNS;
-
-	// Draw the horizontal lines.
-	for (int row = 0; row <= NUM_GRID_ROWS; row++)
-	{
-		D2D1_POINT_2F src
-		{
-			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN,
-			MARGIN + (rowHeight * (float)row)
-		};
-
-		D2D1_POINT_2F dst
-		{
-			windowWidth - (windowWidth * RIGHT_MARGIN_RATIO) - MARGIN,
-			MARGIN + (rowHeight * (float)row)
-		};
-
-		m_d2dContext->DrawLine(src, dst, m_blackBrush.Get());
-	}
-
-	// Draw the vertical lines.
-	for (int column = 0; column <= NUM_GRID_COLUMNS; column++)
-	{
-		D2D1_POINT_2F src
-		{
-			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float)column),
-			MARGIN
-		};
-
-		D2D1_POINT_2F dst
-		{
-			(windowWidth * LEFT_MARGIN_RATIO) + MARGIN + (columnWidth * (float)column),
-			windowHeight - MARGIN,
-		};
-
-		m_d2dContext->DrawLine(src, dst, m_blackBrush.Get());
-	}
-}
-
 
 IFrameworkView^ DirectXAppSource::CreateView()
 {
@@ -956,8 +906,12 @@ void Engine::Render()
 
 	// If the Player moves to the sides of the screen, scroll
 	//	 and don't render the grid.
-#ifndef SHOW_GRID
-	DrawGrid();
+#ifdef SHOW_GRID
+
+	grid.SetWindowWidth(m_window->Bounds.Width);
+	grid.SetWindowHeight(m_window->Bounds.Height);
+
+	grid.Draw(m_d2dContext, m_blackBrush);
 #endif // SHOW_GRID
 
 	DrawPlayer();
@@ -1225,13 +1179,14 @@ void Engine::Run()
 
 			timer->Update();
 
-			FetchControllerInput();
-			MovePlayer(m_xinputState.Gamepad.wButtons);
-
 			// if the gamepad is not connected, check the keyboard.
-			if (!m_isControllerConnected)
+			if (m_isControllerConnected)
 			{
+				FetchControllerInput();
+				MovePlayer(m_xinputState.Gamepad.wButtons);
 			}
+
+			// OnKeyDown callback will check if the keyboard is used.
 
 			Render();
 			Present();
@@ -1255,7 +1210,7 @@ void Engine::DrawSprites()
 			m_tree.Get(),
 			tree->pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(1.0f, 1.0f) * tree->scale,
+			float2(3.0f, 3.0f) * tree->scale,
 			BasicSprites::SizeUnits::Normalized,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			tree->rot

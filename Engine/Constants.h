@@ -1,5 +1,6 @@
 #pragma once
 
+
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH 1920
 #endif // SCREEN_WIDTH

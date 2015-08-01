@@ -10,6 +10,7 @@
 #include "ScreenBuilder.h"
 #include "Player.h"
 #include "KeyboardControllerInput.h"
+#include "Grid.h"
 
 using namespace Microsoft::WRL;
 
@@ -67,7 +68,6 @@ private:
         _In_ Windows::UI::Core::CoreWindowEventArgs^ args
         );
 
-	void DrawGrid();
 	void DrawPlayer();
 	void DrawSprites();
 
@@ -191,6 +191,8 @@ private:
 	KeyboardControllerInput * m_pKeyboardController;
 
 	void OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
+
+	Grid grid;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

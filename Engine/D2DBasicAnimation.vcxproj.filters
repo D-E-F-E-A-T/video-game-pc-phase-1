@@ -29,6 +29,7 @@
     <ClCompile Include="WorldBuilder.cpp" />
     <ClCompile Include="LifePanel.cpp" />
     <ClCompile Include="KeyboardControllerInput.cpp" />
+    <ClCompile Include="Grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -79,6 +80,7 @@
     <ClInclude Include="HeartData.h" />
     <ClInclude Include="KeyboardControllerInput.h" />
     <ClInclude Include="XBox360ControllerInput.h" />
+    <ClInclude Include="Grid.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

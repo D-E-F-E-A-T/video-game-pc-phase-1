@@ -200,6 +200,7 @@
     <ClInclude Include="DirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="GrassData.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="BaseSpriteData.h" />
     <ClInclude Include="HeartData.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="KeyboardControllerInput.cpp" />
     <ClCompile Include="LeftMargin.cpp" />

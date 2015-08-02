@@ -328,6 +328,8 @@ void Engine::SetWindow(
 	pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 
 	DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
+
+	InitializePlayer();
 }
 
 void Engine::Load(
@@ -361,27 +363,14 @@ void Engine::BuildScreen()
 		HEART_PANEL_HEIGHT);
 
 	lifePanel.BuildPanel(&m_heartData);
+}
 
-	float x = 0.0f;
-	float y = 0.0f;
-
-	ScreenUtils::CalculateSquareCenter(
-		m_window->Bounds.Width,
-		m_window->Bounds.Height,
-		8,
-		7,
-		&x,
-		&y);
-
+void Engine::InitializePlayer()
+{
 	// Putting instantiona here since need to wait for the
 	//	window to be created to get the bounds.
-	delete m_pPlayer;
 
 	m_pPlayer = new Player();
-
-	m_pPlayer->SetHorizontalOffset(x);
-	m_pPlayer->SetVerticalOffset(y);
-
 }
 void Engine::OnWindowSizeChanged(
 	_In_ CoreWindow^ sender,
@@ -444,8 +433,18 @@ void Engine::DrawPlayer()
 	float x = 0.0f;
 	float y = 0.0f;
 
-	m_orchiData.pos.x = m_pPlayer->GetHorizontalOffset();
-	m_orchiData.pos.y = m_pPlayer->GetVerticalOffset();
+	// Want player to move with same speed when
+	//	moving vertically or horizontally.
+	//	Thus, don't consider the side margins when
+	//	multiplying by the player's location ratios.
+
+	m_orchiData.pos.x = ((m_window->Bounds.Width -
+		m_window->Bounds.Width * LEFT_MARGIN_RATIO -
+		m_window->Bounds.Width * RIGHT_MARGIN_RATIO) *
+		m_pPlayer->GetHorizontalRatio()) +
+		(m_window->Bounds.Width * LEFT_MARGIN_RATIO);
+
+	m_orchiData.pos.y = m_window->Bounds.Height * m_pPlayer->GetVerticalRatio();
 
 	float tempRot = 0.0f;
 	float tempMag = 0.0f;
@@ -820,19 +819,19 @@ void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
-		m_pPlayer->MoveNorth(m_window->Bounds.Height);
+		m_pPlayer->MoveNorth();
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 	{
-		m_pPlayer->MoveSouth(m_window->Bounds.Height);
+		m_pPlayer->MoveSouth();
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
-		m_pPlayer->MoveEast(m_window->Bounds.Width);
+		m_pPlayer->MoveEast();
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
-		m_pPlayer->MoveWest(m_window->Bounds.Width);
+		m_pPlayer->MoveWest();
 	}
 	else
 	{
@@ -946,7 +945,9 @@ void Engine::Render()
 		playerSize,
 		spriteSize,
 		m_pPlayer,
-		&m_treeData);
+		&m_treeData,
+		m_window->Bounds.Width, // - (m_window->Bounds.Width * LEFT_MARGIN_RATIO) - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO),
+		m_window->Bounds.Height);
 
 	std::list<GridSpace *>::const_iterator iterator;
 
@@ -960,7 +961,9 @@ void Engine::Render()
 //		DisplaySpriteCollisionMessage(column, row);
 	}
 
+#ifdef DISPLAY_CONTROLLER_INPUT
 	RenderControllerInput();
+#endif // DISPLAY_CONTROLLER_INPUT
 
 	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
@@ -1244,9 +1247,6 @@ void Engine::DrawSprites()
 	{
 		float fColumnWidth = grid.GetColumnWidth();
 		float fRowHeight = grid.GetRowHeight();
-
-//		float fTreeWidth = treeDesc.Width;
-//		float fTreeHeight = treeDesc.Height;
 
 		m_spriteBatch->Draw(
 			m_tree.Get(),
@@ -1578,25 +1578,24 @@ void Engine::DrawPackText()
 
 void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
 {
-
 	if (args->VirtualKey == Windows::System::VirtualKey::P)       // Pause
 	{
 	}
 
 	if (args->VirtualKey == Windows::System::VirtualKey::Left)
 	{
-		m_pPlayer->MoveEast(m_window->Bounds.Width);
+		m_pPlayer->MoveEast();
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Down)
 	{
-		m_pPlayer->MoveSouth(m_window->Bounds.Width);
+		m_pPlayer->MoveSouth();
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Right)
 	{
-		m_pPlayer->MoveWest(m_window->Bounds.Width);
+		m_pPlayer->MoveWest();
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Up)
 	{
-		m_pPlayer->MoveNorth(m_window->Bounds.Width);
+		m_pPlayer->MoveNorth();
 	}
 }

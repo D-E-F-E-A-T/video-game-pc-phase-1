@@ -3,35 +3,40 @@
 class Player
 {
 public:
-	Player();
-	void MoveNorth(float fScreenHeight);
-	void MoveEast(float fScreenWidth);
-	void MoveSouth(float fScreenHeight);
-	void MoveWest(float fScreenWidth);
-
-	float GetVerticalOffset()
+	Player()
 	{
-		return m_fVerticalOffset;
+		m_fVerticalRatio = 0.5f;
+		m_fHorizontalRatio = 0.5f;
 	}
 
-	float GetHorizontalOffset() 
+	void MoveNorth();
+	void MoveEast();
+	void MoveSouth();
+	void MoveWest();
+
+	float GetVerticalRatio()
 	{
-		return m_fHorizontalOffset;
+		return m_fVerticalRatio;
 	}
 
-	void SetVerticalOffset(float verticalOffset)
+	float GetHorizontalRatio() 
 	{
-		m_fVerticalOffset = verticalOffset;
+		return m_fHorizontalRatio;
 	}
 
-	void SetHorizontalOffset(float horizontalOffset)
+	void SetVerticalRatio(float verticalOffset)
 	{
-		m_fHorizontalOffset = horizontalOffset;
+		m_fVerticalRatio = verticalOffset;
+	}
+
+	void SetHorizontalRatio(float horizontalOffset)
+	{
+		m_fHorizontalRatio = horizontalOffset;
 	}
 
 protected:
 
 private:
-	float m_fHorizontalOffset;
-	float m_fVerticalOffset;
+	float m_fHorizontalRatio;
+	float m_fVerticalRatio;
 };

@@ -21,12 +21,14 @@ void BoundingBoxCornerCollisionStrategy::Detect(
 	float2 playerSize,
 	float2 spriteSize,
 	Player * pPlayer,
-	vector<BaseSpriteData> * sprites)
+	vector<BaseSpriteData> * sprites,
+	float fWindowWidth,
+	float fWindowHeight)
 {
-	float left = pPlayer->GetHorizontalOffset() - playerSize.x / 2.0f;
-	float right = pPlayer->GetHorizontalOffset() + playerSize.x / 2.0f;
-	float top = pPlayer->GetVerticalOffset() - playerSize.y / 2.0f;
-	float bottom = pPlayer->GetVerticalOffset() + playerSize.y / 2.0f;
+	float left = fWindowWidth * pPlayer->GetHorizontalRatio() - playerSize.x / 2.0f;
+	float right = fWindowWidth * pPlayer->GetHorizontalRatio() + playerSize.x / 2.0f;
+	float top = fWindowHeight * pPlayer->GetVerticalRatio() - playerSize.y / 2.0f;
+	float bottom = fWindowHeight * pPlayer->GetVerticalRatio() + playerSize.y / 2.0f;
 
 	// Now I know the size (remember to scale accordingly, if needed using m_orchiData).
 

@@ -53,8 +53,10 @@
 #define RIGHT_MARGIN_RATIO 0.2f
 #endif // RIGHT_MARGIN_RATIO
 
+// This represents the percentage of the game screen
+//	that is traversed per cycle.
 #ifndef PLAYER_WALKING_VELOCITY
-#define PLAYER_WALKING_VELOCITY 7.5f	
+#define PLAYER_WALKING_VELOCITY 0.005f	
 #endif // PLAYER_WALKING_VELOCITY
 
 #ifndef PLAYER_RUNNING_VELOCITY

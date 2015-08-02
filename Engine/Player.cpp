@@ -2,66 +2,60 @@
 #include "Player.h"
 #include "Constants.h"
 
-Player::Player()
-{
 
-}
-
-void Player::MoveNorth(float fScreenHeight)
+void Player::MoveNorth()
 {
-	float prospectiveVerticalOffset =
-		m_fVerticalOffset -= PLAYER_WALKING_VELOCITY;
+	float prospectiveVerticalRatio =
+		m_fVerticalRatio -= PLAYER_WALKING_VELOCITY;
 
 	// Don't go above the top of the screen. 
 	//	Later this will be the trigger to move to the next screen.
-	if (prospectiveVerticalOffset >= 0.f)
-		m_fVerticalOffset = prospectiveVerticalOffset;
+	if (prospectiveVerticalRatio >= 0.f)
+		m_fVerticalRatio = prospectiveVerticalRatio;
 	else
-		m_fVerticalOffset = 0.0f;
+		m_fVerticalRatio = 0.0f;
 }
 
-void Player::MoveWest(float fScreenWidth)
+void Player::MoveWest()
 {
-	float prospectiveHorizontalOffset =
-		m_fHorizontalOffset += PLAYER_WALKING_VELOCITY;
+	float prospectiveHorizontalRatio =
+		m_fHorizontalRatio += PLAYER_WALKING_VELOCITY;
 
-	if (prospectiveHorizontalOffset <=
-		fScreenWidth - (fScreenWidth * RIGHT_MARGIN_RATIO))
+	if (prospectiveHorizontalRatio <= 1.0f)
 	{
-		m_fHorizontalOffset = prospectiveHorizontalOffset;
+		m_fHorizontalRatio = prospectiveHorizontalRatio;
 	}
 	else
 	{
-		m_fHorizontalOffset =
-			fScreenWidth - (fScreenWidth * RIGHT_MARGIN_RATIO);
+		m_fHorizontalRatio = 1.0f;
 	}
 }
 
-void Player::MoveSouth(float fScreenHeight)
+void Player::MoveSouth()
 {
 	float prospectiveVerticalOffset =
-		m_fVerticalOffset += PLAYER_WALKING_VELOCITY;
+		m_fVerticalRatio += PLAYER_WALKING_VELOCITY;
 
 	// Don't go above the top of the screen. 
 	//	Later this will be the trigger to move to the next screen.
-	if (prospectiveVerticalOffset <= fScreenHeight)
-		m_fVerticalOffset = prospectiveVerticalOffset;
+	if (prospectiveVerticalOffset <= 1.0f)
+		m_fVerticalRatio = prospectiveVerticalOffset;
 	else
-		m_fVerticalOffset = fScreenHeight;
+		m_fVerticalRatio = 1.0f;
 }
 
-void Player::MoveEast(float fScreenWidth)
+void Player::MoveEast()
 {
 	float prospectiveHorizontalOffset =
-		m_fHorizontalOffset -= PLAYER_WALKING_VELOCITY;
+		m_fHorizontalRatio -= PLAYER_WALKING_VELOCITY;
 
-	if (prospectiveHorizontalOffset >= (fScreenWidth * LEFT_MARGIN_RATIO))
+	if (prospectiveHorizontalOffset >= 0.f)
 	{
-		m_fHorizontalOffset = prospectiveHorizontalOffset;
+		m_fHorizontalRatio = prospectiveHorizontalOffset;
 	}
 	else
 	{
-		m_fHorizontalOffset = fScreenWidth * LEFT_MARGIN_RATIO;
+		m_fHorizontalRatio = 0.f;
 	}
 }
 

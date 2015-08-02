@@ -16,7 +16,9 @@ public:
 		float2 playerSize,
 		float2 spriteSize,
 		Player * pPlayer,
-		vector<BaseSpriteData> * sprites);
+		vector<BaseSpriteData> * sprites,
+		float fWindowWidth,
+		float fWindowHeight);
 
 protected:
 

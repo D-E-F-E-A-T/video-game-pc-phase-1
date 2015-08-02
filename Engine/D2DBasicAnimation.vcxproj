@@ -201,6 +201,7 @@
     <ClInclude Include="Door.h" />
     <ClInclude Include="GrassData.h" />
     <ClInclude Include="Grid.h" />
+    <ClInclude Include="GridSpace.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="BaseSpriteData.h" />
     <ClInclude Include="HeartData.h" />

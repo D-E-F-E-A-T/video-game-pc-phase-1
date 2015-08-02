@@ -23,6 +23,7 @@
 #include "BoundingBoxMidpointCollisionStrategy.h"
 #include "ScreenUtils.h"
 #include "LifePanel.h"
+#include "GridSpace.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -578,9 +579,9 @@ void Engine::RenderControllerInput()
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputState.Gamepad.bRightTrigger, pos);
 		pos.top += LINE_HEIGHT;
-		DrawText(m_xinputState.Gamepad.sThumbLX, pos);
+		DrawText(m_xinputState.Gamepad.sThumbLX, pos);	// Left thumb
 		pos.top += LINE_HEIGHT;
-		DrawText(m_xinputState.Gamepad.sThumbLY, pos);
+		DrawText(m_xinputState.Gamepad.sThumbLY, pos);	// Right thumb
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputState.Gamepad.sThumbRX, pos);
 		pos.top += LINE_HEIGHT;
@@ -604,6 +605,7 @@ void Engine::RenderControllerInput()
 		pos.top += LINE_HEIGHT;
 		DrawText(m_xinputCaps.SubType, pos);
 		pos.top += LINE_HEIGHT;
+
 		if (m_xinputCaps.Flags & XINPUT_CAPS_WIRELESS)
 		{
 			DrawText(VALUE_CAPS_WIRELESS, pos);
@@ -612,6 +614,7 @@ void Engine::RenderControllerInput()
 		{
 			DrawText(VALUE_CAPS_WIRED, pos);
 		}
+
 		if (m_xinputCaps.Flags & XINPUT_CAPS_VOICE_SUPPORTED)
 		{
 			pos.top += LINE_HEIGHT;
@@ -813,26 +816,32 @@ int Engine::FetchKeyboardInput()
 }
 
 // TODO: Could use function pointers.
-void Engine::MovePlayer(uint16 buttons)
+void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
 		m_pPlayer->MoveNorth(m_window->Bounds.Height);
 	}
-
-	if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
+	else if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 	{
 		m_pPlayer->MoveSouth(m_window->Bounds.Height);
 	}
-
-	if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
+	else if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
 		m_pPlayer->MoveEast(m_window->Bounds.Width);
 	}
-
-	if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
+	else if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
 		m_pPlayer->MoveWest(m_window->Bounds.Width);
+	}
+	else
+	{
+		// Listen to the left thumb stick.
+		float x = (float)horizontal;
+		float y = (float)vertical;
+
+		float r = sqrt(x * x + y * y);
+		float theta = atan(y / x);
 	}
 }
 
@@ -844,6 +853,7 @@ void Engine::HighlightSprite(int column, int row)
 	float x = 0.0f;
 	float y = 0.0f;
 
+
 	ScreenUtils::CalculateSquareCenter(
 		m_window->Bounds.Width,
 		m_window->Bounds.Height,
@@ -852,13 +862,21 @@ void Engine::HighlightSprite(int column, int row)
 		&x,
 		&y);
 
+	float gameAreaWidth = 
+		m_window->Bounds.Width - 
+		(m_window->Bounds.Width * LEFT_MARGIN_RATIO) - 
+		(m_window->Bounds.Width * RIGHT_MARGIN_RATIO);
+
+	float gameAreaHeight = m_window->Bounds.Height;
+
 	D2D1_RECT_F rect
 	{
-		x - 50.f,
-		y - 50.f,
-		x + 50.f,
-		y + 50.f
+		x - (gameAreaWidth / (float)NUM_GRID_COLUMNS) / 2.0f,
+		y - m_window->Bounds.Height / (float)NUM_GRID_ROWS / 2.0f,
+		x + (gameAreaWidth / (float)NUM_GRID_COLUMNS) / 2.0f,
+		y + m_window->Bounds.Height / (float)NUM_GRID_ROWS / 2.0f
 	};
+
 
 	m_d2dContext->FillRectangle(
 		rect,
@@ -921,19 +939,25 @@ void Engine::Render()
 	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
 	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
 
-	int result = m_collisionDetectionStrategy->Detect(
-		&column,
-		&row,
+	list<GridSpace *> collided;
+
+	m_collisionDetectionStrategy->Detect(
+		&collided,
 		playerSize,
 		spriteSize,
 		m_pPlayer,
 		&m_treeData);
 
-	if (result == 1)
+	std::list<GridSpace *>::const_iterator iterator;
+
+	for (iterator = collided.begin(); iterator != collided.end(); iterator++)
 	{
-		// Need to undo the transform done above.
+		int column = static_cast<GridSpace *>(*iterator)->GetColumn();
+		int row = static_cast<GridSpace *>(*iterator)->GetRow();
+
 		HighlightSprite(column, row);
-		DisplaySpriteCollisionMessage(column, row);
+
+//		DisplaySpriteCollisionMessage(column, row);
 	}
 
 	RenderControllerInput();
@@ -1182,7 +1206,12 @@ void Engine::Run()
 
 			// if the gamepad is not connected, check the keyboard.
 			if (m_isControllerConnected)
-				MovePlayer(m_xinputState.Gamepad.wButtons);
+			{
+				MovePlayer(
+					m_xinputState.Gamepad.wButtons,
+					m_xinputState.Gamepad.sThumbLX,
+					m_xinputState.Gamepad.sThumbLY);
+			}
 
 			// OnKeyDown callback will check if the keyboard is used.
 

@@ -4,6 +4,8 @@
 #include <vector>
 #include "Player.h"
 #include "BaseSpriteData.h"
+#include <list>
+#include "GridSpace.h"
 
 using namespace std;
 
@@ -26,9 +28,8 @@ public:
 
 	virtual bool Detect(CollisionDetectionInfo * info) = 0;
 
-	virtual int Detect(
-		int * column,
-		int * row,
+	virtual void Detect(
+		list<GridSpace *> * retVal,
 		float2 playerSize,
 		float2 spriteSize,
 		Player * pPlayer,

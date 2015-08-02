@@ -10,9 +10,8 @@ public:
 	SpriteOverlapCollisionStrategy();
 	bool Detect(CollisionDetectionInfo * info);
 
-	int Detect(
-		int * column,
-		int * row,
+	void Detect(
+		list<GridSpace *> * retVal,
 		float2 playerSize,
 		float2 spriteSize,
 		Player * pPlayer,

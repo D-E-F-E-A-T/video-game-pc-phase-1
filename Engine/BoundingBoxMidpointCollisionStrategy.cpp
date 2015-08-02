@@ -13,9 +13,8 @@ bool BoundingBoxMidpointCollisionStrategy::Detect(CollisionDetectionInfo * info)
 	return false;
 }
 
-int BoundingBoxMidpointCollisionStrategy::Detect(
-	int * column,
-	int * row,
+void BoundingBoxMidpointCollisionStrategy::Detect(
+	list<GridSpace *> * retVal,
 	float2 playerSize,
 	float2 spriteSize,
 	Player * pPlayer,
@@ -41,9 +40,7 @@ int BoundingBoxMidpointCollisionStrategy::Detect(
 			top >= treeTop &&
 			top <= treeBottom)
 		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
+			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 
 		// Does the top, right vertex overlap the tree's bounding box?
@@ -52,9 +49,7 @@ int BoundingBoxMidpointCollisionStrategy::Detect(
 			top >= treeTop &&
 			top <= treeBottom)
 		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
+			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 
 		// Does the bottom, right vertex overlap the tree's bounding box?
@@ -63,9 +58,7 @@ int BoundingBoxMidpointCollisionStrategy::Detect(
 			bottom >= treeTop &&
 			bottom <= treeBottom)
 		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
+			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 
 		// Does the bottom, left vertex overlap the tree's bounding box?
@@ -74,11 +67,7 @@ int BoundingBoxMidpointCollisionStrategy::Detect(
 			bottom >= treeTop &&
 			bottom <= treeBottom)
 		{
-			*column = tree->column;
-			*row = tree->row;
-			return 1;
+			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 	}
-
-	return 0;
 }

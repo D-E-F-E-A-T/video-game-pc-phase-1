@@ -13,13 +13,11 @@ bool SpriteOverlapCollisionStrategy::Detect(CollisionDetectionInfo * info)
 	return false;
 }
 
-int SpriteOverlapCollisionStrategy::Detect(
-	int * column,
-	int * row,
+void SpriteOverlapCollisionStrategy::Detect(
+	list<GridSpace *> * retVal,
 	float2 playerSize,
 	float2 spriteSize,
 	Player * pPlayer,
 	vector<BaseSpriteData> * sprites)
 {
-	return 0;
 }

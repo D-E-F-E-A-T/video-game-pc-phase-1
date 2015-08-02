@@ -172,7 +172,7 @@ private:
 	void DrawInventoryText();
 	void DrawPackText();
 
-	void MovePlayer(uint16 buttons);
+	void MovePlayer(uint16 buttons, short horizontal, short vertical);
 
 	void HighlightSprite(int column, int row);
 	// void HighLightCollidedSprite(ISpriteData sprite);	// TODO	

@@ -1232,19 +1232,28 @@ void Engine::DrawSprites()
 	m_spriteBatch->Begin();
 	
 	// @see: http://www.gamedev.net/topic/603359-c-dx11-how-to-get-texture-size/
+
 	ID3D11Texture2D * pTextureInterface = NULL;
+/*
 	m_tree.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
 	D3D11_TEXTURE2D_DESC treeDesc;
 	pTextureInterface->GetDesc(&treeDesc);
+*/
 
 	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
 	{
+		float fColumnWidth = grid.GetColumnWidth();
+		float fRowHeight = grid.GetRowHeight();
+
+//		float fTreeWidth = treeDesc.Width;
+//		float fTreeHeight = treeDesc.Height;
+
 		m_spriteBatch->Draw(
 			m_tree.Get(),
 			tree->pos,
 			BasicSprites::PositionUnits::DIPs,
-			float2(grid.GetColumnWidth() / treeDesc.Width, grid.GetRowHeight() / treeDesc.Height),
-			BasicSprites::SizeUnits::Normalized,
+			float2(fColumnWidth, fRowHeight),
+			BasicSprites::SizeUnits::DIPs,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
 			tree->rot
 			);
@@ -1304,9 +1313,11 @@ void Engine::DrawSprites()
 	}
 	*/
 
+
 	m_heart.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
 	D3D11_TEXTURE2D_DESC heartDesc;
 	pTextureInterface->GetDesc(&heartDesc);
+
 
 	for (auto heart = m_heartData.begin(); heart != m_heartData.end(); heart++)
 	{
@@ -1323,12 +1334,18 @@ void Engine::DrawSprites()
 			);
 	}
 
+/*
+	m_orchi.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
+	D3D11_TEXTURE2D_DESC orchiDesc;
+	pTextureInterface->GetDesc(&orchiDesc);
+*/
+
 	m_spriteBatch->Draw(
 		m_orchi.Get(),
 		m_orchiData.pos,
 		BasicSprites::PositionUnits::DIPs,
-		float2(1.0f, 1.0f) * m_orchiData.scale,
-		BasicSprites::SizeUnits::Normalized,
+		float2(grid.GetColumnWidth(), grid.GetRowHeight()),
+		BasicSprites::SizeUnits::DIPs,
 		float4(0.8f, 0.8f, 1.0f, 1.0f),
 		m_orchiData.rot
 		);

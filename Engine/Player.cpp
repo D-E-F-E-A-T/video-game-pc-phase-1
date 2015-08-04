@@ -3,10 +3,10 @@
 #include "Constants.h"
 
 
-void Player::MoveNorth()
+void Player::MoveNorth(float fVelocity)
 {
 	float prospectiveVerticalRatio =
-		m_fVerticalRatio -= PLAYER_WALKING_VELOCITY;
+		m_fVerticalRatio -= fVelocity;
 
 	// Don't go above the top of the screen. 
 	//	Later this will be the trigger to move to the next screen.
@@ -16,10 +16,10 @@ void Player::MoveNorth()
 		m_fVerticalRatio = 0.0f;
 }
 
-void Player::MoveWest()
+void Player::MoveEast(float fVelocity)
 {
 	float prospectiveHorizontalRatio =
-		m_fHorizontalRatio += PLAYER_WALKING_VELOCITY;
+		m_fHorizontalRatio += fVelocity;
 
 	if (prospectiveHorizontalRatio <= 1.0f)
 	{
@@ -31,10 +31,10 @@ void Player::MoveWest()
 	}
 }
 
-void Player::MoveSouth()
+void Player::MoveSouth(float fVelocity)
 {
 	float prospectiveVerticalOffset =
-		m_fVerticalRatio += PLAYER_WALKING_VELOCITY;
+		m_fVerticalRatio += fVelocity;
 
 	// Don't go above the top of the screen. 
 	//	Later this will be the trigger to move to the next screen.
@@ -44,10 +44,10 @@ void Player::MoveSouth()
 		m_fVerticalRatio = 1.0f;
 }
 
-void Player::MoveEast()
+void Player::MoveWest(float fVelocity)
 {
 	float prospectiveHorizontalOffset =
-		m_fHorizontalRatio -= PLAYER_WALKING_VELOCITY;
+		m_fHorizontalRatio -= fVelocity;
 
 	if (prospectiveHorizontalOffset >= 0.f)
 	{

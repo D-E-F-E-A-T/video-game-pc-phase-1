@@ -60,24 +60,44 @@
 #endif // PLAYER_WALKING_VELOCITY
 
 #ifndef PLAYER_RUNNING_VELOCITY
-#define PLAYER_RUNNING_VELOCITY 12.5f
+#define PLAYER_RUNNING_VELOCITY 0.01f
 #endif // PLAYER_RUNNING_VELOCITY
 
+#ifndef NORTH_WEST
+#define NORTH_WEST 0
+#endif // NORTH_WEST
+
 #ifndef NORTH
-#define NORTH 0
+#define NORTH 1
 #endif // NORTH
 
-#ifndef EAST 
-#define EAST 1
-#endif // EAST
+#ifndef NORTH_EAST 
+#define NORTH_EAST 2
+#endif // NORTH_EAST
 
-#ifndef SOUTH
-#define SOUTH 2
-#endif // SOUTH 
-
-#ifndef WEST
+#ifndef WEST 
 #define WEST 3
 #endif // WEST
+
+#ifndef CENTER
+#define CENTER 4
+#endif // CENTER
+
+#ifndef EAST
+#define EAST 5
+#endif // EAST 
+
+#ifndef SOUTH_WEST
+#define SOUTH_WEST 6
+#endif // SOUTH_WEST
+
+#ifndef SOUTH
+#define SOUTH 7
+#endif // SOUTH
+
+#ifndef SOUTH_EAST
+#define SOUTH_EAST 8
+#endif // SOUTH_EAST
 
 // 5 percent of the screen / second.
 #ifndef SCROLLING_VELOCITY
@@ -105,6 +125,22 @@
 #endif // HEART_PANEL_HEIGHT
 
 #ifndef SECTION_HEADER_FONT_SIZE
-#define SECTION_HEADER_FONT_SIZE 36.0f
+#define SECTION_HEADER_FONT_SIZE 30.0f
 #endif // SECTION_HEADER_FONT_SIZE
+
+//#ifndef DISPLAY_CONTROLLER_INPUT
+//#define DISPLAY_CONTROLLER_INPUT
+//#endif // DISPLAY_CONTROLLER_INPUT
+
+#ifndef PI
+#define PI 3.14159265
+#endif // PI
+
+#ifndef WALKING_THRESHOLD
+#define WALKING_THRESHOLD 5000.f
+#endif // WALKING_THRESHOLD
+
+#ifndef RUNNING_THRESHOLD
+#define RUNNING_THRESHOLD 30000.f
+#endif // RUNNING_THRESHOLD
 

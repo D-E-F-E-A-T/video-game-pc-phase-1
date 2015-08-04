@@ -119,28 +119,6 @@ void Engine::CreateDeviceResources()
 {
 	DirectXBase::CreateDeviceResources();
 
-	//#ifdef SHOW_OVERLAY
-	//    m_sampleOverlay = ref new SampleOverlay();
-	//
-	//    m_sampleOverlay->Initialize(
-	//        m_d2dDevice.Get(),
-	//        m_d2dContext.Get(),
-	//        m_wicFactory.Get(),
-	//        m_dwriteFactory.Get(),
-	//        ""
-	//        );
-	//
-	//	m_debugOverlay = ref new DebugOverlay();
-	//
-	//	m_debugOverlay->Initialize(
-	//		m_d2dDevice.Get(),
-	//		m_d2dContext.Get(),
-	//		m_wicFactory.Get(),
-	//		m_dwriteFactory.Get(),
-	//		"Debug overlay"
-	//		);
-	//#endif // SHOW_OVERLAY
-
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF::Black),
@@ -173,14 +151,6 @@ void Engine::CreateDeviceResources()
 			D2D1::ColorF(D2D1::ColorF::Gray),
 			&m_grayBrush)
 		);
-
-	/*
-	DX::ThrowIfFailed(
-		m_d2dContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::Beige),
-			&m_beigeBrush)
-		);
-		*/
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
@@ -515,22 +485,6 @@ void Engine::DrawRightMargin()
 		m_d2dContext,
 		m_blackBrush.Get(),
 		rect);
-
-	/*
-	LPD3DXFont
-	D2D1_RECT_F
-	{
-	rightBorder + rightBorder
-	}
-
-	m_d2dContext->DrawText(
-	text,
-	static_cast<UINT32>(::wcslen(text)),
-	m_headerTextFormat.Get(),
-	loc,
-	m_textBrush.Get()
-	);
-	*/
 }
 
 void Engine::RenderControllerInput()
@@ -819,28 +773,23 @@ void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
-		m_pPlayer->MoveNorth();
+		m_pPlayer->MoveNorth(PLAYER_WALKING_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 	{
-		m_pPlayer->MoveSouth();
+		m_pPlayer->MoveSouth(PLAYER_WALKING_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
-		m_pPlayer->MoveEast();
+		m_pPlayer->MoveWest(PLAYER_WALKING_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
-		m_pPlayer->MoveWest();
+		m_pPlayer->MoveEast(PLAYER_WALKING_VELOCITY);
 	}
 	else
 	{
-		// Listen to the left thumb stick.
-		float x = (float)horizontal;
-		float y = (float)vertical;
-
-		float r = sqrt(x * x + y * y);
-		float theta = atan(y / x);
+		HandleLeftThumbStick(horizontal, vertical);
 	}
 }
 
@@ -880,22 +829,6 @@ void Engine::HighlightSprite(int column, int row)
 	m_d2dContext->FillRectangle(
 		rect,
 		m_redBrush.Get());
-}
-
-void Engine::DisplaySpriteCollisionMessage(int column, int row)
-{
-	D2D1_RECT_F pos = D2D1::RectF(0.0f, 0.0f, 200.0f, 200.0f);
-	DrawText(SPRITE_COLLISION_MSG, pos);
-	pos.top += LINE_HEIGHT;
-	DrawText(SPRITE_COLLISION_MSG_COLUMN, pos);
-	pos.top += LINE_HEIGHT;
-	DrawText(static_cast<uint32>(column), pos);
-	pos.top += LINE_HEIGHT;
-
-	DrawText(SPRITE_COLLISION_MSG_ROW, pos);
-	pos.top += LINE_HEIGHT;
-	DrawText(static_cast<uint32>(row), pos);
-	pos.top += LINE_HEIGHT;
 }
 
 void Engine::Render()
@@ -965,12 +898,14 @@ void Engine::Render()
 	RenderControllerInput();
 #endif // DISPLAY_CONTROLLER_INPUT
 
+/*
 	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
 
 	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
 		minWidthHeightScale,
 		minWidthHeightScale
 		);
+
 
 	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
 		renderTargetSize.width / 2.0f,
@@ -979,6 +914,7 @@ void Engine::Render()
 
 	// Center the path.
 	m_d2dContext->SetTransform(scale * translation);
+*/
 
 	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
 	// is lost. It will be handled during the next call to Present.
@@ -997,199 +933,6 @@ void Engine::Render()
 		DX::ThrowIfFailed(hr);
 	}
 }
-
-//void Engine::Render()
-//{
-// Retrieve the size of the render target.
-/*
-D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
-
-m_d2dContext->BeginDraw();
-
-m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
-
-float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
-*/
-
-/*
-D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
-minWidthHeightScale * 0.5f,
-minWidthHeightScale * 0.5f
-);
-
-D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
-renderTargetSize.width / 2.0f,
-renderTargetSize.height / 2.0f
-);
-
-// Center the path.
-m_d2dContext->SetTransform(scale * translation);
-*/
-
-//	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
-
-/*
-m_d3dContext->OMSetRenderTargets(
-1,
-m_d3dRenderTargetView.GetAddressOf(),
-nullptr
-);
-*/
-
-/*
-m_spriteBatch->Begin();
-
-for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
-{
-m_spriteBatch->Draw(
-m_tree.Get(),
-tree->pos,
-BasicSprites::PositionUnits::DIPs,
-float2(1.0f, 1.0f) * tree->scale,
-BasicSprites::SizeUnits::Normalized,
-float4(0.8f, 0.8f, 1.0f, 1.0f),
-tree->rot
-);
-}
-
-for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
-{
-m_spriteBatch->Draw(
-m_rock.Get(),
-rock->pos,
-BasicSprites::PositionUnits::DIPs,
-float2(1.0f, 1.0f) * rock->scale,
-BasicSprites::SizeUnits::Normalized,
-float4(0.8f, 0.8f, 1.0f, 1.0f),
-rock->rot
-);
-}
-
-for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
-{
-m_spriteBatch->Draw(
-m_water.Get(),
-water->pos,
-BasicSprites::PositionUnits::DIPs,
-float2(1.0f, 1.0f) * water->scale,
-BasicSprites::SizeUnits::Normalized,
-float4(0.8f, 0.8f, 1.0f, 1.0f),
-water->rot
-);
-}
-
-for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
-{
-m_spriteBatch->Draw(
-m_grass.Get(),
-grass->pos,
-BasicSprites::PositionUnits::DIPs,
-float2(1.0f, 1.0f) * grass->scale,
-BasicSprites::SizeUnits::Normalized,
-float4(0.8f, 0.8f, 1.0f, 1.0f),
-grass->rot
-);
-}
-
-for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
-{
-m_spriteBatch->Draw(
-m_stoneWall.Get(),
-stoneWall->pos,
-BasicSprites::PositionUnits::DIPs,
-float2(1.0f, 1.0f) * stoneWall->scale,
-BasicSprites::SizeUnits::Normalized,
-float4(0.8f, 0.8f, 1.0f, 1.0f),
-stoneWall->rot
-);
-}
-
-m_spriteBatch->Draw(
-m_orchi.Get(),
-m_orchiData.pos,
-BasicSprites::PositionUnits::DIPs,
-float2(1.0f, 1.0f) * m_orchiData.scale,
-BasicSprites::SizeUnits::Normalized,
-float4(0.8f, 0.8f, 1.0f, 1.0f),
-m_orchiData.rot
-);
-
-
-m_spriteBatch->End();
-*/
-
-
-
-
-/*
-DrawLeftMargin();
-DrawRightMargin();
-
-
-DrawGrid();
-DrawPlayer();
-
-int column = 0;
-int row = 0;
-
-float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
-float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
-
-int result = m_collisionDetectionStrategy->Detect(
-&column,
-&row,
-playerSize,
-spriteSize,
-m_pPlayer,
-&m_treeData);
-
-if (result == 1)
-{
-// Need to undo the transform done above.
-HighlightSprite(column, row);
-DisplaySpriteCollisionMessage(column, row);
-}
-
-RenderControllerInput();
-*/
-/*
-float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
-
-D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
-minWidthHeightScale * 0.5f,
-minWidthHeightScale * 0.5f
-);
-
-D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
-renderTargetSize.width / 2.0f,
-renderTargetSize.height / 2.0f
-);
-
-// Center the path.
-m_d2dContext->SetTransform(scale * translation);
-*/
-
-// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
-// is lost. It will be handled during the next call to Present.
-//	HRESULT hr = m_d2dContext->EndDraw();
-
-
-
-
-/*
-if (hr != D2DERR_RECREATE_TARGET)
-{
-DX::ThrowIfFailed(hr);
-}
-*/
-
-
-//#ifdef SHOW_OVERLAY
-//
-//	m_sampleOverlay->Render();
-//	m_debugOverlay->Render("Hello World");
-//#endif // SHOW_OVERLAY
-//}
 
 void Engine::Run()
 {
@@ -1584,18 +1327,96 @@ void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core:
 
 	if (args->VirtualKey == Windows::System::VirtualKey::Left)
 	{
-		m_pPlayer->MoveEast();
+		m_pPlayer->MoveWest(PLAYER_WALKING_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Down)
 	{
-		m_pPlayer->MoveSouth();
+		m_pPlayer->MoveSouth(PLAYER_WALKING_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Right)
 	{
-		m_pPlayer->MoveWest();
+		m_pPlayer->MoveEast(PLAYER_WALKING_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Up)
 	{
-		m_pPlayer->MoveNorth();
+		m_pPlayer->MoveNorth(PLAYER_WALKING_VELOCITY);
+	}
+}
+
+void Engine::HandleLeftThumbStick(short horizontal, short vertical)
+{
+	float radius = sqrt((double)horizontal * (double)horizontal + (double)vertical * (double)vertical);
+	float velocity = 0.f;
+
+	if (radius < WALKING_THRESHOLD)
+		return;
+	if (radius >= WALKING_THRESHOLD && radius < RUNNING_THRESHOLD)
+		velocity = PLAYER_WALKING_VELOCITY;
+	else if (radius >= RUNNING_THRESHOLD)
+		velocity = PLAYER_RUNNING_VELOCITY;
+
+	if (horizontal == 0)
+	{
+		if (vertical > 0)
+		{
+			// Due north
+			m_pPlayer->MoveNorth(velocity);
+		}
+		else if (vertical < 0)
+		{
+			// Due south
+			m_pPlayer->MoveSouth(velocity);
+		}
+	}
+	else if (vertical == 0)
+	{
+		if (horizontal > 0)
+		{
+			// Due east
+			m_pPlayer->MoveEast(velocity);
+		}
+		else if (horizontal < 0)
+		{
+			// Due west
+			m_pPlayer->MoveWest(velocity);
+		}
+	}
+	else
+	{
+		float param = (float)vertical / (float)horizontal;
+		float theta = atan(param) * 180.0f / PI;
+
+		if (horizontal > 0 && vertical > 0)
+		{
+			// Upper-right quadrant.
+			if (theta <= 45.f)
+				m_pPlayer->MoveEast(velocity);
+			else
+				m_pPlayer->MoveNorth(velocity);
+		}
+		else if (horizontal > 0 && vertical < 0)
+		{
+			// Lower-right quadrant.
+			if (theta >= -45.f)
+				m_pPlayer->MoveEast(velocity);
+			else
+				m_pPlayer->MoveSouth(velocity);
+		}
+		else if (horizontal < 0 && vertical > 0)
+		{
+			// Upper-left quadrant.
+			if (theta >= -45.f)
+				m_pPlayer->MoveWest(velocity);
+			else
+				m_pPlayer->MoveNorth(velocity);
+		}
+		if (horizontal < 0 && vertical < 0)
+		{
+			// Lower-left quadrant.
+			if (theta <= 45.f)
+				m_pPlayer->MoveWest(velocity);
+			else
+				m_pPlayer->MoveSouth(velocity);
+		}
 	}
 }

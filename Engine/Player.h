@@ -9,10 +9,10 @@ public:
 		m_fHorizontalRatio = 0.5f;
 	}
 
-	void MoveNorth();
-	void MoveEast();
-	void MoveSouth();
-	void MoveWest();
+	void MoveNorth(float fVelocity);
+	void MoveEast(float fVelocity);
+	void MoveSouth(float fVelocity);
+	void MoveWest(float fVelocity);
 
 	float GetVerticalRatio()
 	{

@@ -24,6 +24,8 @@ void Grid::SetWindowWidth(float fWindowWidth)
 void Grid::SetWindowHeight(float fWindowHeight)
 {
 	this->m_fWindowHeight = fWindowHeight;
+
+	m_fGridHeight = fWindowHeight;
 }
 
 void Grid::Draw(
@@ -78,3 +80,17 @@ float Grid::GetRowHeight()
 	return (m_fWindowHeight - 2.0f * MARGIN) / NUM_GRID_ROWS;
 }
 
+void Grid::SetNumColumns(int nNumColumns)
+{
+	this->m_nNumColumns = nNumColumns;
+}
+
+void Grid::SetNumRows(int nNumRows)
+{
+	this->m_nNumRows = nNumRows;
+}
+
+void Grid::SetVisibility(boolean bVisibility)
+{
+	this->m_bIsVisible = bVisibility;
+}

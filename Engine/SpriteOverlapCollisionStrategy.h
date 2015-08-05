@@ -3,6 +3,7 @@
 #include "CollisionDetectionStrategy.h"
 #include "Player.h"
 #include "BaseSpriteData.h"
+#include "GridSpace.h"
 
 class SpriteOverlapCollisionStrategy : public CollisionDetectionStrategy
 {
@@ -20,6 +21,8 @@ public:
 		float fWindowHeight);
 
 protected:
+	int BroadStrategy(Player * player, list<GridSpace *> * retVal);
+	int NarrowStrategy(Player * player, list<GridSpace *> * retVal);
 
 private:
 };

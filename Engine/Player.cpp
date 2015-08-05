@@ -2,6 +2,20 @@
 #include "Player.h"
 #include "Constants.h"
 
+Player::Player(Grid * grid)
+{
+	m_grid = grid;
+	m_fHorizontalRatio = 0.5f;
+	m_fVerticalRatio = 0.5f;
+
+	m_nUnitsPerGridSquare[HORIZONTAL_AXIS] =
+		1.0f / grid->GetNumColumns() * TOTAL_GRID_DIVISIONS;
+
+	m_nUnitsPerGridSquare[VERTICAL_AXIS] =
+		1.0f / grid->GetNumRows() * TOTAL_GRID_DIVISIONS;
+
+	UpdateGridLocation();
+}
 
 void Player::MoveNorth(float fVelocity)
 {
@@ -14,6 +28,8 @@ void Player::MoveNorth(float fVelocity)
 		m_fVerticalRatio = prospectiveVerticalRatio;
 	else
 		m_fVerticalRatio = 0.0f;
+
+	UpdateGridLocation();
 }
 
 void Player::MoveEast(float fVelocity)
@@ -29,6 +45,8 @@ void Player::MoveEast(float fVelocity)
 	{
 		m_fHorizontalRatio = 1.0f;
 	}
+	
+	UpdateGridLocation();
 }
 
 void Player::MoveSouth(float fVelocity)
@@ -42,6 +60,8 @@ void Player::MoveSouth(float fVelocity)
 		m_fVerticalRatio = prospectiveVerticalOffset;
 	else
 		m_fVerticalRatio = 1.0f;
+
+	UpdateGridLocation();
 }
 
 void Player::MoveWest(float fVelocity)
@@ -57,5 +77,21 @@ void Player::MoveWest(float fVelocity)
 	{
 		m_fHorizontalRatio = 0.f;
 	}
+
+	UpdateGridLocation();
+}
+
+void Player::UpdateGridLocation()
+{
+	int nHorizontalLocation = 
+		(int)(m_fHorizontalRatio * TOTAL_GRID_DIVISIONS) /
+		m_nUnitsPerGridSquare[HORIZONTAL_AXIS];
+
+	int nVerticalLocation = 
+		(int)(m_fVerticalRatio * TOTAL_GRID_DIVISIONS) /
+		m_nUnitsPerGridSquare[VERTICAL_AXIS];
+
+	m_pGridLocation[HORIZONTAL_AXIS] = nHorizontalLocation;
+	m_pGridLocation[VERTICAL_AXIS] = nVerticalLocation;
 }
 

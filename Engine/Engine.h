@@ -172,13 +172,15 @@ private:
 	void DrawInventoryText();
 	void DrawPackText();
 
-	void InitializePlayer();
+//	void InitializePlayer();
 
 	void MovePlayer(uint16 buttons, short horizontal, short vertical);
 	void HandleLeftThumbStick(short horizontal, short vertical);
 
-	void HighlightSprite(int column, int row);
-	// void HighLightCollidedSprite(ISpriteData sprite);	// TODO	
+	void HighlightSprite(int column, int row, ComPtr<ID2D1SolidColorBrush> brush);
+	void HighlightSprite(int * pLocation, ComPtr<ID2D1SolidColorBrush> brush);
+
+
 	
 
 	Player * m_pPlayer;

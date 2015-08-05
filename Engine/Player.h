@@ -1,13 +1,11 @@
 #pragma once
+#include "Grid.h"
+#include "Constants.h"
 
 class Player
 {
 public:
-	Player()
-	{
-		m_fVerticalRatio = 0.5f;
-		m_fHorizontalRatio = 0.5f;
-	}
+	Player(Grid * grid);
 
 	void MoveNorth(float fVelocity);
 	void MoveEast(float fVelocity);
@@ -34,9 +32,22 @@ public:
 		m_fHorizontalRatio = horizontalOffset;
 	}
 
+	int * GetGridLocation()
+	{
+		return m_pGridLocation;
+	}
+
 protected:
+	void UpdateGridLocation();
 
 private:
 	float m_fHorizontalRatio;
 	float m_fVerticalRatio;
+
+	float m_fLocation[NUM_DIMENSIONS];
+	int m_pGridLocation[NUM_DIMENSIONS];
+
+	int m_nUnitsPerGridSquare[NUM_DIMENSIONS];
+
+	Grid * m_grid;
 };

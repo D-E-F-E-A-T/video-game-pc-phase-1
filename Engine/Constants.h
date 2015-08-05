@@ -55,13 +55,9 @@
 
 // This represents the percentage of the game screen
 //	that is traversed per cycle.
-#ifndef PLAYER_WALKING_VELOCITY
-#define PLAYER_WALKING_VELOCITY 0.005f	
-#endif // PLAYER_WALKING_VELOCITY
-
-#ifndef PLAYER_RUNNING_VELOCITY
-#define PLAYER_RUNNING_VELOCITY 0.01f
-#endif // PLAYER_RUNNING_VELOCITY
+#ifndef PLAYER_MOVE_VELOCITY
+#define PLAYER_MOVE_VELOCITY 0.005f	
+#endif // PLAYER_MOVE_VELOCITY
 
 #ifndef NORTH_WEST
 #define NORTH_WEST 0
@@ -104,10 +100,6 @@
 #define SCROLLING_VELOCITY 5
 #endif // SCROLLING_VELOCITY
 
-#ifndef SHOW_GRID
-#define SHOW_GRID
-#endif // SHOW_GRID
-
 #ifndef NUM_HEART_ROWS 
 #define NUM_HEART_ROWS 2
 #endif // NUM_HEART_ROWS
@@ -143,4 +135,20 @@
 #ifndef RUNNING_THRESHOLD
 #define RUNNING_THRESHOLD 30000.f
 #endif // RUNNING_THRESHOLD
+
+#ifndef TOTAL_GRID_DIVISIONS
+#define TOTAL_GRID_DIVISIONS 1000
+#endif // TOTAL_GRID_DIVISIONS
+
+#ifndef HORIZONTAL_AXIS
+#define HORIZONTAL_AXIS 0
+#endif // HORIZONTAL_AXIS
+
+#ifndef VERTICAL_AXIS
+#define VERTICAL_AXIS 1
+#endif // VERTICAL_AXIS
+
+#ifndef NUM_DIMENSIONS
+#define NUM_DIMENSIONS 2
+#endif // NUM_DIMENSIONS
 

@@ -21,6 +21,7 @@
 #include "OrchiData.h"
 #include "BoundingBoxCornerCollisionStrategy.h"
 #include "BoundingBoxMidpointCollisionStrategy.h"
+#include "SpriteOverlapCollisionStrategy.h"
 #include "ScreenUtils.h"
 #include "LifePanel.h"
 #include "GridSpace.h"
@@ -92,7 +93,9 @@ Engine::Engine() :
 	m_nCollidedSpriteRow(0)
 {
 	m_collisionDetectionStrategy =
-		new BoundingBoxCornerCollisionStrategy();
+		//		new BoundingBoxCornerCollisionStrategy();
+		new SpriteOverlapCollisionStrategy();
+		
 
 	m_pKeyboardController = new KeyboardControllerInput();
 }
@@ -299,7 +302,12 @@ void Engine::SetWindow(
 
 	DirectXBase::Initialize(window, DisplayInformation::GetForCurrentView()->LogicalDpi);
 
-	InitializePlayer();
+	grid.SetWindowWidth(m_window->Bounds.Width);
+	grid.SetWindowHeight(m_window->Bounds.Height);
+	grid.SetNumColumns(NUM_GRID_COLUMNS);
+	grid.SetNumRows(NUM_GRID_ROWS);
+
+	this->m_pPlayer = new Player(&grid);
 }
 
 void Engine::Load(
@@ -335,13 +343,6 @@ void Engine::BuildScreen()
 	lifePanel.BuildPanel(&m_heartData);
 }
 
-void Engine::InitializePlayer()
-{
-	// Putting instantiona here since need to wait for the
-	//	window to be created to get the bounds.
-
-	m_pPlayer = new Player();
-}
 void Engine::OnWindowSizeChanged(
 	_In_ CoreWindow^ sender,
 	_In_ WindowSizeChangedEventArgs^ args
@@ -773,19 +774,19 @@ void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
-		m_pPlayer->MoveNorth(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveNorth(PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 	{
-		m_pPlayer->MoveSouth(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveSouth(PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
-		m_pPlayer->MoveWest(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveWest(PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
-		m_pPlayer->MoveEast(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveEast(PLAYER_MOVE_VELOCITY);
 	}
 	else
 	{
@@ -793,14 +794,22 @@ void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
 	}
 }
 
+
+void Engine::HighlightSprite(int * pLocation, ComPtr<ID2D1SolidColorBrush> brush)
+{
+	if (pLocation)
+		HighlightSprite(
+			pLocation[HORIZONTAL_AXIS], 
+			pLocation[VERTICAL_AXIS], brush);
+}
+
 /*
 Highlight the sprite that is being collided with.
 */
-void Engine::HighlightSprite(int column, int row)
+void Engine::HighlightSprite(int column, int row, ComPtr<ID2D1SolidColorBrush> brush)
 {
 	float x = 0.0f;
 	float y = 0.0f;
-
 
 	ScreenUtils::CalculateSquareCenter(
 		m_window->Bounds.Width,
@@ -828,7 +837,7 @@ void Engine::HighlightSprite(int column, int row)
 
 	m_d2dContext->FillRectangle(
 		rect,
-		m_redBrush.Get());
+		brush.Get());
 }
 
 void Engine::Render()
@@ -855,13 +864,15 @@ void Engine::Render()
 
 	// If the Player moves to the sides of the screen, scroll
 	//	 and don't render the grid.
-#ifdef SHOW_GRID
-
+/*
 	grid.SetWindowWidth(m_window->Bounds.Width);
 	grid.SetWindowHeight(m_window->Bounds.Height);
+	grid.SetNumColumns(NUM_GRID_COLUMNS);
+	grid.SetNumRows(NUM_GRID_ROWS);
+*/
+	grid.SetVisibility(true);
 
 	grid.Draw(m_d2dContext, m_blackBrush);
-#endif // SHOW_GRID
 
 	DrawPlayer();
 
@@ -879,7 +890,7 @@ void Engine::Render()
 		spriteSize,
 		m_pPlayer,
 		&m_treeData,
-		m_window->Bounds.Width, // - (m_window->Bounds.Width * LEFT_MARGIN_RATIO) - (m_window->Bounds.Width * RIGHT_MARGIN_RATIO),
+		m_window->Bounds.Width,
 		m_window->Bounds.Height);
 
 	std::list<GridSpace *>::const_iterator iterator;
@@ -889,10 +900,11 @@ void Engine::Render()
 		int column = static_cast<GridSpace *>(*iterator)->GetColumn();
 		int row = static_cast<GridSpace *>(*iterator)->GetRow();
 
-		HighlightSprite(column, row);
-
-//		DisplaySpriteCollisionMessage(column, row);
+		HighlightSprite(column, row, m_redBrush);
 	}
+
+	
+//	HighlightSprite(m_pPlayer->GetGridLocation(), m_blueBrush);
 
 #ifdef DISPLAY_CONTROLLER_INPUT
 	RenderControllerInput();
@@ -1327,19 +1339,19 @@ void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core:
 
 	if (args->VirtualKey == Windows::System::VirtualKey::Left)
 	{
-		m_pPlayer->MoveWest(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveWest(PLAYER_MOVE_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Down)
 	{
-		m_pPlayer->MoveSouth(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveSouth(PLAYER_MOVE_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Right)
 	{
-		m_pPlayer->MoveEast(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveEast(PLAYER_MOVE_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Up)
 	{
-		m_pPlayer->MoveNorth(PLAYER_WALKING_VELOCITY);
+		m_pPlayer->MoveNorth(PLAYER_MOVE_VELOCITY);
 	}
 }
 
@@ -1351,9 +1363,9 @@ void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 	if (radius < WALKING_THRESHOLD)
 		return;
 	if (radius >= WALKING_THRESHOLD && radius < RUNNING_THRESHOLD)
-		velocity = PLAYER_WALKING_VELOCITY;
+		velocity = PLAYER_MOVE_VELOCITY;
 	else if (radius >= RUNNING_THRESHOLD)
-		velocity = PLAYER_RUNNING_VELOCITY;
+		velocity = PLAYER_MOVE_VELOCITY * 2.0f;
 
 	if (horizontal == 0)
 	{

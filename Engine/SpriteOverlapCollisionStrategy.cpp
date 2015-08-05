@@ -23,5 +23,31 @@ void SpriteOverlapCollisionStrategy::Detect(
 	float fWindowWidth,
 	float fWindowHeight)
 {
-	// Detect the gridspaces that are close to the player.
+	// Determine the 9 grid spaces around the player's location.
+	BroadStrategy(pPlayer, retVal);
+}
+
+int SpriteOverlapCollisionStrategy::BroadStrategy(Player * player, list<GridSpace *> * retVal)
+{
+	int nCurrentHorizontalSpace = player->GetGridLocation()[HORIZONTAL_AXIS];
+	int nCurrentVerticalSpace = player->GetGridLocation()[VERTICAL_AXIS];
+
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace - 1, nCurrentVerticalSpace - 1));
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace, nCurrentVerticalSpace - 1));
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace + 1, nCurrentVerticalSpace - 1));
+
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace - 1, nCurrentVerticalSpace));
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace, nCurrentVerticalSpace));
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace + 1, nCurrentVerticalSpace));
+
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace - 1, nCurrentVerticalSpace + 1));
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace, nCurrentVerticalSpace + 1));
+	retVal->push_back(new GridSpace(nCurrentHorizontalSpace + 1, nCurrentVerticalSpace + 1));
+
+	return 1;
+}
+
+int SpriteOverlapCollisionStrategy::NarrowStrategy(Player * player, list<GridSpace *> * retVal)
+{
+	return NULL;
 }

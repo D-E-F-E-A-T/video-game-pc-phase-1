@@ -2,7 +2,7 @@
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
   <Identity Name="Microsoft.SDKSamples.D2DBasicAnimation.CPP" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="1.0.0.0" />
   <Properties>
-    <DisplayName>Direct2D animation C++ sample</DisplayName>
+    <DisplayName>The Adventures of Archi</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>storelogo-sdk.png</Logo>
   </Properties>
@@ -14,14 +14,14 @@
     <Resource Language="en-us" />
   </Resources>
   <Applications>
-    <Application Id="DirectXApplication.App" Executable="D2DBasicAnimation.exe" EntryPoint="DirectXApplication.App">
+    <Application Id="AdventuresOfOrchi.App" Executable="AdventuresOfOrchi.exe" EntryPoint="AdventuresOfOrchi.App">
       <m2:VisualElements DisplayName="Direct2D animation C++ sample" Description="Direct2D animation C++ sample" BackgroundColor="#00b2f0" ForegroundText="light" Square150x150Logo="squaretile-sdk.png" Square30x30Logo="smalltile-sdk.png">
         <m2:DefaultTile ShortName="D2D animation C++">
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="square150x150Logo" />
           </m2:ShowNameOnTiles>
         </m2:DefaultTile>
-        <m2:SplashScreen BackgroundColor="#00b2f0" Image="splash-sdk.png" />
+        <m2:SplashScreen BackgroundColor="#0000f0" Image="splash-sdk.png" />
       </m2:VisualElements>
     </Application>
   </Applications>

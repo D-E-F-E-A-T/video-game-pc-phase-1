@@ -467,6 +467,7 @@ void SpriteBatch::End()
             0
             );
     }
+/*
     else if (m_technique == RenderTechnique::Replication)
     {
         CD3D11_BOX vertexDataBox(
@@ -487,6 +488,7 @@ void SpriteBatch::End()
             0
             );
     }
+*/
 
     if (m_technique == RenderTechnique::GeometryShader || m_technique == RenderTechnique::Instancing)
     {
@@ -516,6 +518,7 @@ void SpriteBatch::End()
             0
             );
     }
+/*
     else if (m_technique == RenderTechnique::Replication)
     {
         m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -525,6 +528,7 @@ void SpriteBatch::End()
             0
             );
     }
+*/
     else if (m_technique == RenderTechnique::GeometryShader)
     {
         m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -596,6 +600,7 @@ void SpriteBatch::End()
             &offset
             );
     }
+/*
     else if (m_technique == RenderTechnique::Replication)
     {
         unsigned int stride = sizeof(ReplicationVertex);
@@ -608,6 +613,7 @@ void SpriteBatch::End()
             &offset
             );
     }
+*/
 
     // Draw each sprite run
 
@@ -662,12 +668,14 @@ void SpriteBatch::End()
                 );
             indexBase += instancesToDraw;
         }
+/*
         else if (m_technique == RenderTechnique::Replication)
         {
             unsigned int indicesToDraw = runIterator->numSprites * 6;
             m_d3dContext->DrawIndexed(indicesToDraw, indexBase, 0);
             indexBase += indicesToDraw;
         }
+*/
     }
 }
 
@@ -866,6 +874,7 @@ void SpriteBatch::Draw(
         m_instanceData[m_numSpritesDrawn].rotation = rotation;
         m_instanceData[m_numSpritesDrawn].color = MakeUnorm(color);
     }
+/*
     else if (m_technique == RenderTechnique::Replication)
     {
         float2 offsets[4] =
@@ -906,6 +915,7 @@ void SpriteBatch::Draw(
         singleSpriteVertices[2].tex = float2(0.0f, 1.0f);
         singleSpriteVertices[3].tex = float2(1.0f, 1.0f);
     }
+*/
 
     m_spritesInRun++;
     m_numSpritesDrawn++;

@@ -190,6 +190,7 @@
     <ClInclude Include="BasicTimer.h" />
     <ClInclude Include="BoundingBoxCornerCollisionStrategy.h" />
     <ClInclude Include="BoundingBoxMidpointCollisionStrategy.h" />
+    <ClInclude Include="BroadCollisionStrategy.h" />
     <ClInclude Include="CircularZoneCollisionStrategy.h" />
     <ClInclude Include="CollisionDetectionInfo.h" />
     <ClInclude Include="CollisionDetectionStrategy.h" />
@@ -201,16 +202,17 @@
     <ClInclude Include="Door.h" />
     <ClInclude Include="GrassData.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="GridSpace.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="BaseSpriteData.h" />
     <ClInclude Include="HeartData.h" />
     <ClInclude Include="KeyboardControllerInput.h" />
     <ClInclude Include="LifePanel.h" />
+    <ClInclude Include="MathUtils.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="ScreenUtils.h" />
     <ClInclude Include="SpriteOverlapCollisionStrategy.h" />
     <ClInclude Include="OrchiData.h" />
+    <ClInclude Include="SpriteRepository.h" />
     <ClInclude Include="StoneWallData.h" />
     <ClInclude Include="WaterData.h" />
     <ClInclude Include="LeftMargin.h" />
@@ -240,6 +242,7 @@
     <ClCompile Include="BasicTimer.cpp" />
     <ClCompile Include="BoundingBoxCornerCollisionStrategy.cpp" />
     <ClCompile Include="BoundingBoxMidpointCollisionStrategy.cpp" />
+    <ClCompile Include="BroadCollisionStrategy.cpp" />
     <ClCompile Include="CircularZoneCollisionStrategy.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
@@ -249,6 +252,7 @@
     <ClCompile Include="KeyboardControllerInput.cpp" />
     <ClCompile Include="LeftMargin.cpp" />
     <ClCompile Include="LifePanel.cpp" />
+    <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -267,6 +271,7 @@
     <ClCompile Include="ScreenBuilder.cpp" />
     <ClCompile Include="ScreenUtils.cpp" />
     <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
+    <ClCompile Include="SpriteRepository.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Water.cpp" />
     <ClCompile Include="WorldBuilder.cpp" />

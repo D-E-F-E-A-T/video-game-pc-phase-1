@@ -30,6 +30,9 @@
     <ClCompile Include="LifePanel.cpp" />
     <ClCompile Include="KeyboardControllerInput.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="SpriteRepository.cpp" />
+    <ClCompile Include="BroadCollisionStrategy.cpp" />
+    <ClCompile Include="MathUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -81,7 +84,9 @@
     <ClInclude Include="KeyboardControllerInput.h" />
     <ClInclude Include="XBox360ControllerInput.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="GridSpace.h" />
+    <ClInclude Include="SpriteRepository.h" />
+    <ClInclude Include="BroadCollisionStrategy.h" />
+    <ClInclude Include="MathUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

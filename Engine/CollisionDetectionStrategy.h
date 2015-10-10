@@ -29,11 +29,11 @@ public:
 	virtual bool Detect(CollisionDetectionInfo * info) = 0;
 
 	virtual void Detect(
-		list<GridSpace *> * retVal,
+		list<BaseSpriteData *> * retVal,
 		float2 playerSize,
 		float2 spriteSize,
 		Player * pPlayer,
-		vector<BaseSpriteData> * sprites,
+		vector<BaseSpriteData *> * sprites,
 		float fWindowWidth,
 		float fWindowHeight) = 0;
 

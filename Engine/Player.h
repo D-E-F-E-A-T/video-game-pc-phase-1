@@ -32,6 +32,7 @@ public:
 		m_fHorizontalRatio = horizontalOffset;
 	}
 
+	// Grid square where the player is currently located.
 	int * GetGridLocation()
 	{
 		return m_pGridLocation;

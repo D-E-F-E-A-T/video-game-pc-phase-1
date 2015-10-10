@@ -12,7 +12,7 @@ public:
 	CircularZoneCollisionStrategy();
 	bool Detect(CollisionDetectionInfo * info);
 	void Detect(
-		list<GridSpace *> * retVal,
+		list<BaseSpriteData> * retVal,
 		float2 playerSize,
 		float2 spriteSize,
 		Player * pPlayer,

@@ -111,21 +111,18 @@ private:
 	BasicSprites::SpriteBatch ^ m_spriteBatch;
 
 	ComPtr<ID3D11Texture2D> m_tree;
-	std::vector<BaseSpriteData> m_treeData;
-
 	ComPtr<ID3D11Texture2D> m_rock;
-	std::vector<BaseSpriteData> m_rockData;
-
 	ComPtr<ID3D11Texture2D> m_water;
-	std::vector<BaseSpriteData> m_waterData;
-
 	ComPtr<ID3D11Texture2D> m_stoneWall;
-	std::vector<BaseSpriteData> m_stoneWallData;
-
 	ComPtr<ID3D11Texture2D> m_grass;
+	ComPtr<ID3D11Texture2D> m_orchi;
+
+	std::vector<BaseSpriteData *> * m_pTreeData;
+	std::vector<BaseSpriteData> m_rockData;
+	std::vector<BaseSpriteData> m_waterData;
+	std::vector<BaseSpriteData> m_stoneWallData;
 	std::vector<BaseSpriteData> m_grassData;
 
-	ComPtr<ID3D11Texture2D> m_orchi;
 	OrchiData m_orchiData;
 
 	ComPtr<ID3D11Texture2D> m_heart;
@@ -141,18 +138,18 @@ private:
 	Microsoft::WRL::ComPtr<IDWriteTextFormat>       m_dataTextFormat;
 	Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>    m_textBrush;
 
-
-
-//	float m_fCurrentPlayerVerticalOffset;
-//	float m_fCurrentPlayerHorizontalOffset;
-
 	int m_nCollidedSpriteColumn;
 	int m_nCollidedSpriteRow;
 
 	bool m_bSpriteCollisionDetected;
 
-	CollisionDetectionStrategy * m_collisionDetectionStrategy;
+	CollisionDetectionStrategy * m_broadCollisionDetectionStrategy;
+	CollisionDetectionStrategy * m_narrowCollisionDetectionStrategy;
+
+	list<BaseSpriteData *> * m_pCollided;
+
 	ScreenBuilder * m_screenBuilder;
+
 
 
 	void SetupScreen();
@@ -172,9 +169,7 @@ private:
 	void DrawInventoryText();
 	void DrawPackText();
 
-//	void InitializePlayer();
-
-	void MovePlayer(uint16 buttons, short horizontal, short vertical);
+	void MovePlayer(list<BaseSpriteData *> * collided, uint16 buttons, short horizontal, short vertical);
 	void HandleLeftThumbStick(short horizontal, short vertical);
 
 	void HighlightSprite(int column, int row, ComPtr<ID2D1SolidColorBrush> brush);

@@ -12,7 +12,7 @@ public:
 	bool Detect(CollisionDetectionInfo * info);
 
 	void Detect(
-		list<GridSpace *> * retVal,
+		list<BaseSpriteData> * retVal,
 		float2 playerSize,
 		float2 spriteSize,
 		Player * pPlayer,
@@ -21,8 +21,8 @@ public:
 		float fWindowHeight);
 
 protected:
-	int BroadStrategy(Player * player, list<GridSpace *> * retVal);
-	int NarrowStrategy(Player * player, list<GridSpace *> * retVal);
+	int BroadStrategy(Player * player, list<BaseSpriteData *> * retVal);
+	int NarrowStrategy(Player * player, list<BaseSpriteData *> * retVal);
 
 private:
 };

@@ -25,6 +25,7 @@
 #include "ScreenUtils.h"
 #include "LifePanel.h"
 #include "GridSpace.h"
+#include "BroadCollisionStrategy.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -92,12 +93,16 @@ Engine::Engine() :
 	m_nCollidedSpriteColumn(0),
 	m_nCollidedSpriteRow(0)
 {
-	m_collisionDetectionStrategy =
+	m_broadCollisionDetectionStrategy =
 		//		new BoundingBoxCornerCollisionStrategy();
-		new SpriteOverlapCollisionStrategy();
+		//new SpriteOverlapCollisionStrategy();
+		new BroadCollisionStrategy();
 		
 
 	m_pKeyboardController = new KeyboardControllerInput();
+
+	m_pCollided = new list<BaseSpriteData *>;
+	m_pTreeData = new std::vector<BaseSpriteData *>;
 }
 
 void Engine::CreateDeviceIndependentResources()
@@ -170,7 +175,6 @@ void Engine::CreateDeviceResources()
 	m_spriteBatch = ref new BasicSprites::SpriteBatch();
 	unsigned int capacity = SampleSettings::Performance::ParticleCountMax +
 		SampleSettings::NumTrees + 1;
-
 
 	m_spriteBatch->Initialize(
 		m_d3dDevice.Get(),
@@ -332,7 +336,7 @@ void Engine::BuildScreen()
 			m_window->Bounds.Height);
 
 	// Use chain-of-responsibility?
-	m_screenBuilder->BuildScreen(&m_treeData);
+	m_screenBuilder->BuildScreen(m_pTreeData);
 
 	LifePanel lifePanel(
 		m_window->Bounds.Width - m_window->Bounds.Width * RIGHT_MARGIN_RATIO,
@@ -349,7 +353,13 @@ void Engine::OnWindowSizeChanged(
 	)
 {
 	UpdateForWindowSizeChange();
+
+	grid.SetWindowWidth(m_window->Bounds.Width);
+	grid.SetWindowHeight(m_window->Bounds.Height);
+
 	BuildScreen();
+
+
 }
 
 void Engine::OnVisibilityChanged(
@@ -770,10 +780,11 @@ int Engine::FetchKeyboardInput()
 }
 
 // TODO: Could use function pointers.
-void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
+void Engine::MovePlayer(list<BaseSpriteData *> * collided, uint16 buttons, short horizontal, short vertical)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
+
 		m_pPlayer->MoveNorth(PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
@@ -864,12 +875,7 @@ void Engine::Render()
 
 	// If the Player moves to the sides of the screen, scroll
 	//	 and don't render the grid.
-/*
-	grid.SetWindowWidth(m_window->Bounds.Width);
-	grid.SetWindowHeight(m_window->Bounds.Height);
-	grid.SetNumColumns(NUM_GRID_COLUMNS);
-	grid.SetNumRows(NUM_GRID_ROWS);
-*/
+
 	grid.SetVisibility(true);
 
 	grid.Draw(m_d2dContext, m_blackBrush);
@@ -879,54 +885,19 @@ void Engine::Render()
 	int column = 0;
 	int row = 0;
 
-	float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
-	float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+	std::list<BaseSpriteData *>::const_iterator iterator;
 
-	list<GridSpace *> collided;
-
-	m_collisionDetectionStrategy->Detect(
-		&collided,
-		playerSize,
-		spriteSize,
-		m_pPlayer,
-		&m_treeData,
-		m_window->Bounds.Width,
-		m_window->Bounds.Height);
-
-	std::list<GridSpace *>::const_iterator iterator;
-
-	for (iterator = collided.begin(); iterator != collided.end(); iterator++)
+	for (iterator = m_pCollided->begin(); iterator != m_pCollided->end(); iterator++)
 	{
-		int column = static_cast<GridSpace *>(*iterator)->GetColumn();
-		int row = static_cast<GridSpace *>(*iterator)->GetRow();
+		int column = (*iterator)->column;
+		int row = (*iterator)->row;
 
 		HighlightSprite(column, row, m_redBrush);
 	}
 
-	
-//	HighlightSprite(m_pPlayer->GetGridLocation(), m_blueBrush);
-
 #ifdef DISPLAY_CONTROLLER_INPUT
 	RenderControllerInput();
 #endif // DISPLAY_CONTROLLER_INPUT
-
-/*
-	float minWidthHeightScale = min(renderTargetSize.width, renderTargetSize.height) / 512;
-
-	D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(
-		minWidthHeightScale,
-		minWidthHeightScale
-		);
-
-
-	D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(
-		renderTargetSize.width / 2.0f,
-		renderTargetSize.height / 2.0f
-		);
-
-	// Center the path.
-	m_d2dContext->SetTransform(scale * translation);
-*/
 
 	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
 	// is lost. It will be handled during the next call to Present.
@@ -962,10 +933,23 @@ void Engine::Run()
 
 			FetchControllerInput();
 
+			float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
+			float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
+
+			m_broadCollisionDetectionStrategy->Detect(
+				m_pCollided,
+				playerSize,
+				spriteSize,
+				m_pPlayer,
+				m_pTreeData,
+				m_window->Bounds.Width,
+				m_window->Bounds.Height);
+
 			// if the gamepad is not connected, check the keyboard.
 			if (m_isControllerConnected)
 			{
 				MovePlayer(
+					m_pCollided,
 					m_xinputState.Gamepad.wButtons,
 					m_xinputState.Gamepad.sThumbLX,
 					m_xinputState.Gamepad.sThumbLY);
@@ -975,6 +959,8 @@ void Engine::Run()
 
 			Render();
 			Present();
+
+			m_pCollided->clear();
 		}
 		else
 		{
@@ -992,88 +978,31 @@ void Engine::DrawSprites()
 	// @see: http://www.gamedev.net/topic/603359-c-dx11-how-to-get-texture-size/
 
 	ID3D11Texture2D * pTextureInterface = NULL;
-/*
-	m_tree.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
-	D3D11_TEXTURE2D_DESC treeDesc;
-	pTextureInterface->GetDesc(&treeDesc);
-*/
 
-	for (auto tree = m_treeData.begin(); tree != m_treeData.end(); tree++)
+	std::vector<BaseSpriteData *>::const_iterator iterator;
+
+	// This is a sprite run.
+	for (iterator = m_pTreeData->begin(); iterator != m_pTreeData->end(); iterator++)
 	{
 		float fColumnWidth = grid.GetColumnWidth();
 		float fRowHeight = grid.GetRowHeight();
 
 		m_spriteBatch->Draw(
 			m_tree.Get(),
-			tree->pos,
+			(*iterator)->pos,
 			BasicSprites::PositionUnits::DIPs,
 			float2(fColumnWidth, fRowHeight),
 			BasicSprites::SizeUnits::DIPs,
 			float4(0.8f, 0.8f, 1.0f, 1.0f),
-			tree->rot
+			(*iterator)->rot
 			);
 	}
-
-	/*
-	for (auto rock = m_rockData.begin(); rock != m_rockData.end(); rock++)
-	{
-	m_spriteBatch->Draw(
-	m_rock.Get(),
-	rock->pos,
-	BasicSprites::PositionUnits::DIPs,
-	float2(1.0f, 1.0f) * rock->scale,
-	BasicSprites::SizeUnits::Normalized,
-	float4(0.8f, 0.8f, 1.0f, 1.0f),
-	rock->rot
-	);
-	}
-
-	for (auto water = m_waterData.begin(); water != m_waterData.end(); water++)
-	{
-	m_spriteBatch->Draw(
-	m_water.Get(),
-	water->pos,
-	BasicSprites::PositionUnits::DIPs,
-	float2(1.0f, 1.0f) * water->scale,
-	BasicSprites::SizeUnits::Normalized,
-	float4(0.8f, 0.8f, 1.0f, 1.0f),
-	water->rot
-	);
-	}
-
-	for (auto grass = m_grassData.begin(); grass != m_grassData.end(); grass++)
-	{
-	m_spriteBatch->Draw(
-	m_grass.Get(),
-	grass->pos,
-	BasicSprites::PositionUnits::DIPs,
-	float2(1.0f, 1.0f) * grass->scale,
-	BasicSprites::SizeUnits::Normalized,
-	float4(0.8f, 0.8f, 1.0f, 1.0f),
-	grass->rot
-	);
-	}
-
-	for (auto stoneWall = m_stoneWallData.begin(); stoneWall != m_stoneWallData.end(); stoneWall++)
-	{
-	m_spriteBatch->Draw(
-	m_stoneWall.Get(),
-	stoneWall->pos,
-	BasicSprites::PositionUnits::DIPs,
-	float2(1.0f, 1.0f) * stoneWall->scale,
-	BasicSprites::SizeUnits::Normalized,
-	float4(0.8f, 0.8f, 1.0f, 1.0f),
-	stoneWall->rot
-	);
-	}
-	*/
-
 
 	m_heart.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
 	D3D11_TEXTURE2D_DESC heartDesc;
 	pTextureInterface->GetDesc(&heartDesc);
 
-
+	// This is a sprite run.
 	for (auto heart = m_heartData.begin(); heart != m_heartData.end(); heart++)
 	{
 		m_spriteBatch->Draw(
@@ -1089,12 +1018,7 @@ void Engine::DrawSprites()
 			);
 	}
 
-/*
-	m_orchi.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
-	D3D11_TEXTURE2D_DESC orchiDesc;
-	pTextureInterface->GetDesc(&orchiDesc);
-*/
-
+	// This is a sprite run.
 	m_spriteBatch->Draw(
 		m_orchi.Get(),
 		m_orchiData.pos,
@@ -1104,7 +1028,6 @@ void Engine::DrawSprites()
 		float4(0.8f, 0.8f, 1.0f, 1.0f),
 		m_orchiData.rot
 		);
-
 
 	m_spriteBatch->End();
 }
@@ -1422,7 +1345,7 @@ void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 			else
 				m_pPlayer->MoveNorth(velocity);
 		}
-		if (horizontal < 0 && vertical < 0)
+		else // (horizontal < 0 && vertical < 0)
 		{
 			// Lower-left quadrant.
 			if (theta <= 45.f)

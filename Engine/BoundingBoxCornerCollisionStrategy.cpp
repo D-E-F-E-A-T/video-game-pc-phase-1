@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "BaseSpriteData.h"
 #include <list>
-#include "GridSpace.h"
+//#include "GridSpace.h"
 
 
 BoundingBoxCornerCollisionStrategy::BoundingBoxCornerCollisionStrategy()
@@ -17,7 +17,7 @@ bool BoundingBoxCornerCollisionStrategy::Detect(CollisionDetectionInfo * info)
 }
 
 void BoundingBoxCornerCollisionStrategy::Detect(
-	list<GridSpace *> * retVal,
+	list<BaseSpriteData> * retVal,
 	float2 playerSize,
 	float2 spriteSize,
 	Player * pPlayer,
@@ -45,7 +45,7 @@ void BoundingBoxCornerCollisionStrategy::Detect(
 			top >= treeTop &&
 			top <= treeBottom)
 		{
-			retVal->push_back(new GridSpace(tree->column, tree->row));
+//			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 
 		// Does the top, right vertex overlap the tree's bounding box?
@@ -54,7 +54,7 @@ void BoundingBoxCornerCollisionStrategy::Detect(
 			top >= treeTop &&
 			top <= treeBottom)
 		{
-			retVal->push_back(new GridSpace(tree->column, tree->row));
+//			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 
 		// Does the bottom, right vertex overlap the tree's bounding box?
@@ -63,7 +63,7 @@ void BoundingBoxCornerCollisionStrategy::Detect(
 			bottom >= treeTop &&
 			bottom <= treeBottom)
 		{
-			retVal->push_back(new GridSpace(tree->column, tree->row));
+//			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 
 		// Does the bottom, left vertex overlap the tree's bounding box?
@@ -72,7 +72,7 @@ void BoundingBoxCornerCollisionStrategy::Detect(
 			bottom >= treeTop &&
 			bottom <= treeBottom)
 		{
-			retVal->push_back(new GridSpace(tree->column, tree->row));
+//			retVal->push_back(new GridSpace(tree->column, tree->row));
 		}
 	}
 }

@@ -12,6 +12,7 @@ public:
 	float rotVel;
 	float scale;
 	bool bBlockable;
+	bool bCollidable;
 
 	BaseSpriteData(int column, int row, float x, float y)
 	{

@@ -152,3 +152,18 @@
 #define NUM_DIMENSIONS 2
 #endif // NUM_DIMENSIONS
 
+#ifndef TREE_SPRITE
+#define TREE_SPRITE 0
+#endif // TREE_SPRITE
+
+#ifndef ROCK_SPRITE
+#define ROCK_SPRITE 1
+#endif // ROCK_SPRITE
+
+#ifndef WATER_SPRITE
+#define WATER_SPRITE 2
+#endif // WATER_SPRITE
+
+#ifndef GRASS_SPRITE
+#define GRASS_SPRITE 3
+#endif // GRASS_SPRITE

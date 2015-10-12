@@ -926,7 +926,7 @@ void Engine::Run()
 		if (m_windowVisible)
 		{
 			// For Windows 10, need this so that the app window
-			//	is response.
+			//	is responsive.
 			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
 			timer->Update();

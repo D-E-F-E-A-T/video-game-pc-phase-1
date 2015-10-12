@@ -3,6 +3,7 @@
 #include <vector>
 #include "Player.h"
 #include "MathUtils.h"
+#include <iostream>
 
 // @see http://www.gamedev.net/page/resources/_/technical/directx-and-xna/pixel-perfect-collision-detection-in-directx-r2939
 BroadCollisionStrategy::BroadCollisionStrategy()
@@ -43,6 +44,13 @@ int BroadCollisionStrategy::Calculate(
 	int nCurrentHorizontalSpace = player->GetGridLocation()[HORIZONTAL_AXIS];
 	int nCurrentVerticalSpace = player->GetGridLocation()[VERTICAL_AXIS];
 
+/*
+	char buf[32];
+	sprintf_s(buf, "%d %d\n", nCurrentHorizontalSpace, nCurrentVerticalSpace);
+	OutputDebugStringA(buf);
+*/
+
+
 	// Don't use grid spaces as locations since sprites might not be
 	//	aligned within a grid space (i.e. moving sprites)
 
@@ -72,8 +80,15 @@ boolean BroadCollisionStrategy::IsClose(
 		data, 
 		fWindowWidth, 
 		fWindowHeight);
+	
+/*
+	char buf[32];
+	sprintf_s(buf, "%f\n", distance);
+	OutputDebugStringA(buf);
+*/
 
-	return (distance < 100.f);		
+
+	return (distance < (fWindowWidth * 0.05f));		
 }
 
 float BroadCollisionStrategy::CalculateDistance(
@@ -86,17 +101,34 @@ float BroadCollisionStrategy::CalculateDistance(
 	float spriteLocation[2];
 
 	// These are within the range of screen pixel size.
-	playerLocation[0] = player.GetHorizontalRatio() * fWindowWidth;
+	playerLocation[0] = (fWindowWidth - (fWindowWidth * LEFT_MARGIN_RATIO) - (fWindowWidth * RIGHT_MARGIN_RATIO)) * player.GetHorizontalRatio() + (fWindowWidth * LEFT_MARGIN_RATIO);
 	playerLocation[1] = player.GetVerticalRatio() * fWindowHeight;
 
 	// These are within the range of screen pixel size.
 	spriteLocation[0] = sprite->pos.x;
 	spriteLocation[1] = sprite->pos.y;
 
-	return MathUtils::CalculateDistance(
+	float retVal = MathUtils::CalculateDistance(
 		playerLocation[0],
 		playerLocation[1],
 		spriteLocation[0],
 		spriteLocation[1]);
+
+/*
+	char buf[128];
+	sprintf_s(buf,
+		"pX=%f pY=%f sX=%f sY=%f %f %f %f\n",
+		playerLocation[0],
+		playerLocation[1],
+		spriteLocation[0],
+		spriteLocation[1],
+		retVal,
+		fWindowWidth,
+		player.GetHorizontalRatio());
+
+	OutputDebugStringA(buf);
+*/
+
+	return retVal;
 }
 

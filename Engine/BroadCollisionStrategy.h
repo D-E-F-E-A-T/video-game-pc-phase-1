@@ -5,7 +5,7 @@
 #include "BaseSpriteData.h"
 #include "GridSpace.h"
 
-class BroadCollisionStrategy : public CollisionDetectionStrategy
+class BroadCollisionStrategy // : public CollisionDetectionStrategy
 {
 public:
 	BroadCollisionStrategy();
@@ -18,7 +18,8 @@ public:
 		Player * pPlayer,
 		vector<BaseSpriteData *> * sprites,
 		float fWindowWidth,
-		float fWindowHeight);
+		float fWindowHeight,
+		float * playerLocation);
 
 protected:
 	int Calculate(
@@ -26,24 +27,22 @@ protected:
 		vector<BaseSpriteData *> * sprites, 
 		list<BaseSpriteData *> * retVal,
 		float fWindowWidth,
-		float fWindowHeight);
+		float fWindowHeight,
+		float * playerLocation);
 
 	boolean IsClose(
 		Player * player, 
 		BaseSpriteData * data,
 		float fWindowWidth,
-		float fWindowHeight);
+		float fWindowHeight,
+		float * playerLocation);
 
 	float CalculateDistance(
 		Player player, 
 		BaseSpriteData * sprite, 
-		float fWindowWidth, float fWindowHeight);
-
-	float BroadCollisionStrategy::CalculateDistance(
-		float x1,
-		float y1,
-		float x2,
-		float y2);
+		float fWindowWidth, 
+		float fWindowHeight,
+		float * playerLocation);
 
 private:
 };

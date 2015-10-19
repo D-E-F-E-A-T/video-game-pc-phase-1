@@ -940,6 +940,17 @@ void Engine::Run()
 			float2 playerSize = m_spriteBatch->GetSpriteSize(m_orchi.Get());
 			float2 spriteSize = m_spriteBatch->GetSpriteSize(m_tree.Get());
 
+			float playerLocation[2];
+
+			// These are within the range of screen pixel size.
+			playerLocation[0] = (m_window->Bounds.Width - 
+				(m_window->Bounds.Width * LEFT_MARGIN_RATIO) - 
+				(m_window->Bounds.Width * RIGHT_MARGIN_RATIO)) * 
+				m_pPlayer->GetHorizontalRatio() + 
+				(m_window->Bounds.Width * LEFT_MARGIN_RATIO);
+
+			playerLocation[1] = m_pPlayer->GetVerticalRatio() * m_window->Bounds.Height;
+
 			m_broadCollisionDetectionStrategy->Detect(
 				m_pCollided,
 				playerSize,
@@ -947,27 +958,8 @@ void Engine::Run()
 				m_pPlayer,
 				m_pTreeData,
 				m_window->Bounds.Width,
-				m_window->Bounds.Height);
-
-/*
-			ID3D11Texture2D * orchi = m_orchi.Get();
-
-			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-			m_d3dContext->Map(
-				orchi,
-				0,
-				D3D11_MAP_READ,
-				0,
-				&mappedSubresource
-				);
-
-			BYTE * mappedData = reinterpret_cast<BYTE *>(mappedSubresource.pData);
-			int pitch = mappedSubresource.RowPitch;
-
-			char buf[32];
-			sprintf_s(buf, "%d\n", pitch);
-			OutputDebugStringA(buf);
-*/
+				m_window->Bounds.Height,
+				playerLocation);
 
 			m_pNarrowCollisionDetectionStrategy->Detect(
 				m_d3dContext.Get(),
@@ -975,7 +967,9 @@ void Engine::Run()
 				m_orchi.Get(),
 				m_tree.Get(),
 				m_pPlayer,
-				m_pCollided);
+				m_pCollided,
+				playerLocation,
+				&grid);
 
 
 
@@ -1058,7 +1052,7 @@ void Engine::DrawSprites()
 		m_orchi.Get(),
 		m_orchiData.pos,
 		BasicSprites::PositionUnits::DIPs,
-		float2(grid.GetColumnWidth(), grid.GetRowHeight()),
+		float2(grid.GetColumnWidth(), grid.GetRowHeight()),	// This will stretch or shrink orchi.
 		BasicSprites::SizeUnits::DIPs,
 		float4(0.8f, 0.8f, 1.0f, 1.0f),
 		m_orchiData.rot

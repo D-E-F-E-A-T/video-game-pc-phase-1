@@ -174,7 +174,7 @@ void ScreenBuilder::BuildScreen(std::vector<BaseSpriteData *> * m_treeData)
 	ScreenUtils::CalculateSquareCenter(
 		m_fScreenWidth,
 		m_fScreenHeight,
-		4, 4, &x, &y);
+		0, 0, &x, &y);
 
-	m_treeData->push_back(new TreeData(4, 4, x, y));
+	m_treeData->push_back(new TreeData(0, 0, x, y));
 }

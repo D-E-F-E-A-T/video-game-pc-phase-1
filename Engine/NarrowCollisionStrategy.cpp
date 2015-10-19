@@ -4,6 +4,7 @@
 #include "MathUtils.h"
 #include <iostream>
 #include "BasicSprites.h"
+#include <Windows.h>
 
 // @see http://www.gamedev.net/page/resources/_/technical/directx-and-xna/pixel-perfect-collision-detection-in-directx-r2939
 // @see http://gamedev.stackexchange.com/questions/27690/reading-from-a-staging-2d-texture-array-in-directx10
@@ -20,21 +21,80 @@ NarrowCollisionStrategy::~NarrowCollisionStrategy()
 }
 
 
-
 bool NarrowCollisionStrategy::Detect(
 	ID3D11DeviceContext2 * context,
 	ID3D11Device2 * device,
-	ID3D11Texture2D * texture1,
-	ID3D11Texture2D * texture2,
+	ID3D11Texture2D * texturePlayer,
+	ID3D11Texture2D * textureTree,	// Just checking for trees, for now.
 	Player * pPlayer,
-	std::list<BaseSpriteData *> * sprites)
+	std::list<BaseSpriteData *> * collided,
+	float * playerLocation,
+	Grid * grid)	// Player location is the coordinates of the center of the sprite.
 {
+	int playerDimensions[2];
+	int obstacleDimensions[2];
+
+	uint32_t * playerPixels =
+		readPixels(context, device, texturePlayer, &playerDimensions[0], &playerDimensions[1]);
+
+	uint32_t * obstaclePixels =
+		readPixels(context, device, textureTree, &obstacleDimensions[0], &obstacleDimensions[1]);
+
+	std::list<BaseSpriteData *>::const_iterator iterator;
+
+	int playerTopLeft[2];
+
+	// Should really use the dimensions of the sprite.
+	//	For now, using the dimensions of the grid space.
+	playerTopLeft[0] = (int)playerLocation[0] - grid->GetColumnWidth() / 2;
+	playerTopLeft[1] = (int)playerLocation[1] - grid->GetRowHeight() / 2;
+
+	char buf[128];
+	sprintf_s(buf,
+		"pX=%d pY=%d \n",
+		playerTopLeft[0],
+		playerTopLeft[1]);
+
+	OutputDebugStringA(buf);
+
+	for (iterator = collided->begin(); iterator != collided->end(); iterator++)
+	{
+		float obstacleLocation[2];
+
+		obstacleLocation[0] = (*iterator)->pos.x;
+		obstacleLocation[1] = (*iterator)->pos.y;
+
+		// Right now, all obstacles are assumed to occupy exactly one grid space.
+		int obstacleTopLeft[2];
+		obstacleTopLeft[0] = (int)obstacleLocation[0] - grid->GetColumnWidth() / 2;
+		obstacleTopLeft[1] = (int)obstacleLocation[1] - grid->GetRowHeight() / 2;
+
+//		IntersectRect(playerTopLeft, obstacleTopLeft, grid->GetColumnWidth(), grid->GetRowHeight());
+
+		for (int row = 0; row < playerDimensions[1]; row++)
+		{
+			for (int column = 0; column < playerDimensions[0]; column++)
+			{
+//				if ()
+			}
+		}
+	}
+
+	return false;
+}
 
 
+uint32_t * NarrowCollisionStrategy::readPixels(
+	ID3D11DeviceContext2 * context,
+	ID3D11Device2 * device,
+	ID3D11Texture2D * texture,
+	int * width,
+	int * height)
+{
 	HBITMAP	hBitmapTexture = NULL;
 	HGDIOBJ hBitmap;
 
-	ID3D11Texture2D* d3dtex = (ID3D11Texture2D*)texture1;
+	ID3D11Texture2D* d3dtex = (ID3D11Texture2D*)texture;
 	D3D11_TEXTURE2D_DESC desc;
 	d3dtex->GetDesc(&desc);
 
@@ -71,36 +131,34 @@ bool NarrowCollisionStrategy::Detect(
 
 	dptr -= desc.Width*desc.Height * 4;
 
-	/*
-	char buf[32];
-	sprintf_s(buf, "%d %d\n", desc.Width, desc.Height);
-	OutputDebugStringA(buf);
-	*/
-
 	// SWAP BGR to RGB bitmap
 	uint32_t *dPtr = reinterpret_cast<uint32_t*>(dptr);
 
-	for (size_t count = 0; count < desc.Width*desc.Height * 4; count += 4) {
-/*
-		uint32_t t = *(dPtr);                 
-		uint32_t t1 = (t & 0x00ff0000) >> 16;
-		uint32_t t2 = (t & 0x000000ff) << 16;
-		uint32_t t3 = (t & 0x0000ff00);
-		uint32_t ta = (t & 0xFF000000);
-*/
-
+	for (size_t count = 0; count < desc.Width*desc.Height * 4; count += 4) 
+	{
 		uint32_t t = *(dPtr);
 		uint32_t alpha = (t & 0xff000000) >> 24;
 		uint32_t red = (t & 0x00ff0000) >> 16;
 		uint32_t green = (t & 0x0000ff00) >> 8;
 		uint32_t blue = (t & 0x000000ff);
 
+/*
 		char buf[64];
 		sprintf_s(buf, "%0x %0x %0x %0x\n", red, green, blue, alpha);
 		OutputDebugStringA(buf);
+*/
 
+/*
+		if (red > 0 || green > 0 || blue > 0)
+		{
+			*(dPtr++) = 0xffffffff;
+		}
+		else
+		{
+			*(dPtr++) = 0x00000000;
+		}
+*/
 		*(dPtr++) = red | green | blue | alpha;
-
 	}
 
 /*
@@ -109,106 +167,19 @@ bool NarrowCollisionStrategy::Detect(
 
 	hBitmap = CopyImage(hBitmapTexture, IMAGE_BITMAP, desc.Width, desc.Height, LR_CREATEDIBSECTION);
 */
+	*width = desc.Width;
+	*height = desc.Height;
 
-
-
-/*
-	ID3D11Texture2D *cpuTexture = texture1;
-
-	D3D11_TEXTURE2D_DESC cputextdesc;
-	memset(&cputextdesc, 0, sizeof(cputextdesc));
-
-	cputextdesc.Width = cputextdesc.Height = 16;
-	cputextdesc.ArraySize = 4;
-	cputextdesc.MipLevels = 1;
-	cputextdesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; //DXGI_FORMAT_R32_FLOAT;
-	cputextdesc.Usage = D3D11_USAGE_STAGING;
-	cputextdesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	cputextdesc.SampleDesc.Count = 1;
-	cputextdesc.SampleDesc.Quality = 0;
-
-	d3dDevice->CreateTexture2D(&cputextdesc, NULL, &cpuTexture);
-
-	D3D11_MAPPED_SUBRESOURCE mres;
-
-	d3dContext->Map(cpuTexture, NULL, D3D11_MAP_READ, 0, &mres);
-
-	// (assert row and depth pitch are equals)
-	BYTE * mappedData = reinterpret_cast<BYTE *>(mres.pData);
-
-	for (int pixel = 0; pixel < 256; pixel++)
-	{
-		if (mappedData[pixel] != 0)
-		{
-			char buf[32];
-			sprintf_s(buf, "%d %d\n", pixel, mappedData[pixel]);
-			OutputDebugStringA(buf);
-		}
-	}
-
-	d3dContext->Unmap(cpuTexture, NULL);
-*/
-
-
-/*
-	ID3D11Buffer *pVBuffer;    // global
-
-	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-
-	bd.Usage = D3D11_USAGE_DYNAMIC;                // write access access by CPU and GPU
-	bd.ByteWidth = 16;             // size is the VERTEX struct * 3
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;       // use as a vertex buffer
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;    // allow CPU to write in buffer
-
-	d3dDevice->CreateBuffer(&bd, NULL, &pVBuffer);       // create the buffer
-
-	D3D11_MAPPED_SUBRESOURCE ms;
-	d3dContext->Map(texture1, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);   // map the buffer
-//	memcpy(ms.pData, OurVertices, sizeof(OurVertices));                // copy the data
-	d3dContext->Unmap(pVBuffer, NULL);
-*/
-
-
-
-
-
-	// http://stackoverflow.com/questions/15811389/get-byte-array-from-texture
-/*
-	D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-	d3dContext->Map(
-		texture2,
-		0,
-		D3D11_MAP_READ,
-		0,
-		&mappedSubresource
-		);
-
-	BYTE * mappedData = reinterpret_cast<BYTE *>(mappedSubresource.pData);
-	int pitch = mappedSubresource.RowPitch;
-
-	char buf[32];
-	sprintf_s(buf, "%d\n", pitch);
-	OutputDebugStringA(buf);
-*/
-
-/*
-	for (int i = 0; i < 16; i++)
-	{
-		char buf[32];
-		sprintf_s(buf, "%d = %d\n", i, mappedData[i]);
-		OutputDebugStringA(buf);
-	}
-*/
-
-//	*static_cast<float2*>(mappedSubresource.pData) = m_renderTargetSize;
-/*
-	d3dContext->Unmap(
-		texture1,
-		0
-		);
-*/
-
-	// Get the pixels out.
-	return false;
+	return dPtr;
 }
+
+/*
+RECT NarrowCollisionStrategy::IntersectRect(
+	int * playerTopLeft,
+	int * obstacleTopLeft,
+	int width,
+	int height)
+{
+	return RECT(0, 0, 0, 0);
+}
+*/

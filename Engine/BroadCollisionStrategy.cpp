@@ -23,7 +23,8 @@ void BroadCollisionStrategy::Detect(
 	Player * pPlayer,
 	vector<BaseSpriteData *> * sprites,
 	float fWindowWidth,
-	float fWindowHeight)
+	float fWindowHeight,
+	float * playerLocation)
 {
 	// Determine the 9 grid spaces around the player's location.
 	Calculate(
@@ -31,7 +32,8 @@ void BroadCollisionStrategy::Detect(
 		sprites, 
 		retVal,
 		fWindowWidth,
-		fWindowHeight);
+		fWindowHeight,
+		playerLocation);
 }
 
 int BroadCollisionStrategy::Calculate(
@@ -39,7 +41,8 @@ int BroadCollisionStrategy::Calculate(
 	vector<BaseSpriteData *> * sprites, 
 	list<BaseSpriteData *> * retVal,
 	float fWindowWidth,
-	float fWindowHeight)
+	float fWindowHeight,
+	float * playerLocation)
 {
 	int nCurrentHorizontalSpace = player->GetGridLocation()[HORIZONTAL_AXIS];
 	int nCurrentVerticalSpace = player->GetGridLocation()[VERTICAL_AXIS];
@@ -60,7 +63,7 @@ int BroadCollisionStrategy::Calculate(
 	{
 		BaseSpriteData * sprite = (*iterator);
 
-		if (IsClose(player, sprite, fWindowWidth, fWindowHeight))
+		if (IsClose(player, sprite, fWindowWidth, fWindowHeight, playerLocation))
 		{
 			retVal->push_back(sprite);
 		}
@@ -73,13 +76,15 @@ boolean BroadCollisionStrategy::IsClose(
 	Player * player, 
 	BaseSpriteData * data, 
 	float fWindowWidth,
-	float fWindowHeight)
+	float fWindowHeight,
+	float * playerLocation)
 {
 	float distance = CalculateDistance(
 		*player, 
 		data, 
 		fWindowWidth, 
-		fWindowHeight);
+		fWindowHeight,
+		playerLocation);
 	
 /*
 	char buf[32];
@@ -95,14 +100,15 @@ float BroadCollisionStrategy::CalculateDistance(
 	Player player, 
 	BaseSpriteData * sprite,
 	float fWindowWidth,
-	float fWindowHeight)
+	float fWindowHeight,
+	float * playerLocation)
 {
-	float playerLocation[2];
+	//float playerLocation[2];
 	float spriteLocation[2];
 
 	// These are within the range of screen pixel size.
-	playerLocation[0] = (fWindowWidth - (fWindowWidth * LEFT_MARGIN_RATIO) - (fWindowWidth * RIGHT_MARGIN_RATIO)) * player.GetHorizontalRatio() + (fWindowWidth * LEFT_MARGIN_RATIO);
-	playerLocation[1] = player.GetVerticalRatio() * fWindowHeight;
+//	playerLocation[0] = (fWindowWidth - (fWindowWidth * LEFT_MARGIN_RATIO) - (fWindowWidth * RIGHT_MARGIN_RATIO)) * player.GetHorizontalRatio() + (fWindowWidth * LEFT_MARGIN_RATIO);
+//	playerLocation[1] = player.GetVerticalRatio() * fWindowHeight;
 
 	// These are within the range of screen pixel size.
 	spriteLocation[0] = sprite->pos.x;

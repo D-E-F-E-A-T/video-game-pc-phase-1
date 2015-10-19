@@ -33,6 +33,7 @@
     <ClCompile Include="SpriteRepository.cpp" />
     <ClCompile Include="BroadCollisionStrategy.cpp" />
     <ClCompile Include="MathUtils.cpp" />
+    <ClCompile Include="NarrowCollisionStrategy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -87,6 +88,7 @@
     <ClInclude Include="SpriteRepository.h" />
     <ClInclude Include="BroadCollisionStrategy.h" />
     <ClInclude Include="MathUtils.h" />
+    <ClInclude Include="NarrowCollisionStrategy.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />
@@ -105,6 +107,7 @@
     <Image Include="heart.png" />
     <Image Include="key.png" />
     <Image Include="tree.png" />
+    <Image Include="test.dds" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.AppxManifest" />

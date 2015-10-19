@@ -466,32 +466,10 @@ void SpriteBatch::End()
             0,
             0
             );
-    }
-/*
-    else if (m_technique == RenderTechnique::Replication)
-    {
-        CD3D11_BOX vertexDataBox(
-            0,
-            0,
-            0,
-            sizeof(ReplicationVertex) * m_numSpritesDrawn * 4,
-            1,
-            1
-            );
 
-        m_d3dContext->UpdateSubresource(
-            m_vertexBuffer.Get(),
-            0,
-            &vertexDataBox,
-            m_vertexData.get(),
-            0,
-            0
-            );
-    }
-*/
 
-    if (m_technique == RenderTechnique::GeometryShader || m_technique == RenderTechnique::Instancing)
-    {
+
+		// http://stackoverflow.com/questions/15811389/get-byte-array-from-texture
         D3D11_MAPPED_SUBRESOURCE mappedSubresource;
         m_d3dContext->Map(
             m_renderTargetInfoCbuffer.Get(),
@@ -500,6 +478,19 @@ void SpriteBatch::End()
             0,
             &mappedSubresource
             );
+
+		BYTE * mappedData = reinterpret_cast<BYTE *>(mappedSubresource.pData);
+		int pitch = mappedSubresource.RowPitch;
+
+/*
+		for (int i = 0; i < 256; i++)
+		{
+			char buf[32];
+			sprintf_s(buf, "%d = %d\n", i, mappedData[i] );
+			OutputDebugStringA(buf);
+		}
+*/
+
         *static_cast<float2*>(mappedSubresource.pData) = m_renderTargetSize;
         m_d3dContext->Unmap(
             m_renderTargetInfoCbuffer.Get(),
@@ -557,11 +548,13 @@ void SpriteBatch::End()
     }
     else if (m_technique == RenderTechnique::Instancing)
     {
+/*
         m_d3dContext->VSSetConstantBuffers(
             0,
             1,
             m_renderTargetInfoCbuffer.GetAddressOf()
             );
+*/
     }
 
     m_d3dContext->PSSetShader(
@@ -618,35 +611,46 @@ void SpriteBatch::End()
     // Draw each sprite run
 
     unsigned int indexBase = 0;
+	int counter = 0;
     for (auto runIterator = m_spriteRuns.begin(); runIterator != m_spriteRuns.end(); runIterator++)
     {
-        m_d3dContext->PSSetShaderResources(
-            0,
-            1,
-            &runIterator->textureView
-            );
+			m_d3dContext->PSSetShaderResources(
+				0,
+				1,
+				&runIterator->textureView
+				);
 
-        const FLOAT blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+			const FLOAT blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-        m_d3dContext->OMSetBlendState(
-            runIterator->blendState,
-            nullptr,
-            0xFFFFFFFF
-            );
+			m_d3dContext->OMSetBlendState(
+				runIterator->blendState,
+				nullptr,
+				0xFFFFFFFF
+				);
 
-        if (m_technique == RenderTechnique::GeometryShader)
-        {
-            unsigned int instancesToDraw = runIterator->numSprites;
-            m_d3dContext->DrawInstanced(
-                1,
-                instancesToDraw,
-                0,
-                indexBase
-                );
-            indexBase += instancesToDraw;
-        }
+			if (m_technique == RenderTechnique::GeometryShader)
+			{
+				unsigned int instancesToDraw = runIterator->numSprites;
+
+//				if (counter == 1)
+				{
+					m_d3dContext->DrawInstanced(
+						1,
+						instancesToDraw,
+						0,
+						indexBase
+						);
+				}
+
+				indexBase += instancesToDraw;
+			}
+
+		counter++;
+/*
         else if (m_technique == RenderTechnique::Instancing)
         {
+			OutputDebugStringA("Instancing\n");
+
             unsigned int instancesToDraw = runIterator->numSprites;
             unsigned int stride = sizeof(InstanceData);
             unsigned int offset = indexBase * stride;
@@ -668,6 +672,7 @@ void SpriteBatch::End()
                 );
             indexBase += instancesToDraw;
         }
+*/
 /*
         else if (m_technique == RenderTechnique::Replication)
         {
@@ -831,7 +836,8 @@ void SpriteBatch::Draw(
     {
         throw ref new Platform::OutOfBoundsException();
     }
-
+	
+	
     // Retrieve information about the sprite.
     TextureMapElement element = m_textureMap[texture];
     ID3D11ShaderResourceView* textureView = element.srv.Get();
@@ -925,3 +931,10 @@ float2 SpriteBatch::GetSpriteSize(ID3D11Texture2D * texture)
 {
 	return m_textureMap[texture].size;
 }
+
+BasicSprites::TextureMapElement SpriteBatch::GetTextureMap(ID3D11Texture2D * texture)
+{
+	return m_textureMap[texture];
+}
+
+

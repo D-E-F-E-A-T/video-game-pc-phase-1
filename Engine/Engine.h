@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "KeyboardControllerInput.h"
 #include "Grid.h"
+#include "NarrowCollisionStrategy.h"
 
 using namespace Microsoft::WRL;
 
@@ -144,7 +145,7 @@ private:
 	bool m_bSpriteCollisionDetected;
 
 	CollisionDetectionStrategy * m_broadCollisionDetectionStrategy;
-	CollisionDetectionStrategy * m_narrowCollisionDetectionStrategy;
+	NarrowCollisionStrategy * m_pNarrowCollisionDetectionStrategy;
 
 	list<BaseSpriteData *> * m_pCollided;
 

@@ -97,6 +97,9 @@ Engine::Engine() :
 		//		new BoundingBoxCornerCollisionStrategy();
 		//new SpriteOverlapCollisionStrategy();
 		new BroadCollisionStrategy();
+
+	m_pNarrowCollisionDetectionStrategy =
+		new NarrowCollisionStrategy();
 		
 
 	m_pKeyboardController = new KeyboardControllerInput();
@@ -219,6 +222,7 @@ void Engine::CreateDeviceResources()
 
 	loader->LoadTexture(
 		"link.dds",
+//		"test.dds",
 		&m_orchi,
 		nullptr);
 
@@ -944,6 +948,37 @@ void Engine::Run()
 				m_pTreeData,
 				m_window->Bounds.Width,
 				m_window->Bounds.Height);
+
+/*
+			ID3D11Texture2D * orchi = m_orchi.Get();
+
+			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+			m_d3dContext->Map(
+				orchi,
+				0,
+				D3D11_MAP_READ,
+				0,
+				&mappedSubresource
+				);
+
+			BYTE * mappedData = reinterpret_cast<BYTE *>(mappedSubresource.pData);
+			int pitch = mappedSubresource.RowPitch;
+
+			char buf[32];
+			sprintf_s(buf, "%d\n", pitch);
+			OutputDebugStringA(buf);
+*/
+
+			m_pNarrowCollisionDetectionStrategy->Detect(
+				m_d3dContext.Get(),
+				m_d3dDevice.Get(),
+				m_orchi.Get(),
+				m_tree.Get(),
+				m_pPlayer,
+				m_pCollided);
+
+
+
 
 			// if the gamepad is not connected, check the keyboard.
 			if (m_isControllerConnected)

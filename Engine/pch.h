@@ -13,3 +13,4 @@
 #include <BasicMath.h>
 #include <vector>
 #include <dinput.h>
+#include <list>

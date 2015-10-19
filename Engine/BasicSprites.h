@@ -142,6 +142,9 @@ namespace BasicSprites
 
 		float2 GetSpriteSize(ID3D11Texture2D * texture);
 
+		BasicSprites::TextureMapElement GetTextureMap(ID3D11Texture2D * texture);
+	
+
     private:
         unsigned int MakeUnorm(float4 color);
         float2 StandardOrigin(float2 position, PositionUnits positionUnits, float2 renderTargetSize, float dpi);

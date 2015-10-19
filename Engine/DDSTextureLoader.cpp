@@ -1199,7 +1199,19 @@ void CreateDDSTextureFromMemory(
     D2D1_ALPHA_MODE* alphaMode
     )
 {
-    return CreateDDSTextureFromMemoryEx(d3dDevice, ddsData, ddsDataSize, maxsize, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, texture, textureView, alphaMode);
+    return CreateDDSTextureFromMemoryEx(
+		d3dDevice, 
+		ddsData, 
+		ddsDataSize, 
+		maxsize, 
+		D3D11_USAGE_DEFAULT, 
+		D3D11_BIND_SHADER_RESOURCE, 
+		D3D11_CPU_ACCESS_READ, //0,
+		0, 
+		false, 
+		texture, 
+		textureView, 
+		alphaMode);
 }
 
 

@@ -22,7 +22,8 @@ public:
 		Player * pPlayer,
 		std::list<BaseSpriteData *> * sprites,
 		float * playerLocation,
-		Grid * grid);
+		Grid * grid,
+		int * intersectRect);
 
 protected:
 private:
@@ -34,9 +35,12 @@ private:
 		int * width,
 		int * height);
 
-	RECT IntersectRect(
+	bool IntersectRect(
 		int * playerTopLeft,
 		int * obstacleTopLeft,
 		int width,
-		int height);
+		int height,
+		int * retVal);
+
+	void InsertionSort(int values[], int length);
 };

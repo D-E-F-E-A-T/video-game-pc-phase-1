@@ -96,6 +96,7 @@ private:
 //	ComPtr<ID2D1SolidColorBrush>					m_beigeBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_blueBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_redBrush;
+	ComPtr<ID2D1SolidColorBrush>					m_purpleBrush;
     float                                                           m_pathLength;
     float                                                           m_elapsedTime;
 
@@ -195,6 +196,10 @@ private:
 	void OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 
 	Grid grid;
+
+	int intersectRect[4];
+	void DrawSpriteIntersection();
+	bool collisionOccurred;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

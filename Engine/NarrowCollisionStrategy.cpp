@@ -29,8 +29,11 @@ bool NarrowCollisionStrategy::Detect(
 	Player * pPlayer,
 	std::list<BaseSpriteData *> * collided,
 	float * playerLocation,
-	Grid * grid)	// Player location is the coordinates of the center of the sprite.
+	Grid * grid, // Player location is the coordinates of the center of the sprite.
+	int * intersectRect)
 {
+	bool retVal = false;
+
 	int playerDimensions[2];
 	int obstacleDimensions[2];
 
@@ -49,14 +52,6 @@ bool NarrowCollisionStrategy::Detect(
 	playerTopLeft[0] = (int)playerLocation[0] - grid->GetColumnWidth() / 2;
 	playerTopLeft[1] = (int)playerLocation[1] - grid->GetRowHeight() / 2;
 
-	char buf[128];
-	sprintf_s(buf,
-		"pX=%d pY=%d \n",
-		playerTopLeft[0],
-		playerTopLeft[1]);
-
-	OutputDebugStringA(buf);
-
 	for (iterator = collided->begin(); iterator != collided->end(); iterator++)
 	{
 		float obstacleLocation[2];
@@ -69,18 +64,47 @@ bool NarrowCollisionStrategy::Detect(
 		obstacleTopLeft[0] = (int)obstacleLocation[0] - grid->GetColumnWidth() / 2;
 		obstacleTopLeft[1] = (int)obstacleLocation[1] - grid->GetRowHeight() / 2;
 
-//		IntersectRect(playerTopLeft, obstacleTopLeft, grid->GetColumnWidth(), grid->GetRowHeight());
+//		int intersection[4];
+		retVal = IntersectRect(
+			playerTopLeft, 
+			obstacleTopLeft, 
+			(int)grid->GetColumnWidth(), 
+			(int)grid->GetRowHeight(), 
+			intersectRect);
 
-		for (int row = 0; row < playerDimensions[1]; row++)
+		if (retVal == true)
 		{
-			for (int column = 0; column < playerDimensions[0]; column++)
-			{
-//				if ()
-			}
+			return true;
 		}
+
+
+		char buf[128];
+		sprintf_s(buf,
+			"pX=%d pY=%d oX=%d oY=%d width=%f height=%f %d %d %d %d\n",
+			playerTopLeft[0],
+			playerTopLeft[1],
+			obstacleTopLeft[0],
+			obstacleTopLeft[1],
+			grid->GetColumnWidth(),
+			grid->GetRowHeight(),
+			intersectRect[0],
+			intersectRect[1],
+			intersectRect[2],
+			intersectRect[3]);
+		OutputDebugStringA(buf);
+
+		/*
+				for (int row = 0; row < playerDimensions[1]; row++)
+				{
+					for (int column = 0; column < playerDimensions[0]; column++)
+					{
+		//				if ()
+					}
+				}
+		*/
 	}
 
-	return false;
+	return false;;
 }
 
 
@@ -134,7 +158,7 @@ uint32_t * NarrowCollisionStrategy::readPixels(
 	// SWAP BGR to RGB bitmap
 	uint32_t *dPtr = reinterpret_cast<uint32_t*>(dptr);
 
-	for (size_t count = 0; count < desc.Width*desc.Height * 4; count += 4) 
+	for (size_t count = 0; count < desc.Width*desc.Height * 4; count += 4)
 	{
 		uint32_t t = *(dPtr);
 		uint32_t alpha = (t & 0xff000000) >> 24;
@@ -142,44 +166,145 @@ uint32_t * NarrowCollisionStrategy::readPixels(
 		uint32_t green = (t & 0x0000ff00) >> 8;
 		uint32_t blue = (t & 0x000000ff);
 
-/*
-		char buf[64];
-		sprintf_s(buf, "%0x %0x %0x %0x\n", red, green, blue, alpha);
-		OutputDebugStringA(buf);
-*/
+		/*
+				char buf[64];
+				sprintf_s(buf, "%0x %0x %0x %0x\n", red, green, blue, alpha);
+				OutputDebugStringA(buf);
+		*/
 
-/*
-		if (red > 0 || green > 0 || blue > 0)
-		{
-			*(dPtr++) = 0xffffffff;
-		}
-		else
-		{
-			*(dPtr++) = 0x00000000;
-		}
-*/
+		/*
+				if (red > 0 || green > 0 || blue > 0)
+				{
+					*(dPtr++) = 0xffffffff;
+				}
+				else
+				{
+					*(dPtr++) = 0x00000000;
+				}
+		*/
 		*(dPtr++) = red | green | blue | alpha;
 	}
 
-/*
-	hBitmapTexture = CreateCompatibleBitmap(GetDC(NULL), desc.Width, desc.Height);
-	SetBitmapBits(hBitmapTexture, desc.Width*desc.Height * 4, dptr);
+	/*
+		hBitmapTexture = CreateCompatibleBitmap(GetDC(NULL), desc.Width, desc.Height);
+		SetBitmapBits(hBitmapTexture, desc.Width*desc.Height * 4, dptr);
 
-	hBitmap = CopyImage(hBitmapTexture, IMAGE_BITMAP, desc.Width, desc.Height, LR_CREATEDIBSECTION);
-*/
+		hBitmap = CopyImage(hBitmapTexture, IMAGE_BITMAP, desc.Width, desc.Height, LR_CREATEDIBSECTION);
+	*/
 	*width = desc.Width;
 	*height = desc.Height;
 
 	return dPtr;
 }
 
-/*
-RECT NarrowCollisionStrategy::IntersectRect(
+
+// Project the coordinates of each rectangle to the
+//	x and y axes. The second and third values will be 
+//	the intersection.
+bool NarrowCollisionStrategy::IntersectRect(
 	int * playerTopLeft,
 	int * obstacleTopLeft,
 	int width,
-	int height)
+	int height,
+	int * retVal)
 {
-	return RECT(0, 0, 0, 0);
+	int horizontalCoords[4];
+	int verticalCoords[4];
+
+	// Check if there is any intersection.
+	bool horizontalOverlap = true;
+	bool verticalOverlap = true;
+
+	horizontalCoords[0] = playerTopLeft[0];
+	horizontalCoords[1] = playerTopLeft[0] + width;
+	horizontalCoords[2] = obstacleTopLeft[0];
+	horizontalCoords[3] = obstacleTopLeft[0] + width;
+
+	verticalCoords[0] = playerTopLeft[1];
+	verticalCoords[1] = playerTopLeft[1] + height;
+	verticalCoords[2] = obstacleTopLeft[1];
+	verticalCoords[3] = obstacleTopLeft[1] + height;
+
+	if (horizontalCoords[0] <= horizontalCoords[2])
+	{
+		if (horizontalCoords[1] < horizontalCoords[2])
+		{
+			horizontalOverlap = false;
+		}
+	}
+
+	if (horizontalOverlap == true)
+	{
+		if (horizontalCoords[2] <= horizontalCoords[0])
+		{
+			if (horizontalCoords[3] < horizontalCoords[0])
+			{
+				horizontalOverlap = false;
+			}
+		}
+	}
+
+	if (verticalCoords[0] <= verticalCoords[2])
+	{
+		if (verticalCoords[1] < verticalCoords[2])
+		{
+			verticalOverlap = false;
+		}
+	}
+
+	if (verticalOverlap == true)
+	{
+		if (verticalCoords[2] <= verticalCoords[0])
+		{
+			if (verticalCoords[3] < verticalCoords[0])
+			{
+				verticalOverlap = false;
+			}
+		}
+	}
+
+
+	if (verticalOverlap == true && horizontalOverlap == true)
+	{
+		//horizontalCoords[0] = playerTopLeft[0];
+		//horizontalCoords[1] = playerTopLeft[0] + width;
+		//horizontalCoords[2] = obstacleTopLeft[0];
+		//horizontalCoords[3] = obstacleTopLeft[0] + width;
+
+		InsertionSort(horizontalCoords, 4);
+
+		//verticalCoords[0] = playerTopLeft[1];
+		//verticalCoords[1] = playerTopLeft[1] + height;
+		//verticalCoords[2] = obstacleTopLeft[1];
+		//verticalCoords[3] = obstacleTopLeft[1] + height;
+
+		InsertionSort(verticalCoords, 4);
+
+		retVal[0] = horizontalCoords[1];
+		retVal[1] = horizontalCoords[2];
+
+		retVal[2] = verticalCoords[1];
+		retVal[3] = verticalCoords[2];
+
+		return true;
+	}
+
+	return false;
 }
-*/
+
+// http://cforbeginners.com/insertionsort.html
+void NarrowCollisionStrategy::InsertionSort(int values [], int length)
+{
+	int j, temp;
+
+	for (int i = 0; i < length; i++) {
+		j = i;
+
+		while (j > 0 && values[j] < values[j - 1]) {
+			temp = values[j];
+			values[j] = values[j - 1];
+			values[j - 1] = temp;
+			j--;
+		}
+	}
+}

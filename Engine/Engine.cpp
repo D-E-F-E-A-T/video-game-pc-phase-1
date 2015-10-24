@@ -175,6 +175,12 @@ void Engine::CreateDeviceResources()
 			&m_redBrush)
 		);
 
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Purple),
+			&m_purpleBrush)
+		);
+
 	m_spriteBatch = ref new BasicSprites::SpriteBatch();
 	unsigned int capacity = SampleSettings::Performance::ParticleCountMax +
 		SampleSettings::NumTrees + 1;
@@ -855,6 +861,22 @@ void Engine::HighlightSprite(int column, int row, ComPtr<ID2D1SolidColorBrush> b
 		brush.Get());
 }
 
+void Engine::DrawSpriteIntersection()
+{
+	D2D1_RECT_F rect
+	{
+		intersectRect[0],
+		intersectRect[2],
+		intersectRect[1],
+		intersectRect[3]
+	};
+
+
+	m_d2dContext->FillRectangle(
+		rect,
+		m_purpleBrush.Get());
+}
+
 void Engine::Render()
 {
 	// Retrieve the size of the render target.
@@ -874,6 +896,8 @@ void Engine::Render()
 	DrawMapText();
 	DrawInventoryText();
 	DrawPackText();
+
+
 
 
 
@@ -898,6 +922,9 @@ void Engine::Render()
 
 		HighlightSprite(column, row, m_redBrush);
 	}
+
+	if (collisionOccurred)
+		DrawSpriteIntersection();
 
 #ifdef DISPLAY_CONTROLLER_INPUT
 	RenderControllerInput();
@@ -961,7 +988,14 @@ void Engine::Run()
 				m_window->Bounds.Height,
 				playerLocation);
 
-			m_pNarrowCollisionDetectionStrategy->Detect(
+			char buf[128];
+			sprintf_s(buf,
+				"width=%f height=%f\n",
+				grid.GetColumnWidth(),
+				grid.GetRowHeight());
+			OutputDebugStringA(buf);
+
+			collisionOccurred = m_pNarrowCollisionDetectionStrategy->Detect(
 				m_d3dContext.Get(),
 				m_d3dDevice.Get(),
 				m_orchi.Get(),
@@ -969,7 +1003,8 @@ void Engine::Run()
 				m_pPlayer,
 				m_pCollided,
 				playerLocation,
-				&grid);
+				&grid,
+				intersectRect);
 
 
 

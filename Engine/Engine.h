@@ -173,7 +173,7 @@ private:
 	void DrawInventoryText();
 	void DrawPackText();
 
-	void MovePlayer(list<BaseSpriteData *> * collided, uint16 buttons, short horizontal, short vertical);
+	void MovePlayer(uint16 buttons, short horizontal, short vertical);
 	void HandleLeftThumbStick(short horizontal, short vertical);
 
 	void HighlightSprite(int column, int row, ComPtr<ID2D1SolidColorBrush> brush);

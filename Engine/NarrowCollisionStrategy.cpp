@@ -164,23 +164,6 @@ int NarrowCollisionStrategy::Detect(
 					int obstacleResult =
 						(dPtrObstacle[rawObstaclePixelIndex] & 0xff000000) >> 24;
 
-/*
-					char buf[128];
-
-					sprintf_s(buf,
-						"%d %d %d %d %d %d %d %d\n",
-						column,
-						row,
-						playerPixelRawCoordinate[HORIZONTAL_AXIS],
-						playerPixelRawCoordinate[VERTICAL_AXIS],
-						obstaclePixelRawCoordinate[HORIZONTAL_AXIS],
-						obstaclePixelRawCoordinate[VERTICAL_AXIS],
-						playerResult,
-						obstacleResult);
-
-					OutputDebugStringA(buf);
-*/
-
 					if (playerResult > 0 && obstacleResult > 0)
 					{
 						delete[] playerPixels;

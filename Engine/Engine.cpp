@@ -804,24 +804,23 @@ int Engine::FetchKeyboardInput()
 }
 
 // TODO: Could use function pointers.
-void Engine::MovePlayer(list<BaseSpriteData *> * collided, uint16 buttons, short horizontal, short vertical)
+void Engine::MovePlayer(uint16 buttons, short horizontal, short vertical)
 {
 	if (buttons & XINPUT_GAMEPAD_DPAD_UP)
 	{
-
-		m_pPlayer->MoveNorth(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveNorth(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_DOWN)
 	{
-		m_pPlayer->MoveSouth(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveSouth(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_LEFT)
 	{
-		m_pPlayer->MoveWest(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveWest(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else if (buttons & XINPUT_GAMEPAD_DPAD_RIGHT)
 	{
-		m_pPlayer->MoveEast(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveEast(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else
 	{
@@ -1015,13 +1014,6 @@ void Engine::Run()
 				m_window->Bounds.Height,
 				playerLocation);
 
-			//char buf[128];
-			//sprintf_s(buf,
-			//	"width=%f height=%f\n",
-			//	grid.GetColumnWidth(),
-			//	grid.GetRowHeight());
-			//OutputDebugStringA(buf);
-
 			m_nCollisionState = m_pNarrowCollisionDetectionStrategy->Detect(
 				m_d3dContext.Get(),
 				m_d3dDevice.Get(),
@@ -1039,8 +1031,16 @@ void Engine::Run()
 			// if the gamepad is not connected, check the keyboard.
 			if (m_isControllerConnected)
 			{
+				// This would actually, detect a collision one interation
+				//	too late.  Consider detection earlier since
+				//	this could lead to weird behavior, depending
+				//	on how fast the sprites are moving.
+				//	For example, if sprites are moving very quickly,
+				//	collision would occur when the sprites 
+				//	have deeply intersected each other.
+				//  For slow moving sprites, this would not be 
+				//	much of a problem.
 				MovePlayer(
-					m_pCollided,
 					m_xinputState.Gamepad.wButtons,
 					m_xinputState.Gamepad.sThumbLX,
 					m_xinputState.Gamepad.sThumbLY);
@@ -1345,6 +1345,10 @@ void Engine::DrawPackText()
 		);
 }
 
+// Since this in not in the main render/present loop, 
+//	don't know when the narrow collision detection
+//	algorithm will be activated when using
+//	keyboard input.
 void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
 {
 	if (args->VirtualKey == Windows::System::VirtualKey::P)       // Pause
@@ -1353,19 +1357,19 @@ void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core:
 
 	if (args->VirtualKey == Windows::System::VirtualKey::Left)
 	{
-		m_pPlayer->MoveWest(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveWest(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Down)
 	{
-		m_pPlayer->MoveSouth(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveSouth(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Right)
 	{
-		m_pPlayer->MoveEast(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveEast(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 	else if (args->VirtualKey == Windows::System::VirtualKey::Up)
 	{
-		m_pPlayer->MoveNorth(PLAYER_MOVE_VELOCITY);
+		m_pPlayer->MoveNorth(m_nCollisionState, PLAYER_MOVE_VELOCITY);
 	}
 }
 
@@ -1385,26 +1389,22 @@ void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 	{
 		if (vertical > 0)
 		{
-			// Due north
-			m_pPlayer->MoveNorth(velocity);
+			m_pPlayer->MoveNorth(m_nCollisionState, velocity);
 		}
 		else if (vertical < 0)
 		{
-			// Due south
-			m_pPlayer->MoveSouth(velocity);
+			m_pPlayer->MoveSouth(m_nCollisionState, velocity);
 		}
 	}
 	else if (vertical == 0)
 	{
 		if (horizontal > 0)
 		{
-			// Due east
-			m_pPlayer->MoveEast(velocity);
+			m_pPlayer->MoveEast(m_nCollisionState, velocity);
 		}
 		else if (horizontal < 0)
 		{
-			// Due west
-			m_pPlayer->MoveWest(velocity);
+			m_pPlayer->MoveWest(m_nCollisionState, velocity);
 		}
 	}
 	else
@@ -1416,33 +1416,33 @@ void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 		{
 			// Upper-right quadrant.
 			if (theta <= 45.f)
-				m_pPlayer->MoveEast(velocity);
+				m_pPlayer->MoveEast(m_nCollisionState, velocity);
 			else
-				m_pPlayer->MoveNorth(velocity);
+				m_pPlayer->MoveNorth(m_nCollisionState, velocity);
 		}
 		else if (horizontal > 0 && vertical < 0)
 		{
 			// Lower-right quadrant.
 			if (theta >= -45.f)
-				m_pPlayer->MoveEast(velocity);
+				m_pPlayer->MoveEast(m_nCollisionState, velocity);
 			else
-				m_pPlayer->MoveSouth(velocity);
+				m_pPlayer->MoveSouth(m_nCollisionState, velocity);
 		}
 		else if (horizontal < 0 && vertical > 0)
 		{
 			// Upper-left quadrant.
 			if (theta >= -45.f)
-				m_pPlayer->MoveWest(velocity);
+				m_pPlayer->MoveWest(m_nCollisionState, velocity);
 			else
-				m_pPlayer->MoveNorth(velocity);
+				m_pPlayer->MoveNorth(m_nCollisionState, velocity);
 		}
 		else // (horizontal < 0 && vertical < 0)
 		{
 			// Lower-left quadrant.
 			if (theta <= 45.f)
-				m_pPlayer->MoveWest(velocity);
+				m_pPlayer->MoveWest(m_nCollisionState, velocity);
 			else
-				m_pPlayer->MoveSouth(velocity);
+				m_pPlayer->MoveSouth(m_nCollisionState, velocity);
 		}
 	}
 }

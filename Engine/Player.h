@@ -7,10 +7,10 @@ class Player
 public:
 	Player(Grid * grid);
 
-	void MoveNorth(float fVelocity);
-	void MoveEast(float fVelocity);
-	void MoveSouth(float fVelocity);
-	void MoveWest(float fVelocity);
+	void MoveNorth(int nCollisionState, float fVelocity);
+	void MoveEast(int nCollisionState, float fVelocity);
+	void MoveSouth(int nCollisionState, float fVelocity);
+	void MoveWest(int nCollisionState, float fVelocity);
 
 	float GetVerticalRatio()
 	{
@@ -51,4 +51,6 @@ private:
 	int m_nUnitsPerGridSquare[NUM_DIMENSIONS];
 
 	Grid * m_grid;
+
+	int m_nPreviousMoveDirection;
 };

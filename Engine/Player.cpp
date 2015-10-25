@@ -7,6 +7,7 @@ Player::Player(Grid * grid)
 	m_grid = grid;
 	m_fHorizontalRatio = 0.5f;
 	m_fVerticalRatio = 0.5f;
+	m_nPreviousMoveDirection = CENTER;
 
 	m_nUnitsPerGridSquare[HORIZONTAL_AXIS] =
 		1.0f / grid->GetNumColumns() * TOTAL_GRID_DIVISIONS;
@@ -17,68 +18,108 @@ Player::Player(Grid * grid)
 	UpdateGridLocation();
 }
 
-void Player::MoveNorth(float fVelocity)
+void Player::MoveNorth(int nCollisionState, float fVelocity)
 {
-	float prospectiveVerticalRatio =
-		m_fVerticalRatio -= fVelocity;
-
-	// Don't go above the top of the screen. 
-	//	Later this will be the trigger to move to the next screen.
-	if (prospectiveVerticalRatio >= 0.f)
-		m_fVerticalRatio = prospectiveVerticalRatio;
+	if (nCollisionState == COLLISION && m_nPreviousMoveDirection == NORTH)
+	{
+	}
 	else
-		m_fVerticalRatio = 0.0f;
+	{
+		float prospectiveVerticalRatio =
+			m_fVerticalRatio -= fVelocity;
 
-	UpdateGridLocation();
+		// Don't go above the top of the screen. 
+		//	Later this will be the trigger to move to the next screen.
+		if (prospectiveVerticalRatio >= 0.f)
+			m_fVerticalRatio = prospectiveVerticalRatio;
+		else
+			m_fVerticalRatio = 0.0f;
+
+		UpdateGridLocation();
+
+
+	}
+
+	m_nPreviousMoveDirection = NORTH;
 }
 
-void Player::MoveEast(float fVelocity)
+void Player::MoveEast(int nCollisionState, float fVelocity)
 {
-	float prospectiveHorizontalRatio =
-		m_fHorizontalRatio += fVelocity;
-
-	if (prospectiveHorizontalRatio <= 1.0f)
+	if (nCollisionState == COLLISION && m_nPreviousMoveDirection == EAST)
 	{
-		m_fHorizontalRatio = prospectiveHorizontalRatio;
 	}
 	else
 	{
-		m_fHorizontalRatio = 1.0f;
+		float prospectiveHorizontalRatio =
+			m_fHorizontalRatio += fVelocity;
+
+		if (prospectiveHorizontalRatio <= 1.0f)
+		{
+			m_fHorizontalRatio = prospectiveHorizontalRatio;
+		}
+		else
+		{
+			m_fHorizontalRatio = 1.0f;
+		}
+
+		UpdateGridLocation();
+
+
 	}
-	
-	UpdateGridLocation();
+
+	m_nPreviousMoveDirection = EAST;
 }
 
-void Player::MoveSouth(float fVelocity)
+void Player::MoveSouth(int nCollisionState, float fVelocity)
 {
-	float prospectiveVerticalOffset =
-		m_fVerticalRatio += fVelocity;
-
-	// Don't go above the top of the screen. 
-	//	Later this will be the trigger to move to the next screen.
-	if (prospectiveVerticalOffset <= 1.0f)
-		m_fVerticalRatio = prospectiveVerticalOffset;
+	if (nCollisionState == COLLISION && m_nPreviousMoveDirection == SOUTH)
+	{
+	}
 	else
-		m_fVerticalRatio = 1.0f;
+	{
+		float prospectiveVerticalOffset =
+			m_fVerticalRatio += fVelocity;
 
-	UpdateGridLocation();
+		// Don't go above the top of the screen. 
+		//	Later this will be the trigger to move to the next screen.
+		if (prospectiveVerticalOffset <= 1.0f)
+			m_fVerticalRatio = prospectiveVerticalOffset;
+		else
+			m_fVerticalRatio = 1.0f;
+
+		UpdateGridLocation();
+
+
+	}
+
+	m_nPreviousMoveDirection = SOUTH;
 }
 
-void Player::MoveWest(float fVelocity)
+void Player::MoveWest(int nCollisionState, float fVelocity)
 {
-	float prospectiveHorizontalOffset =
-		m_fHorizontalRatio -= fVelocity;
-
-	if (prospectiveHorizontalOffset >= 0.f)
+	if (nCollisionState == COLLISION && m_nPreviousMoveDirection == WEST)
 	{
-		m_fHorizontalRatio = prospectiveHorizontalOffset;
 	}
 	else
 	{
-		m_fHorizontalRatio = 0.f;
+		float prospectiveHorizontalOffset =
+			m_fHorizontalRatio -= fVelocity;
+
+		if (prospectiveHorizontalOffset >= 0.f)
+		{
+			m_fHorizontalRatio = prospectiveHorizontalOffset;
+		}
+		else
+		{
+			m_fHorizontalRatio = 0.f;
+		}
+
+		UpdateGridLocation();
+
+
 	}
 
-	UpdateGridLocation();
+	m_nPreviousMoveDirection = WEST;
 }
 
 void Player::UpdateGridLocation()

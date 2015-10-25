@@ -988,12 +988,12 @@ void Engine::Run()
 				m_window->Bounds.Height,
 				playerLocation);
 
-			char buf[128];
-			sprintf_s(buf,
-				"width=%f height=%f\n",
-				grid.GetColumnWidth(),
-				grid.GetRowHeight());
-			OutputDebugStringA(buf);
+			//char buf[128];
+			//sprintf_s(buf,
+			//	"width=%f height=%f\n",
+			//	grid.GetColumnWidth(),
+			//	grid.GetRowHeight());
+			//OutputDebugStringA(buf);
 
 			collisionOccurred = m_pNarrowCollisionDetectionStrategy->Detect(
 				m_d3dContext.Get(),

@@ -56,7 +56,7 @@
 // This represents the percentage of the game screen
 //	that is traversed per cycle.
 #ifndef PLAYER_MOVE_VELOCITY
-#define PLAYER_MOVE_VELOCITY 0.005f	
+#define PLAYER_MOVE_VELOCITY 0.0025f	
 #endif // PLAYER_MOVE_VELOCITY
 
 #ifndef NORTH_WEST

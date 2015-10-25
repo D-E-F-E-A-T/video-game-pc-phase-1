@@ -153,6 +153,20 @@ void Engine::CreateDeviceResources()
 
 	DX::ThrowIfFailed(
 		m_d2dContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Yellow),
+			&m_yellowBrush
+			)
+		);
+
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Green),
+			&m_greenBrush
+			)
+		);
+
+	DX::ThrowIfFailed(
+		m_d2dContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF::Green),
 			&m_greenBrush)
 		);
@@ -872,9 +886,18 @@ void Engine::DrawSpriteIntersection()
 	};
 
 
-	m_d2dContext->FillRectangle(
-		rect,
-		m_purpleBrush.Get());
+	if (m_nCollisionState == INTERSECTION)
+	{
+		m_d2dContext->FillRectangle(
+			rect,
+			m_yellowBrush.Get());
+	}
+	else if (m_nCollisionState == COLLISION)
+	{
+		m_d2dContext->FillRectangle(
+			rect,
+			m_greenBrush.Get());
+	}
 }
 
 void Engine::Render()
@@ -915,6 +938,8 @@ void Engine::Render()
 
 	std::list<BaseSpriteData *>::const_iterator iterator;
 
+#ifdef RENDER_DIAGNOSTICS
+
 	for (iterator = m_pCollided->begin(); iterator != m_pCollided->end(); iterator++)
 	{
 		int column = (*iterator)->column;
@@ -923,8 +948,10 @@ void Engine::Render()
 		HighlightSprite(column, row, m_redBrush);
 	}
 
-	if (collisionOccurred)
+	if (m_nCollisionState == INTERSECTION ||
+		m_nCollisionState == COLLISION)
 		DrawSpriteIntersection();
+#endif // RENDER_DIAGNOSTICS
 
 #ifdef DISPLAY_CONTROLLER_INPUT
 	RenderControllerInput();
@@ -995,7 +1022,7 @@ void Engine::Run()
 			//	grid.GetRowHeight());
 			//OutputDebugStringA(buf);
 
-			collisionOccurred = m_pNarrowCollisionDetectionStrategy->Detect(
+			m_nCollisionState = m_pNarrowCollisionDetectionStrategy->Detect(
 				m_d3dContext.Get(),
 				m_d3dDevice.Get(),
 				m_orchi.Get(),

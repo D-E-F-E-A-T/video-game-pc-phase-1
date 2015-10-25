@@ -92,6 +92,7 @@ private:
     ComPtr<ID2D1SolidColorBrush>                    m_whiteBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_orangeBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_greenBrush;
+	ComPtr<ID2D1SolidColorBrush>					m_yellowBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_grayBrush;
 //	ComPtr<ID2D1SolidColorBrush>					m_beigeBrush;
 	ComPtr<ID2D1SolidColorBrush>					m_blueBrush;
@@ -199,7 +200,7 @@ private:
 
 	int intersectRect[4];
 	void DrawSpriteIntersection();
-	bool collisionOccurred;
+	int m_nCollisionState;
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

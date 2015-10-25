@@ -20,8 +20,7 @@ NarrowCollisionStrategy::~NarrowCollisionStrategy()
 
 }
 
-
-bool NarrowCollisionStrategy::Detect(
+int NarrowCollisionStrategy::Detect(
 	ID3D11DeviceContext2 * context,
 	ID3D11Device2 * device,
 	ID3D11Texture2D * texturePlayer,
@@ -39,14 +38,12 @@ bool NarrowCollisionStrategy::Detect(
 
 	uint8_t * playerPixels = NULL;
 	uint8_t * obstaclePixels = NULL;
-/*
+
 	playerPixels = readPixels(
 		context,
 		device,
 		texturePlayer,
 		rawPlayerDimensions);	// These are the dimensions of the raw sprite.
-*/
-
 
 	obstaclePixels = readPixels(
 		context,
@@ -54,38 +51,11 @@ bool NarrowCollisionStrategy::Detect(
 		textureTree,
 		rawObstacleDimensions);	// These are the dimensions of the raw sprite.
 
-	for (size_t count = 0; count < rawObstacleDimensions[0] * rawObstacleDimensions[1] * 4; count += 4)
-	{
-		uint32_t t = *(obstaclePixels);
-		uint32_t alpha = (t & 0xff000000) >> 24;
-		uint32_t red = (t & 0x00ff0000) >> 16;
-		uint32_t green = (t & 0x0000ff00) >> 8;
-		uint32_t blue = (t & 0x000000ff);
+#ifdef DUMP_PIXELS
+	DumpPixels(rawPlayerDimensions[0], rawPlayerDimensions[1], playerPixels);
+	DumpPixels(rawObstacleDimensions[0], rawObstacleDimensions[1], obstaclePixels);
+#endif // DUMP_PIXELS
 
-
-		char buf[64];
-		sprintf_s(buf, "%02x %02x %02x %02x\n", red, green, blue, alpha);
-		OutputDebugStringA(buf);
-
-
-		/*
-		if (red > 0 || green > 0 || blue > 0)
-		{
-		*(dPtr++) = 0xffffffff;
-		}
-		else
-		{
-		*(dPtr++) = 0x00000000;
-		}
-		*/
-//		*(dPtr++) = red | green | blue | alpha;
-
-		//		size++;
-	}
-
-
-
-/*
 	std::list<BaseSpriteData *>::const_iterator iterator;
 
 	int playerTopLeft[2];
@@ -108,8 +78,6 @@ bool NarrowCollisionStrategy::Detect(
 		renderedSpriteDimensions[WIDTH_INDEX] = (int)grid->GetColumnWidth();
 		renderedSpriteDimensions[HEIGHT_INDEX] = (int)grid->GetRowHeight();
 
-
-
 		// Right now, all obstacles are assumed to occupy exactly one grid space.
 		int obstacleTopLeft[2];
 		obstacleTopLeft[HORIZONTAL_AXIS] = 
@@ -129,21 +97,23 @@ bool NarrowCollisionStrategy::Detect(
 
 		if (bIntersection == true)
 		{
-			int intersectionWidth = abs(intersectRect[0] - intersectRect[1]);
-			int intersectionHeight = abs(intersectRect[2] - intersectRect[3]);
-
-			// These coordinates are relative to the whole screen.
-			int playerIntersectionHorizontalOffset = intersectRect[0] - playerTopLeft[0];
-			int playerIntersectionVerticalOffset = intersectRect[2] - playerTopLeft[1];
-
-			// These coordinates are relative to the whole screen.
-			int obstacleIntersectionHorizontalOffset = intersectRect[0] - obstacleTopLeft[0];
-			int obstacleIntersectionVerticalOffset = intersectRect[2] - obstacleTopLeft[1];
+			int intersectionWidth = abs(intersectRect[INTERSECTION_LEFT] - intersectRect[INTERSECTION_RIGHT]);
+			int intersectionHeight = abs(intersectRect[INTERSECTION_TOP] - intersectRect[INTERSECTION_BOTTOM]);
 
 			for (int row = 0; row < intersectionHeight; row++)
 			{
 				for (int column = 0; column < intersectionWidth; column++)
 				{
+
+					// These coordinates are relative to the whole screen.
+					int playerIntersectionHorizontalOffset = intersectRect[0] - playerTopLeft[0] + column;
+					int playerIntersectionVerticalOffset = intersectRect[2] - playerTopLeft[1] + row;
+
+					// These coordinates are relative to the whole screen.
+					int obstacleIntersectionHorizontalOffset = intersectRect[0] - obstacleTopLeft[0] + column;
+					int obstacleIntersectionVerticalOffset = intersectRect[2] - obstacleTopLeft[1] + row;
+
+
 					float playerPixelNormalizedLocation[2];
 					int playerPixelRawCoordinate[2];
 					float obstaclePixelNormalizedLocation[2];
@@ -185,44 +155,52 @@ bool NarrowCollisionStrategy::Detect(
 						(obstaclePixelRawCoordinate[VERTICAL_AXIS] * rawObstacleDimensions[HORIZONTAL_AXIS]) +
 						obstaclePixelRawCoordinate[HORIZONTAL_AXIS];
 
-					//uint8_t playerResult =
-					//	*(playerPixels + rawPlayerPixelIndex * 4) & 0xff000000;
+					uint32_t * dPtrPlayer = reinterpret_cast<uint32_t*>(playerPixels);
+					uint32_t * dPtrObstacle = reinterpret_cast<uint32_t*>(obstaclePixels);
 
-					//uint8_t obstacleResult =
-					//	*(obstaclePixels + rawObstaclePixelIndex * 4) & 0xff000000;
+					int playerResult =
+						(dPtrPlayer[rawPlayerPixelIndex] & 0xff000000) >> 24;
 
+					int obstacleResult =
+						(dPtrObstacle[rawObstaclePixelIndex] & 0xff000000) >> 24;
+
+/*
 					char buf[128];
 
-					uint8_t * playerBuffer = playerPixels + rawPlayerPixelIndex * 4;
-
 					sprintf_s(buf,
-						"%x %x %x %x\n",
-						*(playerBuffer),
-						*(playerBuffer + 1),
-						*(playerBuffer + 2),
-						*(playerBuffer + 3));
+						"%d %d %d %d %d %d %d %d\n",
+						column,
+						row,
+						playerPixelRawCoordinate[HORIZONTAL_AXIS],
+						playerPixelRawCoordinate[VERTICAL_AXIS],
+						obstaclePixelRawCoordinate[HORIZONTAL_AXIS],
+						obstaclePixelRawCoordinate[VERTICAL_AXIS],
+						playerResult,
+						obstacleResult);
+
 					OutputDebugStringA(buf);
+*/
 
-					//delete[] playerPixels;
-					//delete[] obstaclePixels;
+					if (playerResult > 0 && obstacleResult > 0)
+					{
+						delete[] playerPixels;
+						delete[] obstaclePixels;
 
-
-					//if (playerResult && obstacleResult)
-					//{
-					//	OutputDebugStringA("collision\n");
-					//	return true;
-					//}
+						return COLLISION;
+					}
 				}
 			}
 		}
 
+		delete[] playerPixels;
+		delete[] obstaclePixels;
+		return INTERSECTION;
 	}
 
 	delete [] playerPixels;
 	delete [] obstaclePixels;
-*/
 
-	return false;
+	return NO_INTERSECTION;
 }
 
 
@@ -278,7 +256,8 @@ uint8_t * NarrowCollisionStrategy::readPixels(
 
 //	int size = 0;
 
-	for (size_t count = 0; count < desc.Width*desc.Height * 4; count += 4)
+/*
+	for (size_t count = 0; count < desc.Width * desc.Height; count++)
 	{
 		uint32_t t = *(dPtr);
 		uint32_t alpha = (t & 0xff000000) >> 24;
@@ -292,20 +271,20 @@ uint8_t * NarrowCollisionStrategy::readPixels(
 				//OutputDebugStringA(buf);
 
 
-		/*
-				if (red > 0 || green > 0 || blue > 0)
-				{
-					*(dPtr++) = 0xffffffff;
-				}
-				else
-				{
-					*(dPtr++) = 0x00000000;
-				}
-		*/
+				//if (red > 0 || green > 0 || blue > 0)
+				//{
+				//	*(dPtr++) = 0xffffffff;
+				//}
+				//else
+				//{
+				//	*(dPtr++) = 0x00000000;
+				//}
+
 		*(dPtr++) = red | green | blue | alpha;
 
 //		size++;
 	}
+*/
 
 /*
 	char buf[128];
@@ -424,5 +403,25 @@ void NarrowCollisionStrategy::InsertionSort(int values [], int length)
 			values[j - 1] = temp;
 			j--;
 		}
+	}
+}
+
+void NarrowCollisionStrategy::DumpPixels(int width, int height, uint8_t * data)
+{
+	uint32_t * dPtr = reinterpret_cast<uint32_t*>(data);
+
+	for (size_t count = 0; count < width * height; count++)
+	{
+		uint32_t t = *(dPtr);
+		uint32_t alpha = (t & 0xff000000) >> 24;
+		uint32_t red = (t & 0x00ff0000) >> 16;
+		uint32_t green = (t & 0x0000ff00) >> 8;
+		uint32_t blue = (t & 0x000000ff);
+
+		char buf[64];
+		sprintf_s(buf, "a=%x r=%x g=%x b=%x\n", alpha, red, green, blue);
+		OutputDebugStringA(buf);
+
+		dPtr++;
 	}
 }

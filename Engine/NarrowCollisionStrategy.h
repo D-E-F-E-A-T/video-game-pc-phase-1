@@ -14,7 +14,7 @@ public:
 	NarrowCollisionStrategy();
 	~NarrowCollisionStrategy();
 
-	bool Detect(
+	int Detect(
 		ID3D11DeviceContext2 * context,
 		ID3D11Device2 * device,
 		ID3D11Texture2D * texture1,
@@ -42,4 +42,6 @@ private:
 		int * retVal);
 
 	void InsertionSort(int values[], int length);
+
+	void DumpPixels(int width, int height, uint8_t * data);
 };

@@ -123,6 +123,8 @@
     <FxCompile Include="BasicSprites.Instancing.vs.hlsl" />
     <FxCompile Include="BasicSprites.ps.hlsl" />
     <FxCompile Include="BasicSprites.Replication.vs.hlsl" />
+    <FxCompile Include="VertexShader.hlsl" />
+    <FxCompile Include="PixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="README.txt" />

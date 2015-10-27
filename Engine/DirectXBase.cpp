@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "DirectXBase.h"
+#include "Constants.h"
 
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -185,13 +186,19 @@ void DirectXBase::UpdateForWindowSizeChange()
     {
         m_d2dContext->SetTarget(nullptr);
         m_d2dTargetBitmap = nullptr;
-        m_d3dRenderTargetView = nullptr;
-        m_d3dDepthStencilView = nullptr;
+
+//		for (int i = 0; i < NUM_RENDER_TARGETS; i++)
+		{
+			m_d3dRenderTargetView = nullptr;
+		}
+
+//        m_d3dDepthStencilView = nullptr;
         m_windowSizeChangeInProgress = true;
         CreateWindowSizeDependentResources();
     }
 }
 
+//******************************* KNOW THIS FUNCTION **********/
 // Allocate all memory resources that change on a window SizeChanged event.
 void DirectXBase::CreateWindowSizeDependentResources()
 {
@@ -228,21 +235,30 @@ void DirectXBase::CreateWindowSizeDependentResources()
         swapChainDesc.SampleDesc.Count = 1;                          // Don't use multi-sampling.
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+
+		// Isn't m_d3dRenderTargetView the back buffer?
+		//	How do m_d3dRenderTargetView and the back buffer get associated?
         swapChainDesc.BufferCount = 2;                               // Use double-buffering to minimize latency.
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
         swapChainDesc.Flags = 0;
 
+		// Create the device...
+
+		// First, convert our ID3D11Device1 into an IDXGIDevice1.
         ComPtr<IDXGIDevice1> dxgiDevice;
         DX::ThrowIfFailed(
             m_d3dDevice.As(&dxgiDevice)
             );
 
+		// Second, use the IDXGIDevice1 interface to get access to the adapter.
         ComPtr<IDXGIAdapter> dxgiAdapter;
         DX::ThrowIfFailed(
             dxgiDevice->GetAdapter(&dxgiAdapter)
             );
 
+		// Third, use the IDXGIAdapter interface to get access to the factory.
+		// DXGI Factory is an object that can create other DXGI objects.
         ComPtr<IDXGIFactory2> dxgiFactory;
         DX::ThrowIfFailed(
             dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory))
@@ -266,19 +282,31 @@ void DirectXBase::CreateWindowSizeDependentResources()
             );
     }
 
-    // Create a Direct3D render target view of the swap chain back buffer.
-    ComPtr<ID3D11Texture2D> backBuffer;
-    DX::ThrowIfFailed(
-        m_swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))
-        );
+	ComPtr<ID3D11Texture2D> backBuffer;
 
-    DX::ThrowIfFailed(
-        m_d3dDevice->CreateRenderTargetView(
-            backBuffer.Get(),
-            nullptr,
-            &m_d3dRenderTargetView
-            )
-        );
+    // RMB: Create a Direct3D render target view of the swap chain back buffer.
+//	for (int i = 0; i < NUM_RENDER_TARGETS; i++)
+	{
+
+		DX::ThrowIfFailed(
+			m_swapChain->GetBuffer(
+				0,	// Number of the back buffer to obtain.
+				IID_PPV_ARGS(&backBuffer))
+			);
+
+		// We now have the address of the back buffer.
+
+		// A view is a representation of a model.
+		DX::ThrowIfFailed(
+			m_d3dDevice->CreateRenderTargetView(
+				backBuffer.Get(),	// Points to a texture.
+				nullptr,
+				&m_d3dRenderTargetView	// This associates m_d3dRenderTargetView[0] with the back buffer.
+				)
+			);
+	}
+
+	// RMB: m_d3dRenderTargetView[DEFAULT_BACK_BUFFER] now represents the back buffer.
 
     // Cache the rendertarget dimensions in our helper class for convenient use.
     D3D11_TEXTURE2D_DESC backBufferDesc = {0};
@@ -286,43 +314,48 @@ void DirectXBase::CreateWindowSizeDependentResources()
     m_renderTargetSize.Width  = static_cast<float>(backBufferDesc.Width);
     m_renderTargetSize.Height = static_cast<float>(backBufferDesc.Height);
 
+
     // Create a depth stencil view for use with 3D rendering if needed.
-    CD3D11_TEXTURE2D_DESC depthStencilDesc(
-        DXGI_FORMAT_D24_UNORM_S8_UINT,
-        backBufferDesc.Width,
-        backBufferDesc.Height,
-        1,
-        1,
-        D3D11_BIND_DEPTH_STENCIL
-        );
+    //CD3D11_TEXTURE2D_DESC depthStencilDesc(
+    //    DXGI_FORMAT_D24_UNORM_S8_UINT,
+    //    backBufferDesc.Width,
+    //    backBufferDesc.Height,
+    //    1,
+    //    1,
+    //    D3D11_BIND_DEPTH_STENCIL
+    //    );
 
-    ComPtr<ID3D11Texture2D> depthStencil;
-    DX::ThrowIfFailed(
-        m_d3dDevice->CreateTexture2D(
-            &depthStencilDesc,
-            nullptr,
-            &depthStencil
-            )
-        );
+    //ComPtr<ID3D11Texture2D> depthStencil;
+    //DX::ThrowIfFailed(
+    //    m_d3dDevice->CreateTexture2D(
+    //        &depthStencilDesc,
+    //        nullptr,
+    //        &depthStencil
+    //        )
+    //    );
 
-    auto viewDesc = CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D);
-    DX::ThrowIfFailed(
-        m_d3dDevice->CreateDepthStencilView(
-            depthStencil.Get(),
-            &viewDesc,
-            &m_d3dDepthStencilView
-            )
-        );
+    //auto viewDesc = CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D);
+    //DX::ThrowIfFailed(
+    //    m_d3dDevice->CreateDepthStencilView(
+    //        depthStencil.Get(),
+    //        &viewDesc,
+    //        &m_d3dDepthStencilView
+    //        )
+    //    );
 
     // Set the 3D rendering viewport to target the entire window.
     CD3D11_VIEWPORT viewport(
+        0.0f, // 500.0f,
         0.0f,
-        0.0f,
-        static_cast<float>(backBufferDesc.Width),
-        static_cast<float>(backBufferDesc.Height)
+        static_cast<float>(backBufferDesc.Width /* * 0.5f */ ),
+        static_cast<float>(backBufferDesc.Height /* * 0.5f */ )
         );
 
     m_d3dContext->RSSetViewports(1, &viewport);
+
+	// *******************************************************
+	// "Take a 2D picture of the 3D image in the back buffer?"
+	// *******************************************************
 
     // Create a Direct2D target bitmap associated with the
     // swap chain back buffer and set it as the current target.
@@ -334,7 +367,7 @@ void DirectXBase::CreateWindowSizeDependentResources()
             m_dpi
             );
 
-    ComPtr<IDXGISurface> dxgiBackBuffer;
+    ComPtr<IDXGISurface> dxgiBackBuffer;	// vs ComPtr<ID3D11Texture2D> backBuffer;
     DX::ThrowIfFailed(
         m_swapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer))
         );
@@ -351,6 +384,7 @@ void DirectXBase::CreateWindowSizeDependentResources()
 
     // Grayscale text anti-aliasing is recommended for all Windows Store apps.
     m_d2dContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+
 }
 
 // Method to deliver the final image to the display.
@@ -367,7 +401,7 @@ void DirectXBase::Present()
     // The first argument instructs DXGI to block until VSync, putting the application
     // to sleep until the next VSync. This ensures we don't waste any cycles rendering
     // frames that will never be displayed to the screen.
-    HRESULT hr = m_swapChain->Present1(1, 0, &parameters);
+    HRESULT hr = m_swapChain->Present1(1, 0, &parameters);	// // 
 
     // Discard the contents of the render target.
     // This is a valid operation only when the existing contents will be entirely
@@ -375,7 +409,7 @@ void DirectXBase::Present()
     m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
 
     // Discard the contents of the depth stencil.
-    m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
+//    m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
 
     // If the device was removed either by a disconnect or a driver upgrade, we
     // must recreate all device resources.

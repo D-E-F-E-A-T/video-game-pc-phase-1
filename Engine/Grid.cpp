@@ -32,41 +32,43 @@ void Grid::Draw(
 	ComPtr<ID2D1DeviceContext1> context,
 	ComPtr<ID2D1SolidColorBrush> brush)
 {
-
-	// Draw the horizontal lines.
-	for (int row = 0; row <= NUM_GRID_ROWS; row++)
+	if (m_bIsVisible)
 	{
-		D2D1_POINT_2F src
+		// Draw the horizontal lines.
+		for (int row = 0; row <= NUM_GRID_ROWS; row++)
 		{
-			(m_fWindowWidth * LEFT_MARGIN_RATIO) + MARGIN,
-			MARGIN + (GetRowHeight() * (float)row)
-		};
+			D2D1_POINT_2F src
+			{
+				(m_fWindowWidth * LEFT_MARGIN_RATIO) + MARGIN,
+				MARGIN + (GetRowHeight() * (float)row)
+			};
 
-		D2D1_POINT_2F dst
+			D2D1_POINT_2F dst
+			{
+				m_fWindowWidth - (m_fWindowWidth * RIGHT_MARGIN_RATIO) - MARGIN,
+				MARGIN + (GetRowHeight() * (float)row)
+			};
+
+			context->DrawLine(src, dst, brush.Get());
+		}
+
+		// Draw the vertical lines.
+		for (int column = 0; column <= NUM_GRID_COLUMNS; column++)
 		{
-			m_fWindowWidth - (m_fWindowWidth * RIGHT_MARGIN_RATIO) - MARGIN,
-			MARGIN + (GetRowHeight() * (float)row)
-		};
+			D2D1_POINT_2F src
+			{
+				(m_fWindowWidth * LEFT_MARGIN_RATIO) + MARGIN + (GetColumnWidth() * (float)column),
+				MARGIN
+			};
 
-		context->DrawLine(src, dst, brush.Get());
-	}
+			D2D1_POINT_2F dst
+			{
+				(m_fWindowWidth * LEFT_MARGIN_RATIO) + MARGIN + (GetColumnWidth() * (float)column),
+				m_fWindowHeight - MARGIN,
+			};
 
-	// Draw the vertical lines.
-	for (int column = 0; column <= NUM_GRID_COLUMNS; column++)
-	{
-		D2D1_POINT_2F src
-		{
-			(m_fWindowWidth * LEFT_MARGIN_RATIO) + MARGIN + (GetColumnWidth() * (float)column),
-			MARGIN
-		};
-
-		D2D1_POINT_2F dst
-		{
-			(m_fWindowWidth * LEFT_MARGIN_RATIO) + MARGIN + (GetColumnWidth() * (float)column),
-			m_fWindowHeight - MARGIN,
-		};
-
-		context->DrawLine(src, dst, brush.Get());
+			context->DrawLine(src, dst, brush.Get());
+		}
 	}
 }
 

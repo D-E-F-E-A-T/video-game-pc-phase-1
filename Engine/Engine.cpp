@@ -37,10 +37,18 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
+using namespace Windows::UI::Core;
+using namespace Platform;
+
 static const float AnimationDuration = 20.0f; // Defines how long it takes the triangle to traverse the path.
 
 namespace
 {
+	struct VERTEX
+	{
+		float X, Y, Z;
+	};
+
 	const char16    APPLICATION_TITLE[] = L"XInput game controller sample";
 
 	const float     CLEAR_COLOR[4] = { 0.071f, 0.040f, 0.561f, 1.0f };
@@ -360,7 +368,7 @@ void Engine::BuildScreen()
 			m_window->Bounds.Height);
 
 	// Use chain-of-responsibility?
-	m_screenBuilder->BuildScreen(m_pTreeData);
+	m_screenBuilder->BuildScreen1(m_pTreeData);
 
 	LifePanel lifePanel(
 		m_window->Bounds.Width - m_window->Bounds.Width * RIGHT_MARGIN_RATIO,
@@ -478,12 +486,72 @@ void Engine::CreateWindowSizeDependentResources()
 {
 	DirectXBase::CreateWindowSizeDependentResources();
 
+	// TODO: Create panels for each of these.
 	CreateLifeText();
 	CreateButtonsText();
 
 	CreateMapText();
 	CreateInventoryText();
 	CreatePackText();
+
+	// InitGraphics()
+	// create a triangle out of vertices
+	VERTEX OurVertices[] =
+	{
+		{ 0.0f, 0.5f, 0.0f },
+		{ 0.45f, -0.5f, 0.0f },
+		{ -0.45f, -0.5f, 0.0f },
+		{ 0.0f, 0.5f, 0.0f }
+	};
+
+	// create the vertex buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(OurVertices);
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA srd = { OurVertices, 0, 0 };
+
+	m_d3dDevice->CreateBuffer(&bd, &srd, &vertexbuffer);
+
+	// InitPipeline()
+	// load the shader files
+	Array<byte>^ VSFile = LoadShaderFile("VertexShader.cso");
+	Array<byte>^ PSFile = LoadShaderFile("PixelShader.cso");
+
+	// create the shader objects
+	m_d3dDevice->CreateVertexShader(VSFile->Data, VSFile->Length, nullptr, &vertexshader);
+	m_d3dDevice->CreatePixelShader(PSFile->Data, PSFile->Length, nullptr, &pixelshader);
+
+	// set the shader objects as the active shaders
+	m_d3dContext->VSSetShader(vertexshader.Get(), nullptr, 0);
+	m_d3dContext->PSSetShader(pixelshader.Get(), nullptr, 0);
+
+	// initialize input layout
+	D3D11_INPUT_ELEMENT_DESC ied[] =
+	{
+		{ 
+			"POSITION", 
+			0, 
+			DXGI_FORMAT_R32G32B32_FLOAT, 
+			0, 
+			0, 
+			D3D11_INPUT_PER_VERTEX_DATA, 
+			0 
+		},
+		{
+			"COLOR",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			12,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+	};
+
+	// create and set the input layout
+	m_d3dDevice->CreateInputLayout(ied, ARRAYSIZE(ied), VSFile->Data, VSFile->Length, &inputlayout);
+	m_d3dContext->IASetInputLayout(inputlayout.Get());
 }
 
 void Engine::DrawLeftMargin()
@@ -878,10 +946,10 @@ void Engine::DrawSpriteIntersection()
 {
 	D2D1_RECT_F rect
 	{
-		intersectRect[0],
-		intersectRect[2],
-		intersectRect[1],
-		intersectRect[3]
+		(float)intersectRect[0],
+		(float)intersectRect[2],
+		(float)intersectRect[1],
+		(float)intersectRect[3]
 	};
 
 
@@ -899,8 +967,11 @@ void Engine::DrawSpriteIntersection()
 	}
 }
 
+// http://www.chadvernon.com/blog/resources/managed-directx-2/sprites-and-2d/
+// A Sprite is a polygon with a texture applied to it.
 void Engine::Render()
 {
+/*
 	// Retrieve the size of the render target.
 	D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
 
@@ -908,6 +979,7 @@ void Engine::Render()
 
 	m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
 	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
+//	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Translation(200.0f, 0.0f));
 
 	DrawLeftMargin();
 	DrawRightMargin();
@@ -918,10 +990,6 @@ void Engine::Render()
 	DrawMapText();
 	DrawInventoryText();
 	DrawPackText();
-
-
-
-
 
 	// If the Player moves to the sides of the screen, scroll
 	//	 and don't render the grid.
@@ -959,19 +1027,115 @@ void Engine::Render()
 	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
 	// is lost. It will be handled during the next call to Present.
 	HRESULT hr = m_d2dContext->EndDraw();
+*/
+	// Note: The default render target is the back buffer.
 
+	// Select the render target to display.
 	m_d3dContext->OMSetRenderTargets(
 		1,
-		m_d3dRenderTargetView.GetAddressOf(),
+		m_d3dRenderTargetView.GetAddressOf(),	// The back buffer created with.
 		nullptr
 		);
 
-	DrawSprites();
+//	DrawSprites();
 
-	if (hr != D2DERR_RECREATE_TARGET)
+	float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+	m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView.Get(), color);
+
+	// set the vertex buffer
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
+
+	// set the primitive topology
+	m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	// draw 3 vertices, starting from vertex 0
+	m_d3dContext->Draw(4, 0);
+
+
+	/*
+	if (m_nCollisionState == COLLISION)
 	{
-		DX::ThrowIfFailed(hr);
+		ComPtr<ID3D11Texture2D> backBuffer;
+		DX::ThrowIfFailed(
+			m_swapChain->GetBuffer(
+				0,	// Number of the back buffer to obtain.
+				IID_PPV_ARGS(&backBuffer))
+			);
+
+		// We now have the address of the back buffer.
+
+		// A view is a representation of a model.
+		DX::ThrowIfFailed(
+			m_d3dDevice->CreateRenderTargetView(
+				backBuffer.Get(),	// Points to a texture.
+				nullptr,
+				&m_d3dRenderTargetView[DEFAULT_BACK_BUFFER]	// This associates m_d3dRenderTargetView[0] with the back buffer.
+				)
+			);
+
+
+		// Cache the rendertarget dimensions in our helper class for convenient use.
+		D3D11_TEXTURE2D_DESC backBufferDesc = { 0 };
+		backBuffer->GetDesc(&backBufferDesc);
+		//m_renderTargetSize.Width = static_cast<float>(backBufferDesc.Width);
+		//m_renderTargetSize.Height = static_cast<float>(backBufferDesc.Height);
+
+		count += 10;
+
+		CD3D11_VIEWPORT viewport(
+			(float)count, // 500.0f, // 500.0f,
+			0.0f,
+			static_cast<float>(backBufferDesc.Width),
+			static_cast<float>(backBufferDesc.Height)
+			);
+
+
+		m_d3dContext->RSSetViewports(1, &viewport);
 	}
+	else
+	{
+		count = 0;
+	}
+*/
+
+
+
+
+
+
+
+
+
+
+	//float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+	//m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView[DEFAULT_BACK_BUFFER].Get(), color);
+
+/*
+	ComPtr<ID3D11Buffer> vertexbuffer;
+
+	VERTEX OurVertices[] =
+	{
+		{ 0.0f, 0.5f, 0.0f },
+		{ 0.45f, -0.5f, 0.0f },
+		{ -0.45f, -0.5f, 0.0f },
+	};
+
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(OurVertices);
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA srd = { OurVertices, 0, 0 };
+
+	m_d3dDevice->CreateBuffer(&bd, &srd, &vertexbuffer);
+*/
+
+
+	//if (hr != D2DERR_RECREATE_TARGET)
+	//{
+	//	DX::ThrowIfFailed(hr);
+	//}
 }
 
 void Engine::Run()
@@ -1089,6 +1253,7 @@ void Engine::DrawSprites()
 			);
 	}
 
+/*
 	m_heart.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
 	D3D11_TEXTURE2D_DESC heartDesc;
 	pTextureInterface->GetDesc(&heartDesc);
@@ -1119,7 +1284,7 @@ void Engine::DrawSprites()
 		float4(0.8f, 0.8f, 1.0f, 1.0f),
 		m_orchiData.rot
 		);
-
+*/
 	m_spriteBatch->End();
 }
 
@@ -1375,7 +1540,7 @@ void Engine::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core:
 
 void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 {
-	float radius = sqrt((double)horizontal * (double)horizontal + (double)vertical * (double)vertical);
+	float radius = (float)(sqrt((double)horizontal * (double)horizontal + (double)vertical * (double)vertical));
 	float velocity = 0.f;
 
 	if (radius < WALKING_THRESHOLD)
@@ -1410,7 +1575,7 @@ void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 	else
 	{
 		float param = (float)vertical / (float)horizontal;
-		float theta = atan(param) * 180.0f / PI;
+		float theta = (float)(atan(param) * 180.0f / PI);
 
 		if (horizontal > 0 && vertical > 0)
 		{
@@ -1445,4 +1610,27 @@ void Engine::HandleLeftThumbStick(short horizontal, short vertical)
 				m_pPlayer->MoveSouth(m_nCollisionState, velocity);
 		}
 	}
+}
+
+Array<byte>^ Engine::LoadShaderFile(std::string File)
+{
+	Array<byte>^ FileData = nullptr;
+
+	// open the file
+	std::ifstream VertexFile(File, std::ios::in | std::ios::binary | std::ios::ate);
+
+	// if open was successful
+	if (VertexFile.is_open())
+	{
+		// find the length of the file
+		int Length = (int)VertexFile.tellg();
+
+		// collect the file data
+		FileData = ref new Array<byte>(Length);
+		VertexFile.seekg(0, std::ios::beg);
+		VertexFile.read(reinterpret_cast<char*>(FileData->Data), Length);
+		VertexFile.close();
+	}
+
+	return FileData;
 }

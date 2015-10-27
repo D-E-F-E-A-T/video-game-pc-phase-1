@@ -482,15 +482,6 @@ void SpriteBatch::End()
 		BYTE * mappedData = reinterpret_cast<BYTE *>(mappedSubresource.pData);
 		int pitch = mappedSubresource.RowPitch;
 
-/*
-		for (int i = 0; i < 256; i++)
-		{
-			char buf[32];
-			sprintf_s(buf, "%d = %d\n", i, mappedData[i] );
-			OutputDebugStringA(buf);
-		}
-*/
-
         *static_cast<float2*>(mappedSubresource.pData) = m_renderTargetSize;
         m_d3dContext->Unmap(
             m_renderTargetInfoCbuffer.Get(),
@@ -700,49 +691,49 @@ unsigned int SpriteBatch::MakeUnorm(float4 color)
 float2 SpriteBatch::StandardOrigin(float2 position, PositionUnits positionUnits, float2 renderTargetSize, float dpi)
 {
     float2 origin;
-    if (positionUnits == PositionUnits::Pixels)
-    {
-        origin.x = (position.x / renderTargetSize.x) * 2.0f - 1.0f;
-        origin.y = 1.0f - (position.y / renderTargetSize.y) * 2.0f;
-    }
-    else if (positionUnits == PositionUnits::DIPs)
+    //if (positionUnits == PositionUnits::Pixels)
+    //{
+    //    origin.x = (position.x / renderTargetSize.x) * 2.0f - 1.0f;
+    //    origin.y = 1.0f - (position.y / renderTargetSize.y) * 2.0f;
+    //}
+    if (positionUnits == PositionUnits::DIPs)
     {
         origin.x = ((position.x * dpi / 96.0f) / renderTargetSize.x) * 2.0f - 1.0f;
         origin.y = 1.0f - ((position.y * dpi / 96.0f) / renderTargetSize.y) * 2.0f;
     }
-    else if (positionUnits == PositionUnits::Normalized)
-    {
-        origin.x = position.x * 2.0f - 1.0f;
-        origin.y = 1.0f - position.y * 2.0f;
-    }
-    else if (positionUnits == PositionUnits::UniformWidth)
-    {
-        origin.x = position.x * 2.0f - 1.0f;
-        origin.y = 1.0f - position.y * (renderTargetSize.x / renderTargetSize.y) * 2.0f;
-    }
-    else if (positionUnits == PositionUnits::UniformHeight)
-    {
-        origin.x = position.x * (renderTargetSize.y / renderTargetSize.x) * 2.0f - 1.0f;
-        origin.y = 1.0f - position.y * 2.0f;
-    }
+    //else if (positionUnits == PositionUnits::Normalized)
+    //{
+    //    origin.x = position.x * 2.0f - 1.0f;
+    //    origin.y = 1.0f - position.y * 2.0f;
+    //}
+    //else if (positionUnits == PositionUnits::UniformWidth)
+    //{
+    //    origin.x = position.x * 2.0f - 1.0f;
+    //    origin.y = 1.0f - position.y * (renderTargetSize.x / renderTargetSize.y) * 2.0f;
+    //}
+    //else if (positionUnits == PositionUnits::UniformHeight)
+    //{
+    //    origin.x = position.x * (renderTargetSize.y / renderTargetSize.x) * 2.0f - 1.0f;
+    //    origin.y = 1.0f - position.y * 2.0f;
+    //}
     return origin;
 }
 
 float2 SpriteBatch::StandardOffset(float2 size, SizeUnits sizeUnits, float2 spriteSize, float dpi)
 {
     float2 offset;
-    if (sizeUnits == SizeUnits::Pixels)
-    {
-        offset = size;
-    }
-    else if (sizeUnits == SizeUnits::DIPs)
+    //if (sizeUnits == SizeUnits::Pixels)
+    //{
+    //    offset = size;
+    //}
+    if (sizeUnits == SizeUnits::DIPs)
     {
         offset = size * dpi / 96.0f;
     }
-    else if (sizeUnits == SizeUnits::Normalized)
-    {
-        offset = spriteSize * size;
-    }
+    //else if (sizeUnits == SizeUnits::Normalized)
+    //{
+    //    offset = spriteSize * size;
+    //}
     return offset;
 }
 
@@ -876,7 +867,7 @@ void SpriteBatch::Draw(
     if (m_technique == RenderTechnique::GeometryShader || m_technique == RenderTechnique::Instancing)
     {
         m_instanceData[m_numSpritesDrawn].origin = origin;
-        m_instanceData[m_numSpritesDrawn].offset = offset;
+		m_instanceData[m_numSpritesDrawn].offset = offset;
         m_instanceData[m_numSpritesDrawn].rotation = rotation;
         m_instanceData[m_numSpritesDrawn].color = MakeUnorm(color);
     }

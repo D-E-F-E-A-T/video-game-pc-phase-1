@@ -11,7 +11,7 @@ ScreenBuilder::ScreenBuilder(float screenWidth, float screenHeight)
 /*
 	TODO: Use web services
 */
-void ScreenBuilder::BuildScreen(std::vector<BaseSpriteData *> * m_treeData)
+void ScreenBuilder::BuildScreen1(std::vector<BaseSpriteData *> * m_treeData)
 {
 	m_treeData->clear();
 

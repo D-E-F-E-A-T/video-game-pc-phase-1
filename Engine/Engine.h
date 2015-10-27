@@ -13,6 +13,7 @@
 #include "Grid.h"
 #include "NarrowCollisionStrategy.h"
 #include "BroadCollisionStrategy.h"
+#include <fstream>
 
 using namespace Microsoft::WRL;
 
@@ -201,6 +202,15 @@ private:
 	int intersectRect[4];
 	void DrawSpriteIntersection();
 	int m_nCollisionState;
+
+	int count;
+
+	Platform::Array<byte> ^ LoadShaderFile(std::string File);
+
+	ComPtr<ID3D11Buffer> vertexbuffer;              // the vertex buffer interface
+	ComPtr<ID3D11VertexShader> vertexshader;        // the vertex shader interface
+	ComPtr<ID3D11PixelShader> pixelshader;          // the pixel shader interface
+	ComPtr<ID3D11InputLayout> inputlayout;          // the input layout interface
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

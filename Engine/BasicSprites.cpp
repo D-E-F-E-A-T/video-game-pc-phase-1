@@ -395,7 +395,7 @@ void SpriteBatch::RemoveTexture(
     m_textureMap.erase(texture);
 }
 
-void SpriteBatch::Begin()
+void SpriteBatch::Begin(ComPtr<ID3D11RenderTargetView> renderTargetView)
 {
     // Reset internal sprite data.
 
@@ -405,12 +405,6 @@ void SpriteBatch::Begin()
 
     // Get the current render target dimensions and logical DPI.
 
-    ComPtr<ID3D11RenderTargetView> renderTargetView;
-    m_d3dContext->OMGetRenderTargets(
-        1,
-        &renderTargetView,
-        nullptr
-        );
 
     ComPtr<ID3D11Resource> renderTarget;
     renderTargetView->GetResource(&renderTarget);

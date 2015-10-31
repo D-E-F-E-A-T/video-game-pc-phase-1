@@ -42,6 +42,8 @@ using namespace Platform;
 
 static const float AnimationDuration = 20.0f; // Defines how long it takes the triangle to traverse the path.
 
+
+// What is a sprite?: https://msdn.microsoft.com/en-us/library/bb203919.aspx
 namespace
 {
 	struct VERTEX
@@ -971,7 +973,6 @@ void Engine::DrawSpriteIntersection()
 // A Sprite is a polygon with a texture applied to it.
 void Engine::Render()
 {
-/*
 	// Retrieve the size of the render target.
 	D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
 
@@ -980,6 +981,7 @@ void Engine::Render()
 	m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
 	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
 //	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Translation(200.0f, 0.0f));
+
 
 	DrawLeftMargin();
 	DrawRightMargin();
@@ -1027,7 +1029,7 @@ void Engine::Render()
 	// We ignore D2DERR_RECREATE_TARGET here. This error indicates that the device
 	// is lost. It will be handled during the next call to Present.
 	HRESULT hr = m_d2dContext->EndDraw();
-*/
+
 	// Note: The default render target is the back buffer.
 
 	// Select the render target to display.
@@ -1037,9 +1039,18 @@ void Engine::Render()
 		nullptr
 		);
 
-//	DrawSprites();
 
-	float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+
+
+	DrawSprites();
+	
+
+	//m_d3dContext->CopySubresourceRegion(
+	//	m_d3dRenderTargetView,
+
+	//	)
+/*
+	float color[4] = { 0.0f, 0.2f, 0.4f, 0.25f };
 	m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView.Get(), color);
 
 	// set the vertex buffer
@@ -1052,9 +1063,10 @@ void Engine::Render()
 
 	// draw 3 vertices, starting from vertex 0
 	m_d3dContext->Draw(4, 0);
+*/
 
 
-	/*
+/*
 	if (m_nCollisionState == COLLISION)
 	{
 		ComPtr<ID3D11Texture2D> backBuffer;
@@ -1071,7 +1083,7 @@ void Engine::Render()
 			m_d3dDevice->CreateRenderTargetView(
 				backBuffer.Get(),	// Points to a texture.
 				nullptr,
-				&m_d3dRenderTargetView[DEFAULT_BACK_BUFFER]	// This associates m_d3dRenderTargetView[0] with the back buffer.
+				&m_d3dRenderTargetView	// This associates m_d3dRenderTargetView[0] with the back buffer.
 				)
 			);
 
@@ -1085,8 +1097,8 @@ void Engine::Render()
 		count += 10;
 
 		CD3D11_VIEWPORT viewport(
-			(float)count, // 500.0f, // 500.0f,
-			0.0f,
+			500.f, //(float)count, // 500.0f, // 500.0f,
+			500.0f,
 			static_cast<float>(backBufferDesc.Width),
 			static_cast<float>(backBufferDesc.Height)
 			);
@@ -1099,6 +1111,7 @@ void Engine::Render()
 		count = 0;
 	}
 */
+
 
 
 
@@ -1228,7 +1241,14 @@ void Engine::Run()
 
 void Engine::DrawSprites()
 {
-	m_spriteBatch->Begin();
+	ComPtr<ID3D11RenderTargetView> renderTargetView;
+	m_d3dContext->OMGetRenderTargets(
+		1,
+		&renderTargetView,
+		nullptr
+		);
+
+	m_spriteBatch->Begin(renderTargetView);
 	
 	// @see: http://www.gamedev.net/topic/603359-c-dx11-how-to-get-texture-size/
 
@@ -1253,7 +1273,6 @@ void Engine::DrawSprites()
 			);
 	}
 
-/*
 	m_heart.Get()->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
 	D3D11_TEXTURE2D_DESC heartDesc;
 	pTextureInterface->GetDesc(&heartDesc);
@@ -1284,7 +1303,7 @@ void Engine::DrawSprites()
 		float4(0.8f, 0.8f, 1.0f, 1.0f),
 		m_orchiData.rot
 		);
-*/
+
 	m_spriteBatch->End();
 }
 

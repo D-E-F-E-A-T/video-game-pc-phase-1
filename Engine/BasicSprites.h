@@ -12,6 +12,8 @@
 #include <map>
 #include <memory>
 
+using namespace Microsoft::WRL;
+
 namespace BasicSprites
 {
     namespace Parameters
@@ -98,7 +100,7 @@ namespace BasicSprites
         void RemoveTexture(
             _In_ ID3D11Texture2D* texture
             );
-        void Begin();
+		void Begin(ComPtr<ID3D11RenderTargetView> renderTargetView);
         void End();
         void Draw(
             _In_ ID3D11Texture2D* texture,

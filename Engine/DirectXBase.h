@@ -35,12 +35,15 @@ protected private:
     Microsoft::WRL::ComPtr<ID3D11DeviceContext2>    m_d3dContext;	// "Control Panel" for the GPU.
     Microsoft::WRL::ComPtr<IDXGISwapChain1>         m_swapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_d3dRenderTargetView; // 1 and 2 used for scrolling. 0 is default back buffer.
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_d3dScratchRenderTargetView; // 1 and 2 used for scrolling. 0 is default back buffer.
+	ID3D11Texture2D* m_renderTargetTexture;
 
     // Direct2D Rendering Objects. Required for 2D.
     Microsoft::WRL::ComPtr<ID2D1Factory2>           m_d2dFactory;
     Microsoft::WRL::ComPtr<ID2D1Device1>            m_d2dDevice;
     Microsoft::WRL::ComPtr<ID2D1DeviceContext1>     m_d2dContext;
     Microsoft::WRL::ComPtr<ID2D1Bitmap1>            m_d2dTargetBitmap;
+
 
     // Direct3D Rendering Objects. Required for 3D.
 //    Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_d3dDepthStencilView;
@@ -52,3 +55,4 @@ protected private:
     float                                           m_dpi;
     bool                                            m_windowSizeChangeInProgress;
 };
+

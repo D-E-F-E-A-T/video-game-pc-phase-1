@@ -14,3 +14,5 @@
 #include <vector>
 #include <dinput.h>
 #include <list>
+#include <DirectXMath.h>
+

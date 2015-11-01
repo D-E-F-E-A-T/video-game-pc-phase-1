@@ -34,6 +34,12 @@
     <ClCompile Include="BroadCollisionStrategy.cpp" />
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="NarrowCollisionStrategy.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
+    <ClCompile Include="d3dUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicLoader.h" />
@@ -89,6 +95,13 @@
     <ClInclude Include="BroadCollisionStrategy.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="NarrowCollisionStrategy.h" />
+    <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="d3dx11effect.h" />
+    <ClInclude Include="Effects.h" />
+    <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="d3dUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="squaretile-sdk.png" />

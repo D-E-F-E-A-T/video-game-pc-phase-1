@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "DirectXBase.h"
 #include "Constants.h"
+#include "GeometryGenerator.h"
+#include "vertex.h"
 
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -13,6 +15,8 @@ DirectXBase::DirectXBase() :
 	m_windowSizeChangeInProgress(false),
 	m_dpi(-1.0f)
 {
+	mScreenQuadVB = NULL;
+	mScreenQuadIB = NULL;
 }
 
 // Initialize the DirectX resources required to run.
@@ -23,6 +27,8 @@ void DirectXBase::Initialize(CoreWindow^ window, float dpi)
 	CreateDeviceIndependentResources();
 	CreateDeviceResources();
 	SetDpi(dpi);
+
+	BuildScreenQuadGeometryBuffers();
 }
 
 // Recreate all device resources and set them back to the current state.
@@ -190,10 +196,10 @@ void DirectXBase::UpdateForWindowSizeChange()
 		//		for (int i = 0; i < NUM_RENDER_TARGETS; i++)
 		{
 			m_d3dRenderTargetView = nullptr;
-			m_d3dScratchRenderTargetView = nullptr;
+			m_d3dOffscreenRenderTargetView = nullptr;
 		}
 
-		//        m_d3dDepthStencilView = nullptr;
+		m_d3dDepthStencilView = nullptr;
 		m_windowSizeChangeInProgress = true;
 		CreateWindowSizeDependentResources();
 	}
@@ -288,52 +294,7 @@ void DirectXBase::CreateWindowSizeDependentResources()
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 
-	ComPtr<ID3D11Texture2D> backBuffer;
-
-	// Initialize the render target texture description.
-	ZeroMemory(&textureDesc, sizeof(textureDesc));
-
-	// Setup the render target texture description.
-	textureDesc.Width = 500.f;
-	textureDesc.Height = 500.f;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	textureDesc.CPUAccessFlags = 0;
-	textureDesc.MiscFlags = 0;
-
-	// Create the render target texture.
-	result = m_d3dDevice->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
-
-	// Setup the description of the render target view.
-	renderTargetViewDesc.Format = textureDesc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-
-	// Create the render target view.
-	result = m_d3dDevice->CreateRenderTargetView(
-		m_renderTargetTexture, 
-		&renderTargetViewDesc, 
-		&m_d3dScratchRenderTargetView);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	ComPtr<ID3D11Texture2D> buffer1;
 
 
 
@@ -351,7 +312,7 @@ void DirectXBase::CreateWindowSizeDependentResources()
 	DX::ThrowIfFailed(
 		m_swapChain->GetBuffer(
 			0,	// Number of the back buffer to obtain.
-			IID_PPV_ARGS(&backBuffer))
+			IID_PPV_ARGS(&buffer1))
 		);
 
 
@@ -361,57 +322,106 @@ void DirectXBase::CreateWindowSizeDependentResources()
 	// A view is a representation of a model.
 	DX::ThrowIfFailed(
 		m_d3dDevice->CreateRenderTargetView(
-			backBuffer.Get(),	// Points to a texture.
+			buffer1.Get(),	// Points to a texture.
 			nullptr,
 			&m_d3dRenderTargetView	// This associates m_d3dRenderTargetView[0] with the back buffer.
 			)
 		);
 
-
-	//DX::ThrowIfFailed(
-	//	m_d3dDevice->CreateRenderTargetView(
-	//		pTexture,
-	//		nullptr,
-	//		&m_d3dScratchRenderTargetView
-	//		)
-	//	);
-
 	// RMB: m_d3dRenderTargetView[DEFAULT_BACK_BUFFER] now represents the back buffer.
 
 	// Cache the rendertarget dimensions in our helper class for convenient use.
 	D3D11_TEXTURE2D_DESC backBufferDesc = { 0 };
-	backBuffer->GetDesc(&backBufferDesc);
+	buffer1->GetDesc(&backBufferDesc);
 	m_renderTargetSize.Width = static_cast<float>(backBufferDesc.Width);
 	m_renderTargetSize.Height = static_cast<float>(backBufferDesc.Height);
 
 
+
+
+
+	// Initialize the render target texture description.
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+
+	// Setup the render target texture description.
+	textureDesc.Width = m_renderTargetSize.Width;
+	textureDesc.Height = m_renderTargetSize.Height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags =
+		D3D11_BIND_RENDER_TARGET | // Want to render to an off-screen texture
+		D3D11_BIND_SHADER_RESOURCE |
+		D3D11_BIND_UNORDERED_ACCESS;
+
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	ID3D11Texture2D * offscreenTex = NULL;
+
+	// Create the render target texture.
+	result = m_d3dDevice->CreateTexture2D(
+		&textureDesc,
+		NULL,
+		&m_renderTargetTexture);
+
+	// Setup the description of the render target view.
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	// Create the render target view.
+	result = m_d3dDevice->CreateRenderTargetView(
+		m_renderTargetTexture,
+		&renderTargetViewDesc,
+		&m_d3dOffscreenRenderTargetView);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// Create a depth stencil view for use with 3D rendering if needed.
-	//CD3D11_TEXTURE2D_DESC depthStencilDesc(
-	//    DXGI_FORMAT_D24_UNORM_S8_UINT,
-	//    backBufferDesc.Width,
-	//    backBufferDesc.Height,
-	//    1,
-	//    1,
-	//    D3D11_BIND_DEPTH_STENCIL
-	//    );
+	CD3D11_TEXTURE2D_DESC depthStencilDesc(
+	    DXGI_FORMAT_D24_UNORM_S8_UINT,
+	    backBufferDesc.Width,
+	    backBufferDesc.Height,
+	    1,
+	    1,
+	    D3D11_BIND_DEPTH_STENCIL
+	    );
 
-	//ComPtr<ID3D11Texture2D> depthStencil;
-	//DX::ThrowIfFailed(
-	//    m_d3dDevice->CreateTexture2D(
-	//        &depthStencilDesc,
-	//        nullptr,
-	//        &depthStencil
-	//        )
-	//    );
+	ComPtr<ID3D11Texture2D> depthStencil;
+	DX::ThrowIfFailed(
+	    m_d3dDevice->CreateTexture2D(
+	        &depthStencilDesc,
+	        nullptr,
+	        &depthStencil
+	        )
+	    );
 
-	//auto viewDesc = CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D);
-	//DX::ThrowIfFailed(
-	//    m_d3dDevice->CreateDepthStencilView(
-	//        depthStencil.Get(),
-	//        &viewDesc,
-	//        &m_d3dDepthStencilView
-	//        )
-	//    );
+	auto viewDesc = CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D);
+	DX::ThrowIfFailed(
+	    m_d3dDevice->CreateDepthStencilView(
+	        depthStencil.Get(),
+	        &viewDesc,
+	        &m_d3dDepthStencilView
+	        )
+	    );
 
 	// Set the 3D rendering viewport to target the entire window.
 	CD3D11_VIEWPORT viewport(
@@ -420,6 +430,14 @@ void DirectXBase::CreateWindowSizeDependentResources()
 		static_cast<float>(backBufferDesc.Width /* * 0.5f */),
 		static_cast<float>(backBufferDesc.Height /* * 0.5f */)
 		);
+
+	//D3D11_VIEWPORT vp;
+	//vp.TopLeftX = 0.0f;
+	//vp.TopLeftY = 500.0f;
+	//vp.Width = static_cast<float>(200.f);
+	//vp.Height = static_cast<float>(200.f);
+	//vp.MinDepth = 0.0f;
+	//vp.MaxDepth = 1.0f;
 
 	m_d3dContext->RSSetViewports(1, &viewport);
 
@@ -471,35 +489,35 @@ void DirectXBase::Present()
 	// The first argument instructs DXGI to block until VSync, putting the application
 	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
 	// frames that will never be displayed to the screen.
-	HRESULT hr = m_swapChain->Present1(1, 0, &parameters);	// // 
+	HRESULT hr = m_swapChain->Present(0, 0);// &parameters);	// // 
 
 	// Discard the contents of the render target.
 	// This is a valid operation only when the existing contents will be entirely
 	// overwritten. If dirty or scroll rects are used, this call should be removed.
-	m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
+	//m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
 
-	// Discard the contents of the depth stencil.
-//    m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
+	//// Discard the contents of the depth stencil.
+ //   m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
 
-	// If the device was removed either by a disconnect or a driver upgrade, we
-	// must recreate all device resources.
-	if (hr == DXGI_ERROR_DEVICE_REMOVED)
-	{
-		HandleDeviceLost();
-	}
-	else
-	{
-		DX::ThrowIfFailed(hr);
-	}
+	//// If the device was removed either by a disconnect or a driver upgrade, we
+	//// must recreate all device resources.
+	//if (hr == DXGI_ERROR_DEVICE_REMOVED)
+	//{
+	//	HandleDeviceLost();
+	//}
+	//else
+	//{
+	//	DX::ThrowIfFailed(hr);
+	//}
 
-	if (m_windowSizeChangeInProgress)
-	{
-		// A window size change has been initiated and the app has just completed presenting
-		// the first frame with the new size. Notify the resize manager so we can short
-		// circuit any resize animation and prevent unnecessary delays.
-		CoreWindowResizeManager::GetForCurrentView()->NotifyLayoutCompleted();
-		m_windowSizeChangeInProgress = false;
-	}
+	//if (m_windowSizeChangeInProgress)
+	//{
+	//	// A window size change has been initiated and the app has just completed presenting
+	//	// the first frame with the new size. Notify the resize manager so we can short
+	//	// circuit any resize animation and prevent unnecessary delays.
+	//	CoreWindowResizeManager::GetForCurrentView()->NotifyLayoutCompleted();
+	//	m_windowSizeChangeInProgress = false;
+	//}
 }
 
 void DirectXBase::ValidateDevice()
@@ -549,4 +567,46 @@ void DirectXBase::Trim()
 	m_d3dDevice.As(&dxgiDevice);
 
 	dxgiDevice->Trim();
+}
+
+void DirectXBase::BuildScreenQuadGeometryBuffers()
+{
+	GeometryGenerator::MeshData quad;
+
+	GeometryGenerator geoGen;
+	//geoGen.CreateFullscreenQuad(quad);
+	geoGen.CreateBox(100.f, 100.f, 1, 100, quad);
+
+	std::vector<Vertex::Basic32> vertices(quad.Vertices.size());
+
+	for (UINT i = 0; i < quad.Vertices.size(); ++i)
+	{
+		vertices[i].Pos = quad.Vertices[i].Position;
+		vertices[i].Normal = quad.Vertices[i].Normal;
+		vertices[i].Tex = quad.Vertices[i].TexC;
+	}
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::Basic32) * quad.Vertices.size();
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	m_d3dDevice->CreateBuffer(&vbd, &vinitData, &mScreenQuadVB);
+
+	//
+	// Pack the indices of all the meshes into one index buffer.
+	//
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * quad.Indices.size();
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &quad.Indices[0];
+	m_d3dDevice->CreateBuffer(&ibd, &iinitData, &mScreenQuadIB);
 }

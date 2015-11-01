@@ -14,8 +14,11 @@
 #include "NarrowCollisionStrategy.h"
 #include "BroadCollisionStrategy.h"
 #include <fstream>
+#include <DirectXMath.h>
 
 using namespace Microsoft::WRL;
+using namespace DirectX;
+
 
 ref class Engine : public DirectXBase , public Windows::ApplicationModel::Core::IFrameworkView
 {
@@ -211,6 +214,18 @@ private:
 	ComPtr<ID3D11VertexShader> vertexshader;        // the vertex shader interface
 	ComPtr<ID3D11PixelShader> pixelshader;          // the pixel shader interface
 	ComPtr<ID3D11InputLayout> inputlayout;          // the input layout interface
+
+	void DrawWrapper();
+
+	XMFLOAT4X4 mView;
+	XMFLOAT4X4 mProj;
+
+	ID3D11Buffer* mBoxVB;
+	ID3D11Buffer* mBoxIB;
+
+	XMFLOAT4X4 mBoxWorld;
+
+	void DrawScreenQuad();
 };
 
 ref class DirectXAppSource : Windows::ApplicationModel::Core::IFrameworkViewSource

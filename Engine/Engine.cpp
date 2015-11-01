@@ -26,6 +26,11 @@
 #include "LifePanel.h"
 #include "GridSpace.h"
 #include "BroadCollisionStrategy.h"
+#include "Vertex.h"
+#include "d3dx11effect.h"
+#include "MathHelper.h"
+#include "Effects.h"
+#include "RenderStates.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
@@ -116,6 +121,10 @@ Engine::Engine() :
 
 	m_pCollided = new list<BaseSpriteData *>;
 	m_pTreeData = new std::vector<BaseSpriteData *>;
+
+	XMMATRIX boxScale = XMMatrixScaling(15.0f, 15.0f, 15.0f);
+	XMMATRIX boxOffset = XMMatrixTranslation(8.0f, 5.0f, -15.0f);
+	XMStoreFloat4x4(&mBoxWorld, boxScale*boxOffset);
 }
 
 void Engine::CreateDeviceIndependentResources()
@@ -980,7 +989,7 @@ void Engine::Render()
 
 	m_d2dContext->Clear(D2D1::ColorF(D2D1::ColorF::Tan));
 	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
-//	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Translation(200.0f, 0.0f));
+	//	m_d2dContext->SetTransform(D2D1::Matrix3x2F::Translation(200.0f, 0.0f));
 
 
 	DrawLeftMargin();
@@ -1033,37 +1042,70 @@ void Engine::Render()
 	// Note: The default render target is the back buffer.
 
 	// Select the render target to display.
+
+	ID3D11RenderTargetView * renderTargets[1] = { m_d3dOffscreenRenderTargetView.Get() };
+	/*
+	// Draw to the scratchbuffer.
 	m_d3dContext->OMSetRenderTargets(
 		1,
-		m_d3dRenderTargetView.GetAddressOf(),	// The back buffer created with.
-		nullptr
+		renderTargets,
+		m_d3dDepthStencilView.Get()
 		);
 
+	float color[4] = { 0.0f, 0.0f, 1.0f, 0.25f };
+	m_d3dContext->ClearRenderTargetView(m_d3dOffscreenRenderTargetView.Get(), color);
+
+	m_d3dContext->ClearDepthStencilView(
+		m_d3dDepthStencilView.Get(),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		0);
+*/
 
 
+	//DrawSprites();
+	//DrawWrapper();
+	
+	// Restore the back buffer.
+	renderTargets[0] = m_d3dRenderTargetView.Get();
+
+	m_d3dContext->OMSetRenderTargets(
+		1,
+		m_d3dRenderTargetView.GetAddressOf(), //renderTargets,
+		m_d3dDepthStencilView.Get());
+
+	//float color2[4] = { 1.0f, 0.0f, 0.0f, 0.25f };
+	//m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView.Get(), color2);
+
+	m_d3dContext->ClearDepthStencilView(
+		m_d3dDepthStencilView.Get(),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		0);
 
 	DrawSprites();
-	
+
+
+	//DrawScreenQuad();
+
+	//m_swapChain->Present(0, 0);
 
 	//m_d3dContext->CopySubresourceRegion(
 	//	m_d3dRenderTargetView,
 
 	//	)
-/*
-	float color[4] = { 0.0f, 0.2f, 0.4f, 0.25f };
-	m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView.Get(), color);
 
 	// set the vertex buffer
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
+	//UINT stride = sizeof(VERTEX);
+	//UINT offset = 0;
+	//m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
 
-	// set the primitive topology
-	m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	//// set the primitive topology
+	//m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	// draw 3 vertices, starting from vertex 0
-	m_d3dContext->Draw(4, 0);
-*/
+	//// draw 3 vertices, starting from vertex 0
+	//m_d3dContext->Draw(4, 0);
+
 
 
 /*
@@ -1242,20 +1284,27 @@ void Engine::Run()
 void Engine::DrawSprites()
 {
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
+
+	// Get the target associated with the back buffer.
+	// Select the scratch buffer for drawing sprites.
 	m_d3dContext->OMGetRenderTargets(
 		1,
 		&renderTargetView,
+//		&m_d3dOffscreenRenderTargetView,
 		nullptr
 		);
 
 	m_spriteBatch->Begin(renderTargetView);
+//	m_spriteBatch->Begin(m_d3dOffscreenRenderTargetView);
 	
 	// @see: http://www.gamedev.net/topic/603359-c-dx11-how-to-get-texture-size/
+
 
 	ID3D11Texture2D * pTextureInterface = NULL;
 
 	std::vector<BaseSpriteData *>::const_iterator iterator;
 
+/*
 	// This is a sprite run.
 	for (iterator = m_pTreeData->begin(); iterator != m_pTreeData->end(); iterator++)
 	{
@@ -1292,7 +1341,7 @@ void Engine::DrawSprites()
 			heart->rot
 			);
 	}
-
+*/
 	// This is a sprite run.
 	m_spriteBatch->Draw(
 		m_orchi.Get(),
@@ -1305,6 +1354,11 @@ void Engine::DrawSprites()
 		);
 
 	m_spriteBatch->End();
+
+	// Copy from the scratch buffer to the back buffer.
+	// Create a bitmap and copy??? http://xboxforums.create.msdn.com/forums/p/84925/511738.aspx
+//	renderTargetView->
+
 }
 
 
@@ -1652,4 +1706,145 @@ Array<byte>^ Engine::LoadShaderFile(std::string File)
 	}
 
 	return FileData;
+}
+
+void Engine::DrawWrapper()
+{
+	//m_d3dContext->IASetInputLayout(InputLayouts::Basic32);
+	//m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	UINT stride = sizeof(Vertex::Basic32);
+	UINT offset = 0;
+
+	//XMMATRIX view = XMLoadFloat4x4(&mView);
+	//XMMATRIX proj = XMLoadFloat4x4(&mProj);
+	//XMMATRIX viewProj = view*proj;
+
+
+
+
+	//	// Set per object constants.
+	//	XMMATRIX world = XMLoadFloat4x4(&mBoxWorld);
+	//	XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+	//	XMMATRIX worldViewProj = world*view*proj;
+
+
+		//stride = sizeof(VERTEX);
+		//offset = 0;
+//		m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
+		m_d3dContext->IASetInputLayout(NULL);
+
+
+		// set the primitive topology
+		m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+		// draw 3 vertices, starting from vertex 0
+		m_d3dContext->Draw(4, 0);
+
+//		Effects::BasicFX->SetWorld(world);
+		//Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		//Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		//Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+		//Effects::BasicFX->SetMaterial(mBoxMat);
+		//Effects::BasicFX->SetDiffuseMap(mCrateSRV);
+
+//		m_d3dContext->RSSetState(RenderStates::NoCullRS);
+//		boxTech->GetPassByIndex(p)->Apply(0, m_d3dContext);
+//		m_d3dContext->DrawIndexed(36, 0, 0);
+
+		// Restore default render state.
+//		m_d3dContext->RSSetState(0);
+//	}
+
+	//
+	// Draw the hills and water with texture and fog (no alpha clipping needed).
+	//
+
+/*
+	landAndWavesTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//
+		// Draw the hills.
+		//
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mLandVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mLandIB, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set per object constants.
+		XMMATRIX world = XMLoadFloat4x4(&mLandWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		XMMATRIX worldViewProj = world*view*proj;
+
+		Effects::BasicFX->SetWorld(world);
+		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mGrassTexTransform));
+		Effects::BasicFX->SetMaterial(mLandMat);
+		Effects::BasicFX->SetDiffuseMap(mGrassMapSRV);
+
+		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
+
+		//
+		// Draw the waves.
+		//
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mWavesVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mWavesIB, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set per object constants.
+		world = XMLoadFloat4x4(&mWavesWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world*view*proj;
+
+		Effects::BasicFX->SetWorld(world);
+		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mWaterTexTransform));
+		Effects::BasicFX->SetMaterial(mWavesMat);
+		Effects::BasicFX->SetDiffuseMap(mWavesMapSRV);
+
+		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
+		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
+
+		// Restore default blend state
+		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+	}
+*/
+}
+
+
+void Engine::DrawScreenQuad()
+{
+	m_d3dContext->IASetInputLayout(InputLayouts::Basic32);
+	m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	UINT stride = sizeof(Vertex::Basic32);
+	UINT offset = 0;
+
+	XMMATRIX identity = XMMatrixIdentity();
+
+
+	//ID3DX11EffectTechnique* texOnlyTech = Effects::BasicFX->Light0TexTech;
+	//D3DX11_TECHNIQUE_DESC techDesc;
+
+	//texOnlyTech->GetDesc(&techDesc);
+	//for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		m_d3dContext->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
+		m_d3dContext->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
+
+//		Effects::BasicFX->SetWorld(identity);
+		//Effects::BasicFX->SetWorldInvTranspose(identity);
+		//Effects::BasicFX->SetWorldViewProj(identity);
+		//Effects::BasicFX->SetTexTransform(identity);
+		//Effects::BasicFX->SetDiffuseMap(mBlur.GetBlurredOutput());
+
+//		texOnlyTech->GetPassByIndex(p)->Apply(0, m_d3dContext);
+		m_d3dContext->DrawIndexed(1, 0, 0);
+	}
+
+
 }

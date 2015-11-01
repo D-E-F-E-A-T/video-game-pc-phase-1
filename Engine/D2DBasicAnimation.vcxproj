@@ -197,10 +197,14 @@
     <ClInclude Include="CollisionDetectionStrategy.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="BaseGridSpace.h" />
+    <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="d3dx11effect.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="DirectionalCollisionDetectionInfo.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="Effects.h" />
+    <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="GrassData.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Ground.h" />
@@ -208,14 +212,17 @@
     <ClInclude Include="HeartData.h" />
     <ClInclude Include="KeyboardControllerInput.h" />
     <ClInclude Include="LifePanel.h" />
+    <ClInclude Include="MathHelper.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="NarrowCollisionStrategy.h" />
     <ClInclude Include="NonDirectionalCollisionDetectionInfo.h" />
+    <ClInclude Include="RenderStates.h" />
     <ClInclude Include="ScreenUtils.h" />
     <ClInclude Include="SpriteOverlapCollisionStrategy.h" />
     <ClInclude Include="OrchiData.h" />
     <ClInclude Include="SpriteRepository.h" />
     <ClInclude Include="StoneWallData.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="WaterData.h" />
     <ClInclude Include="LeftMargin.h" />
     <ClInclude Include="Player.h" />
@@ -246,14 +253,18 @@
     <ClCompile Include="BoundingBoxMidpointCollisionStrategy.cpp" />
     <ClCompile Include="BroadCollisionStrategy.cpp" />
     <ClCompile Include="CircularZoneCollisionStrategy.cpp" />
+    <ClCompile Include="d3dUtil.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DebugOverlay.cpp" />
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="KeyboardControllerInput.cpp" />
     <ClCompile Include="LeftMargin.cpp" />
     <ClCompile Include="LifePanel.cpp" />
+    <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="NarrowCollisionStrategy.cpp" />
     <ClCompile Include="pch.cpp">
@@ -266,6 +277,7 @@
     </ClCompile>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="RightMargin.cpp" />
     <ClCompile Include="Rock.cpp" />
     <ClCompile Include="SampleOverlay.cpp" />
@@ -276,6 +288,7 @@
     <ClCompile Include="SpriteOverlapCollisionStrategy.cpp" />
     <ClCompile Include="SpriteRepository.cpp" />
     <ClCompile Include="Tree.cpp" />
+    <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Water.cpp" />
     <ClCompile Include="WorldBuilder.cpp" />
   </ItemGroup>

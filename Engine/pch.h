@@ -15,4 +15,5 @@
 #include <dinput.h>
 #include <list>
 #include <DirectXMath.h>
+#include <d3dx11effect.h>
 

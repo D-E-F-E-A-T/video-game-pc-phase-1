@@ -59,5 +59,7 @@ protected private:
 	ID3D11Buffer * mScreenQuadIB;
 
 	void BuildScreenQuadGeometryBuffers();
+
+	ID3D11ShaderResourceView * mOutputTexture;
 };
 

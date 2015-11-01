@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.props" Condition="Exists('packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -198,7 +199,6 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="BaseGridSpace.h" />
     <ClInclude Include="d3dUtil.h" />
-    <ClInclude Include="d3dx11effect.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DebugOverlay.h" />
     <ClInclude Include="DirectionalCollisionDetectionInfo.h" />
@@ -388,6 +388,12 @@
   <ItemGroup>
     <Text Include="README.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="FX\Basic.fxo">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
   <!--  
   <ItemGroup>
     <FxCompile Include="BasicSprites.GeometryShader.gs.hlsl" />
@@ -399,5 +405,13 @@
 -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.targets" Condition="Exists('packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.props'))" />
+    <Error Condition="!Exists('packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\fx11_desktop_2013.2015.7.29.1\build\native\fx11_desktop_2013.targets'))" />
+  </Target>
 </Project>

@@ -98,7 +98,6 @@
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="d3dx11effect.h" />
     <ClInclude Include="Effects.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="d3dUtil.h" />
@@ -129,6 +128,9 @@
     <Filter Include="BasicLoader">
       <UniqueIdentifier>{f098d20a-c049-4e43-b404-6bbcf6749b8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FX">
+      <UniqueIdentifier>{c434408b-b536-4f62-8c9b-4b9bd5a83844}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicSprites.GeometryShader.gs.hlsl" />
@@ -141,5 +143,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FX\Basic.fxo">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

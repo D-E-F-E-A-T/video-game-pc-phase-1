@@ -27,7 +27,7 @@
 #include "GridSpace.h"
 #include "BroadCollisionStrategy.h"
 #include "Vertex.h"
-#include "d3dx11effect.h"
+//#include "d3dx11effect.h"
 #include "MathHelper.h"
 #include "Effects.h"
 #include "RenderStates.h"
@@ -1042,53 +1042,66 @@ void Engine::Render()
 	// Note: The default render target is the back buffer.
 
 	// Select the render target to display.
-
+	
 	ID3D11RenderTargetView * renderTargets[1] = { m_d3dOffscreenRenderTargetView.Get() };
-	/*
-	// Draw to the scratchbuffer.
+	
+	m_d3dContext->OMSetRenderTargets(1, renderTargets, m_d3dDepthStencilView.Get());
+
+	float color[4] = { 0.0f, 1.0f, 0.0f, 0.25f };
+	m_d3dContext->ClearRenderTargetView(m_d3dOffscreenRenderTargetView.Get(), color);
+	m_d3dContext->ClearDepthStencilView(
+		m_d3dDepthStencilView.Get(),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		0);
+
+
+	// Render to the offscreen texture.
+	DrawSprites();
+	//DrawWrapper();
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
+
+	// set the primitive topology
+	m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	// draw 3 vertices, starting from vertex 0
+	m_d3dContext->Draw(4, 0);
+
+
+
+
+
+	// Restore the back buffer.
+	renderTargets[0] = m_d3dRenderTargetView.Get();
+	//ID3D11RenderTargetView * renderTargets[1] = { m_d3dRenderTargetView.Get() };
+
 	m_d3dContext->OMSetRenderTargets(
 		1,
 		renderTargets,
-		m_d3dDepthStencilView.Get()
-		);
-
-	float color[4] = { 0.0f, 0.0f, 1.0f, 0.25f };
-	m_d3dContext->ClearRenderTargetView(m_d3dOffscreenRenderTargetView.Get(), color);
-
-	m_d3dContext->ClearDepthStencilView(
-		m_d3dDepthStencilView.Get(),
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-		1.0f,
-		0);
-*/
-
-
-	//DrawSprites();
-	//DrawWrapper();
-	
-	// Restore the back buffer.
-	renderTargets[0] = m_d3dRenderTargetView.Get();
-
-	m_d3dContext->OMSetRenderTargets(
-		1,
-		m_d3dRenderTargetView.GetAddressOf(), //renderTargets,
 		m_d3dDepthStencilView.Get());
 
-	//float color2[4] = { 1.0f, 0.0f, 0.0f, 0.25f };
-	//m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView.Get(), color2);
-
 	m_d3dContext->ClearDepthStencilView(
 		m_d3dDepthStencilView.Get(),
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
 
-	DrawSprites();
 
+	// Draw fullscreen quad with texture of scene on it.
 
-	//DrawScreenQuad();
+	float color2[4] = { 1.0f, 0.0f, 0.0f, 0.25f };
+	m_d3dContext->ClearRenderTargetView(m_d3dRenderTargetView.Get(), color2);
+	m_d3dContext->ClearDepthStencilView(
+		m_d3dDepthStencilView.Get(),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		0);
 
-	//m_swapChain->Present(0, 0);
+	DrawScreenQuad();
+
+	m_swapChain->Present(1, 0);
 
 	//m_d3dContext->CopySubresourceRegion(
 	//	m_d3dRenderTargetView,
@@ -1096,16 +1109,6 @@ void Engine::Render()
 	//	)
 
 	// set the vertex buffer
-	//UINT stride = sizeof(VERTEX);
-	//UINT offset = 0;
-	//m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
-
-	//// set the primitive topology
-	//m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-
-	//// draw 3 vertices, starting from vertex 0
-	//m_d3dContext->Draw(4, 0);
-
 
 
 /*
@@ -1268,7 +1271,7 @@ void Engine::Run()
 			// OnKeyDown callback will check if the keyboard is used.
 
 			Render();
-			Present();
+//			Present();
 
 			m_pCollided->clear();
 		}
@@ -1733,8 +1736,8 @@ void Engine::DrawWrapper()
 
 		//stride = sizeof(VERTEX);
 		//offset = 0;
-//		m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
-		m_d3dContext->IASetInputLayout(NULL);
+		m_d3dContext->IASetVertexBuffers(0, 1, vertexbuffer.GetAddressOf(), &stride, &offset);
+//		m_d3dContext->IASetInputLayout(NULL);
 
 
 		// set the primitive topology
@@ -1818,23 +1821,30 @@ void Engine::DrawWrapper()
 
 void Engine::DrawScreenQuad()
 {
-	m_d3dContext->IASetInputLayout(InputLayouts::Basic32);
+
+
+
+
+
+	XMMATRIX identity = XMMatrixIdentity();
+
+	ID3DX11EffectTechnique* texOnlyTech = Effects::BasicFX->Light0TexTech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+
+	texOnlyTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
 	m_d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_d3dContext->IASetInputLayout(InputLayouts::Basic32);
 
 	UINT stride = sizeof(Vertex::Basic32);
 	UINT offset = 0;
 
-	XMMATRIX identity = XMMatrixIdentity();
+	m_d3dContext->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
+	m_d3dContext->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
 
 
-	//ID3DX11EffectTechnique* texOnlyTech = Effects::BasicFX->Light0TexTech;
-	//D3DX11_TECHNIQUE_DESC techDesc;
 
-	//texOnlyTech->GetDesc(&techDesc);
-	//for (UINT p = 0; p < techDesc.Passes; ++p)
-	{
-		m_d3dContext->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
-		m_d3dContext->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
 
 //		Effects::BasicFX->SetWorld(identity);
 		//Effects::BasicFX->SetWorldInvTranspose(identity);
@@ -1842,9 +1852,10 @@ void Engine::DrawScreenQuad()
 		//Effects::BasicFX->SetTexTransform(identity);
 		//Effects::BasicFX->SetDiffuseMap(mBlur.GetBlurredOutput());
 
-//		texOnlyTech->GetPassByIndex(p)->Apply(0, m_d3dContext);
-		m_d3dContext->DrawIndexed(1, 0, 0);
+		texOnlyTech->GetPassByIndex(p)->Apply(0, m_d3dContext.Get());
+		m_d3dContext->DrawIndexed(6, 0, 0);
 	}
+
 
 
 }

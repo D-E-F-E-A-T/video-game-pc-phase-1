@@ -1556,7 +1556,7 @@ extern "C" {
 //
 //----------------------------------------------------------------------------
 
-//HRESULT WINAPI D3DX11CreateEffectFromMemory(CONST void *pData, SIZE_T DataLength, UINT FXFlags, ID3D11Device *pDevice, ID3DX11Effect **ppEffect);
+HRESULT WINAPI D3DX11CreateEffectFromMemory(CONST void *pData, SIZE_T DataLength, UINT FXFlags, ID3D11Device *pDevice, ID3DX11Effect **ppEffect);
 
 #ifdef __cplusplus
 }

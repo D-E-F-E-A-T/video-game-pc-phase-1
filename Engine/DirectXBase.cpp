@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "GeometryGenerator.h"
 #include "vertex.h"
+#include "Effects.h"
 
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -27,6 +28,7 @@ void DirectXBase::Initialize(CoreWindow^ window, float dpi)
 	CreateDeviceIndependentResources();
 	CreateDeviceResources();
 	SetDpi(dpi);
+//	Effects::InitAll(m_d3dDevice.Get());
 
 	BuildScreenQuadGeometryBuffers();
 }
@@ -372,8 +374,13 @@ void DirectXBase::CreateWindowSizeDependentResources()
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
+	m_d3dDevice->CreateShaderResourceView(
+		m_renderTargetTexture, 
+		nullptr, 
+		&mOutputTexture);
+
 	// Create the render target view.
-	result = m_d3dDevice->CreateRenderTargetView(
+	m_d3dDevice->CreateRenderTargetView(
 		m_renderTargetTexture,
 		&renderTargetViewDesc,
 		&m_d3dOffscreenRenderTargetView);
@@ -571,11 +578,12 @@ void DirectXBase::Trim()
 
 void DirectXBase::BuildScreenQuadGeometryBuffers()
 {
+
 	GeometryGenerator::MeshData quad;
 
 	GeometryGenerator geoGen;
-	//geoGen.CreateFullscreenQuad(quad);
-	geoGen.CreateBox(100.f, 100.f, 1, 100, quad);
+	geoGen.CreateFullscreenQuad(quad);
+	//geoGen.CreateBox(100.f, 100.f, 1, 100, quad);
 
 	std::vector<Vertex::Basic32> vertices(quad.Vertices.size());
 
@@ -594,7 +602,11 @@ void DirectXBase::BuildScreenQuadGeometryBuffers()
 	vbd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = &vertices[0];
-	m_d3dDevice->CreateBuffer(&vbd, &vinitData, &mScreenQuadVB);
+
+	if (FAILED(m_d3dDevice->CreateBuffer(&vbd, &vinitData, &mScreenQuadVB)))
+	{
+		OutputDebugStringA("Failed to create buffer");
+	}
 
 	//
 	// Pack the indices of all the meshes into one index buffer.
@@ -608,5 +620,9 @@ void DirectXBase::BuildScreenQuadGeometryBuffers()
 	ibd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &quad.Indices[0];
-	m_d3dDevice->CreateBuffer(&ibd, &iinitData, &mScreenQuadIB);
+
+	if (FAILED(m_d3dDevice->CreateBuffer(&ibd, &iinitData, &mScreenQuadIB)))
+	{
+		OutputDebugStringA("Failed to create buffer");
+	}
 }

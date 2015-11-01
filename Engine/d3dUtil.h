@@ -11,7 +11,7 @@
 #endif
  
 #include "pch.h"
-#include "d3dx11Effect.h"
+//#include "d3dx11Effect.h"
 
 #include <cassert>
 #include <ctime>

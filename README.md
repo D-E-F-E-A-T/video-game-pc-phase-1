@@ -1,3 +1,4 @@
+# The Game Project, Stage 1
 # Simple Game Engine for 2D, Overhead-View, Role-Playing Games, in C++ and DirectX
 This project implements a simple game engine for 2D, overhead-view, role-playing games of the ilk of the original classic "The Legend of Zelda."
 

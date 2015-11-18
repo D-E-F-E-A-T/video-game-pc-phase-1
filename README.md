@@ -6,7 +6,7 @@ At its completion, this project could serve as a starter kit for students, hobby
 
 While advanced and mature out-of-the-box game engines such as Unity, Unreal, and Torque that can be used to create 3D games much more quickly, the purpose here is to create a pedagogical example from scratch using nothing more than C++ and DirectX 11.
 
-The starting point for this project was the Direct 3D Sprite example: (https://code.msdn.microsoft.com/windowsapps/Direct3D-sprite-sample-97ae6262/view/SourceCode#content
+The starting point for this project was the Direct 3D Sprite example: https://code.msdn.microsoft.com/windowsapps/Direct3D-sprite-sample-97ae6262#content
 
 
 Compilation
